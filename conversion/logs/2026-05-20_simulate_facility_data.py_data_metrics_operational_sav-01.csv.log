@@ -1,0 +1,15 @@
+script:     simulate_facility_data.py
+target:     data/metrics/operational/sav-01.csv
+row_count:  103
+status:     PASS
+checks_run:
+  - header matches schema
+  - row count >= 90
+  - date column (0) is YYYY-MM-DD
+  - date column (0) is sorted ascending
+  - facility_id column (1) == 'sav-01'
+  - no nulls in columns [0, 1, 2, 3, 4, 5]
+  - column 2 (units) in [0, 200000]
+  - column 3 (cph) in [0, 500]
+  - column 4 (error_rate) in [0, 50]
+  - column 5 (hours_run) in [0, 100]
