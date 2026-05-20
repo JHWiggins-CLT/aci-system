@@ -57,14 +57,14 @@ Practical effects on the plan:
 ## Status header
 
 ```yaml
-current_phase:          "Phase 3 complete (4/4 diagnostic calcs); Phases 4-5 broadening (2 playbooks, 2 investigations closed) + Phase 6 maintain procedures next"
-last_completed_step:    "Built avg.sh — the generic family-aware average (the family-aware generalization of avg_cph.sh) — so a damage/mispick/downtime signal gets the same clean baseline→spike→recovery three-number magnitude check that throughput investigations use for cph. 2 golden tests (avg_cph reproduces avg_cph.sh exactly on the operational fixture = 134.86; avg_damage = 20.29 on the exceptions fixture). verify.sh 7e (avg.sh == avg_cph.sh on live data) + 8b2 (live chr-03 damage spike = 28.36). Updated the damage_spike playbook Steps 1-2 to lead with the three avg.sh numbers, closing the magnitude-check gap Session 8 logged. verify.sh 43/43; 17 golden tests; reconcile clean."
-next_concrete_action:   "first maintain procedures (add_pattern.md, update_pattern.md, add_calc.md per Phase 6 priority); 1 A3 demonstration to meet Phase 5's original mix target."
+current_phase:          "Phase 6 started (3 priority maintain procedures + pattern template authored; maintain SKILL now partially proceduralized). Pattern files themselves still gated on the 3+-same-mechanism threshold (not met: 2 investigations, different mechanisms)."
+last_completed_step:    "Authored the 3 priority Phase 6 maintain procedures — add_calc.md (grounded in the correlate.sh/avg.sh builds: col_for, zero-safe filter, independent golden derivation, the git --chmod=+x exec-bit lesson), add_pattern.md (with an honest threshold gate — patterns/ stays empty until a mechanism hits 3 instances), update_pattern.md — plus the pattern.md template. maintain SKILL rewritten from 'scaffold-only' to 'partially proceduralized': routes to the 3 authored procedures, hand-walks the rest; anti-pattern + manifest description updated. reconcile rebuilt the maintain entry. verify.sh 43/43; 17 golden tests; reconcile clean."
+next_concrete_action:   "1 A3 demonstration to meet Phase 5's original 1-A3-plus-2-Kaizens mix; then continue Phase 4 broadening toward the 3rd investigation that could unlock the first real pattern (add_pattern.md's threshold)."
 in_progress_work:       null
 blocked_on:             null
 last_updated:           "2026-05-20"
-last_updated_by:        "session-2026-05-20-avg-generic-calc"
-sessions_logged:        10
+last_updated_by:        "session-2026-05-20-maintain-procedures"
+sessions_logged:        11
 ```
 
 > **Edit only the values, not the keys.** The keys are the contract; downstream tooling may read this block programmatically. If you need to write more than fits here, write it in the working log below.
@@ -83,7 +83,7 @@ Compact view of every phase. Update the Status column as phases progress. Use th
 | Phase 3 — Diagnostic calcs + events layer | complete | [cooccurrence.sh](calc/diagnostic/cooccurrence.sh), [segment_by.sh](calc/diagnostic/segment_by.sh), [change_drivers.sh](calc/diagnostic/change_drivers.sh), [correlate.sh](calc/diagnostic/correlate.sh), [data/events/](data/events/) | Events layer populated by simulator; all 4 core diagnostic calcs built (correlate.sh added 2026-05-20). `outlier_days.sh`/`compare_to_baseline.sh` remain deferred per plan 3.3 (not blocking). |
 | Phase 4 — signal-detect + investigate + first playbook | in progress | [throughput_drop.md](.skills/investigate/playbooks/throughput_drop.md) + [damage_spike.md](.skills/investigate/playbooks/damage_spike.md) playbooks; [2026-Q1/dal-02 throughput](data/investigations/2026-Q1/2026-03-15_dal-02_throughput_drop.md) + [2026-Q2/chr-03 damage](data/investigations/2026-Q2/2026-04-12_chr-03_damage_spike.md) investigations; [INDEX.md](data/investigations/INDEX.md) | 2 playbooks, 2 investigations closed end-to-end (drafted → floor → kaizen). chr-03 was run by **Codex operating the system live** (cross-LLM operability test), then damage_spike playbook authored from it. Both playbooks authored from real investigations, per plan 4.6. |
 | Phase 5 — close-loop + first A3/Kaizen + outcome calcs | in progress | [data/kaizens/open/k-2026-05-dal-02-trainer-ratio.md](data/kaizens/open/k-2026-05-dal-02-trainer-ratio.md), [data/follow_ups/INDEX.md](data/follow_ups/INDEX.md), [calc/outcome/follow_up_check.sh](calc/outcome/follow_up_check.sh) (1 of 3), [.skills/close-loop/procedures/](.skills/close-loop/procedures/) (open_kaizen, open_a3, reopen_investigation) | First Kaizen opened with 4 follow-up rows. Simulator hardened to preserve floor-intake event rows. Close-loop procedures (3 of 3 the SKILL routes to) now authored. Remaining: 1 A3 demonstration + 2 more Kaizens to meet the original Phase 5 mix target. |
-| Phase 6 — Pattern emergence + maintain skill | not started | [.skills/maintain/](.skills/maintain/) | maintain skill scaffold + a3/kaizen/facility_profile templates exist; patterns + procedures pending |
+| Phase 6 — Pattern emergence + maintain skill | in progress | [.skills/maintain/procedures/](.skills/maintain/procedures/) (add_calc, add_pattern, update_pattern), [pattern.md template](.skills/maintain/templates/pattern.md) | 3 priority procedures + pattern template authored; maintain SKILL now partially proceduralized. Pattern *files* still gated on the 3+-same-mechanism threshold (not met). `add_playbook.md` is next (Phase 8). |
 | Phase 7 — Threshold checkpoint | not started | — | — |
 | Phase 8 — Expansion (optional) | not started | — | — |
 
@@ -151,7 +151,8 @@ Compact view of every phase. Update the Status column as phases progress. Use th
 - Follow-ups: 6 rows in [data/follow_ups/INDEX.md](data/follow_ups/INDEX.md) (1 fired PASS, 5 pending; chr-03 rows track `damage --family exceptions`)
 - A3s / patterns: (none yet)
 - Close-loop procedures: 3 ([open_kaizen.md](.skills/close-loop/procedures/open_kaizen.md), [open_a3.md](.skills/close-loop/procedures/open_a3.md), [reopen_investigation.md](.skills/close-loop/procedures/reopen_investigation.md)) — matches the 3 the SKILL routes to
-- Maintain procedures: 0 of 9 planned (SKILL documented as scaffold-only)
+- Maintain procedures: 3 of 9 planned — [add_calc.md](.skills/maintain/procedures/add_calc.md), [add_pattern.md](.skills/maintain/procedures/add_pattern.md), [update_pattern.md](.skills/maintain/procedures/update_pattern.md) (the Phase 6.5 priority set). SKILL now routes to these and hand-walks the rest.
+- Maintain templates: 4 — a3, kaizen, facility_profile, [pattern.md](.skills/maintain/templates/pattern.md) (added 2026-05-20 for add_pattern)
 - Smoke test: [verify.sh](verify.sh) — 43 checks, all passing (Section 7e: avg.sh == avg_cph.sh on live data; Section 8b2: live chr-03 damage spike avg = 28.36)
 
 **Schema version currently deployed:** v1 (matches [calc/lib/_schema_v1.sh](calc/lib/_schema_v1.sh) and [data/metrics/MANIFEST.md](data/metrics/MANIFEST.md))
@@ -183,6 +184,8 @@ Each entry: date, what was decided, what was deviated from, why.
 | 2026-05-20 | Let reconcile normalize the manifest's skill paths from backslash to forward slash (`close-loop\SKILL.md` → `close-loop/SKILL.md`) | Manifest as committed (generated on Windows) | The committed `MANIFEST.yaml` had Windows path separators in every `path:` field — wrong on Linux/macOS and at odds with the project's stated model/platform-agnostic goal (`.gitattributes` already forces LF). reconcile.py running on Linux rewrites them to POSIX separators. Came along for free with the `investigate` SKILL hash update; kept deliberately. |
 | 2026-05-20 | `correlate.sh` resolves each metric's family automatically (bare `cph`) rather than requiring an explicit family arg | `segment_by.sh`/`change_drivers.sh` take family explicitly | Metric names are unique across the v1 schema, so a bare name resolves to exactly one family; this keeps the documented `correlate.sh dal-02 cph headcount_new` (one operational + one inputs metric) ergonomic. Explicit `family:metric` is still accepted for forward-safety if a future schema introduces a name collision — the resolver counts hits and errors on ambiguity rather than guessing. |
 | 2026-05-20 | Added `avg.sh` (generic family-aware average) and kept `avg_cph.sh` as an operational shorthand rather than deleting/aliasing it | `avg_cph.sh` was the only average and was cph-only | `avg_cph.sh` is referenced by name in `throughput_drop.md`, its own golden tests, and verify Section 7; deleting it would churn all of those for no gain. `avg.sh F cph` and `avg_cph.sh F` produce identical output (locked by golden `avg_cph` + verify 7e), so the shorthand stays valid while `avg.sh` covers every other family/metric. This closes the Session-8 gap where the damage_spike playbook had no clean three-number magnitude check. |
+| 2026-05-20 | Authored `add_pattern.md`/`update_pattern.md` with explicit "build-state note: no pattern exists yet, threshold not met" gates rather than waiting until a real pattern emerged | Plan 6.5 priority order (add_pattern/update_pattern first); but plan 6.1 says don't write patterns until 3+ same-mechanism investigations | Resolves the tension between the two: the *procedures* (the discipline) are authored now and are immediately useful for `add_calc.md`, while the *pattern files* stay correctly gated on the 3-instance threshold (currently 2 investigations, different mechanisms). The procedures encode the threshold check itself, so following them prevents the "premature pattern" pitfall rather than enabling it. |
+| 2026-05-20 | maintain SKILL moved from "scaffold-only" to "partially proceduralized" — routes to the 3 authored procedures, hand-walks the rest; `add_calc.md` authored *from* the just-completed correlate.sh/avg.sh builds | Earlier honest-scoping decision (2026-05-19) that made maintain scaffold-only because no procedures existed | Same honest-scoping principle, now that 3 procedures are real: the SKILL must advertise exactly what's on disk. `add_calc.md` is grounded in real calc-adding (the project's "author the procedure from the real thing" discipline), so it captures actual lessons — col_for resolver, zero-safe filter, independent golden derivation, and the git exec-bit bug — not theoretical steps. The investigate SKILL's `patterns/INDEX.md` "Phase 6 deferred" notes were deliberately left intact: the procedure existing does not mean a pattern instance exists. |
 
 ---
 
@@ -191,6 +194,20 @@ Each entry: date, what was decided, what was deviated from, why.
 Append-only. Each entry is one work session, dated, with what was done, what was noticed, what's coming next. Keep entries short — three to six lines is plenty. Detail belongs in the artifacts themselves.
 
 When the log gets long (say, 30+ entries), archive the oldest entries to `tracking_archive/YYYY-Qn.md` so this file stays scannable.
+
+### 2026-05-20 — Session 11 (first maintain procedures; Phase 6 started)
+
+- **Worked on:** the next tracker item — authored the 3 priority Phase 6 maintain procedures and the pattern template, and moved the maintain SKILL off "scaffold-only."
+- **Completed:**
+  - [add_calc.md](.skills/maintain/procedures/add_calc.md) — authored *from* the real correlate.sh/avg.sh builds, so it encodes the actual conventions: `col_for()` (never hardcode columns), the zero-safe numeric-regex filter, the single-vs-multi-family `DATA_ROOT` choice, **independent golden derivation** (don't let the calc validate itself), and `git add --chmod=+x` (the exec-bit bug from Session 9).
+  - [add_pattern.md](.skills/maintain/procedures/add_pattern.md) + [update_pattern.md](.skills/maintain/procedures/update_pattern.md) — with explicit build-state notes that the 3+-same-mechanism threshold is **not met** (2 closed investigations, different mechanisms), so `data/patterns/` is intentionally empty. The procedures encode the threshold gate itself.
+  - [pattern.md template](.skills/maintain/templates/pattern.md) — from handoff §10.2's shape (signal shape, co-occurring events, investigation steps, floor questions, resolution timeline, countermeasures worked/didn't, historical instances).
+  - [maintain SKILL](.skills/maintain/SKILL.md) rewritten: frontmatter + body now say "partially proceduralized," route to the 3 authored procedures, hand-walk the rest; the pattern-edit anti-pattern points at update_pattern.md. reconcile rebuilt the maintain entry (hash + description) in the manifest.
+- **Encountered:**
+  - The plan has an internal tension: 6.5 says author add_pattern/update_pattern *first*, but 6.1 says don't write a pattern until 3+ same-mechanism cases. Resolved by separating the procedure (authored now, immediately useful) from the pattern file (still gated). Logged as a decision.
+  - Left the investigate SKILL's `patterns/INDEX.md` "Phase 6 deferred" notes intact on purpose — a procedure existing is not a pattern instance existing. Changing those would re-introduce the exact "routes to a missing file" failure the honest-scoping decisions fought.
+  - Editing the maintain SKILL.md drifted its manifest hash (expected); one reconcile rebuilt it, verify then passed 43/43.
+- **Next session:** 1 A3 demonstration (Phase 5 mix target); then push Phase 4 toward a 3rd investigation whose mechanism could unlock the first real pattern via add_pattern.md.
 
 ### 2026-05-20 — Session 10 (generic avg.sh closes the magnitude-check gap)
 

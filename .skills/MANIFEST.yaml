@@ -1,5 +1,5 @@
 version: 1
-generated_at: 2026-05-20T11:50:38Z
+generated_at: 2026-05-20T12:20:32Z
 skills:
   - name: close-loop
     path: close-loop/SKILL.md
@@ -48,12 +48,13 @@ skills:
       Use when the user wants to edit the architecture itself — add a
       facility, add or update a calc, add or update a playbook, add an event
       type, add or update a pattern, update facility aliases, bump the
-      schema version, or deprecate a facility. **Currently scaffold-only:**
-      the procedure files that would normally enforce each edit have not
-      been authored yet (only the templates in `maintain/templates/` exist).
-      Operate as a discipline reminder plus a hand-walked checklist; confirm
-      scope with the user, copy any relevant template, execute the edit, and
-      verify by hand (`bash verify.sh`, `bash calc/tests/run.sh`, `python
+      schema version, or deprecate a facility. **Partially proceduralized:**
+      three procedures are authored and authoritative — `add_calc.md`,
+      `add_pattern.md`, `update_pattern.md` in `maintain/procedures/` (plus
+      templates in `maintain/templates/`); follow them step by step when
+      they match. Every other operation is still hand-walked — confirm scope
+      with the user, copy any relevant template, execute, and verify by hand
+      (`bash verify.sh`, `bash calc/tests/run.sh`, `python
       .skills/.meta/reconcile.py` as applicable). Do NOT use for running
       investigations (use `investigate`), for proactive scans (use
       `signal-detect`), or for closing the loop on a floor visit (use
@@ -67,7 +68,7 @@ skills:
       - 'add an event type'
       - 'deprecate'
       - 'update aliases'
-    content_hash: 2b4407b3e99753bc079703883a22bb8ae92679d1ae425c3540f1ec4b1534e97c
+    content_hash: 038f04981d78bf9ef17bae3694df62ea29ea233ce279ca65930950a4db601e48
   - name: signal-detect
     path: signal-detect/SKILL.md
     description: >
