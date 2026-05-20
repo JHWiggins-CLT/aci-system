@@ -254,7 +254,8 @@ When the log gets long (say, 30+ entries), archive the oldest entries to `tracki
   - **Manifest paths**: the Session-17 Windows `reconcile.py` runs reverted the committed POSIX skill paths to backslashes (`close-loop\SKILL.md`), contradicting the 2026-05-20 path-normalization decision. Root-caused in `reconcile.py` (now uses `as_posix()`); normalized MANIFEST.yaml back to forward slashes.
 - **Verified:** golden 20/20, verify 84/84, reconcile in sync (forward-slash paths). Edge cases spot-checked: trailing flag → exit 2; all-uncheckable → INCONCLUSIVE exit 4; zero-baseline → MOVED/n/a.
 - **Deliberately left** (Codex "warning", consistent with existing conventions): DATA_ROOT family-dir vs metrics-root differs by calc reach (matches follow_up_check vs change_drivers); numeric regex rejects `.5`/scientific notation (matches the existing zero-safe filter); bare-metric first-match resolver (no v1 name collisions). One genuine pre-existing gap noted, not changed: `damage_spike.md` lacks the Step 0 pattern check the new playbook template now standardizes.
-- **Next:** optional — add Step 0 to `damage_spike.md`; otherwise nothing required.
+- **Follow-up (done):** added the Step 0 pattern-library check to `damage_spike.md` so it matches the new playbook standard — it correctly notes no damage-specific pattern exists yet (the one live pattern is the CPH-drop equipment-downtime shape), with a cross-reference for the damage+equipment-downtime case. verify still 84/84.
+- **Next:** nothing required. Optional: capability modules (reports/graphing/presentations).
 
 ### 2026-05-20 — Session 15 (onboarding slices 2-5: setup branch is now real)
 
