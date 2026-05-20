@@ -56,6 +56,13 @@ run_test avg_cph_all "$CALC_ROOT/descriptive/avg_cph.sh" dal-02
 run_test avg_cph_windowed "$CALC_ROOT/descriptive/avg_cph.sh" dal-02 \
     --start 2026-03-06 --end 2026-03-10
 
+# avg (family-aware generalization of avg_cph) — must reproduce avg_cph on the
+# operational fixture, and average any column in another family via --family.
+run_test avg_cph "$CALC_ROOT/descriptive/avg.sh" dal-02 cph
+DATA_ROOT="$TMPDIR/metrics/exceptions" \
+    run_test avg_damage "$CALC_ROOT/descriptive/avg.sh" \
+    chr-test damage --family exceptions
+
 # total_units
 run_test total_units_all "$CALC_ROOT/descriptive/total_units.sh" dal-02
 run_test total_units_windowed "$CALC_ROOT/descriptive/total_units.sh" dal-02 \

@@ -16,13 +16,14 @@ Single-variable aggregations. Answer "what is the value of metric M at facility 
 
 | Calc | Question | Example |
 |------|----------|---------|
-| `avg_cph.sh` | Average CPH over a window | `avg_cph.sh dal-02 --start 2026-02-01 --end 2026-03-01` |
+| `avg.sh` | Average any metric (any family) over a window | `avg.sh chr-03 damage --family exceptions --start 2026-04-12 --end 2026-04-24` |
+| `avg_cph.sh` | Average CPH over a window (operational shorthand for `avg.sh F cph`) | `avg_cph.sh dal-02 --start 2026-02-01 --end 2026-03-01` |
 | `total_units.sh` | Total units shipped over a window | `total_units.sh dal-02 --start 2026-02-01 --end 2026-02-28` |
 | `days_below_target.sh` | Count of days a metric was below target (or above with `--max`) | `days_below_target.sh chr-03 damage --max 20 --family exceptions --start 2026-04-12 --end 2026-04-24` |
 | `worst_day.sh` | The single worst day for a metric in a window (direction auto-detected) | `worst_day.sh chr-03 damage --family exceptions --start 2026-04-12 --end 2026-04-24` |
 | `month_summary.sh` | Multi-metric monthly summary (operational only) | `month_summary.sh dal-02 --month 2026-02` |
 
-**`--family` flag (days_below_target, worst_day):** defaults to `operational`. Pass `--family exceptions` / `inputs` / `equipment` to scan any metric in that family — the metric name is resolved to its column via `col_for()` in `lib/_schema_v1.sh`. `worst_day` auto-selects direction: lower-is-worse for operational cph/units/hours_run, higher-is-worse for error_rate and all exceptions/equipment metrics; override with `--direction min|max`. `avg_cph.sh`, `total_units.sh`, and `month_summary.sh` remain operational-specific (a generic family-aware average is a candidate future calc).
+**`--family` flag (avg, days_below_target, worst_day):** defaults to `operational`. Pass `--family exceptions` / `inputs` / `equipment` to scan any metric in that family — the metric name is resolved to its column via `col_for()` in `lib/_schema_v1.sh`. `worst_day` auto-selects direction: lower-is-worse for operational cph/units/hours_run, higher-is-worse for error_rate and all exceptions/equipment metrics; override with `--direction min|max`. `avg.sh` is the family-aware generalization of `avg_cph.sh` (which is kept as the operational shorthand); `total_units.sh` and `month_summary.sh` remain operational-specific.
 
 ## Diagnostic calcs (`diagnostic/`)
 

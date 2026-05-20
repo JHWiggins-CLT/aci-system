@@ -58,13 +58,13 @@ Practical effects on the plan:
 
 ```yaml
 current_phase:          "Phase 3 complete (4/4 diagnostic calcs); Phases 4-5 broadening (2 playbooks, 2 investigations closed) + Phase 6 maintain procedures next"
-last_completed_step:    "Built correlate.sh — the last Phase 3 diagnostic — Pearson correlation between two metrics paired by date, auto-resolving each metric's family (or explicit family:metric); 2 golden tests (cph~units perfect +1.0000, cph~error_rate -0.9812, both independently re-derived in Python); verify.sh Section 5f (live cph~headcount_new is negative across the dal-02 onboarding window). Also fixed a fresh-clone portability bug: every .sh was committed mode 100644, so run.sh (which invokes scripts directly) failed with Permission denied on a clean checkout — restored the exec bit in git. Reconcile also normalized the committed manifest's Windows backslash paths (close-loop\\SKILL.md → close-loop/SKILL.md). verify.sh 41/41; 15 golden tests; reconcile clean."
-next_concrete_action:   "a generic family-aware average calc (avg.sh) so non-cph signal confirmation is as clean as cph's; first maintain procedures (add_pattern.md, update_pattern.md, add_calc.md per Phase 6 priority); 1 A3 demonstration to meet Phase 5's original mix target."
+last_completed_step:    "Built avg.sh — the generic family-aware average (the family-aware generalization of avg_cph.sh) — so a damage/mispick/downtime signal gets the same clean baseline→spike→recovery three-number magnitude check that throughput investigations use for cph. 2 golden tests (avg_cph reproduces avg_cph.sh exactly on the operational fixture = 134.86; avg_damage = 20.29 on the exceptions fixture). verify.sh 7e (avg.sh == avg_cph.sh on live data) + 8b2 (live chr-03 damage spike = 28.36). Updated the damage_spike playbook Steps 1-2 to lead with the three avg.sh numbers, closing the magnitude-check gap Session 8 logged. verify.sh 43/43; 17 golden tests; reconcile clean."
+next_concrete_action:   "first maintain procedures (add_pattern.md, update_pattern.md, add_calc.md per Phase 6 priority); 1 A3 demonstration to meet Phase 5's original mix target."
 in_progress_work:       null
 blocked_on:             null
 last_updated:           "2026-05-20"
-last_updated_by:        "session-2026-05-20-correlate-and-exec-fix"
-sessions_logged:        9
+last_updated_by:        "session-2026-05-20-avg-generic-calc"
+sessions_logged:        10
 ```
 
 > **Edit only the values, not the keys.** The keys are the contract; downstream tooling may read this block programmatically. If you need to write more than fits here, write it in the working log below.
@@ -130,13 +130,13 @@ Compact view of every phase. Update the Status column as phases progress. Use th
 **Skills built:** signal-detect, investigate, close-loop, maintain (all four from bootstrap)
 
 **Calcs built:**
-- descriptive: `avg_cph.sh`, `total_units.sh`, `days_below_target.sh`, `worst_day.sh`, `month_summary.sh` (5 of 5 — complete). `days_below_target` + `worst_day` are **family-aware** via `--family` (operational/exceptions/inputs/equipment); `avg_cph`/`total_units`/`month_summary` remain operational-only.
+- descriptive: `avg.sh`, `avg_cph.sh`, `total_units.sh`, `days_below_target.sh`, `worst_day.sh`, `month_summary.sh` (6 calcs). `avg`/`days_below_target`/`worst_day` are **family-aware** via `--family` (operational/exceptions/inputs/equipment); `avg.sh` is the generic generalization of `avg_cph.sh` (kept as operational shorthand); `total_units`/`month_summary` remain operational-only.
 - diagnostic: `cooccurrence.sh`, `segment_by.sh`, `change_drivers.sh`, `correlate.sh` (4 of 4 core — complete). `correlate.sh` is **multi-family**: each metric arg auto-resolves its family via `col_for()` (or takes an explicit `family:metric`), so `correlate.sh dal-02 cph headcount_new` pairs an operational metric with an inputs metric on date.
 - comparative: `peer_benchmark.sh` (1 of 3)
 - outcome: `follow_up_check.sh` (1 of 3) — **family-aware** via `--family`, so a follow-up can track the metric that actually moved (e.g. exceptions/damage) instead of an operational proxy
 - shared: `col_for()` + `worse_direction()` resolvers in [calc/lib/_schema_v1.sh](calc/lib/_schema_v1.sh) — single place to map a family/metric to its column
 
-**Golden tests:** 15 — the 13 prior + `correlate_cph_units` (perfect +1.0000 since units = 60×cph in the operational fixture) and `correlate_cph_error_rate` (-0.9812, strong negative). Both expected values independently re-derived in Python. All passing.
+**Golden tests:** 17 — the 15 prior + `avg_cph` (avg.sh reproduces avg_cph.sh = 134.86 on the operational fixture) and `avg_damage` (20.29 on the exceptions fixture). All passing.
 
 **Data files populated:**
 - Facility inventory: [data/facilities/INDEX.md](data/facilities/INDEX.md) + 8 profiles
@@ -152,7 +152,7 @@ Compact view of every phase. Update the Status column as phases progress. Use th
 - A3s / patterns: (none yet)
 - Close-loop procedures: 3 ([open_kaizen.md](.skills/close-loop/procedures/open_kaizen.md), [open_a3.md](.skills/close-loop/procedures/open_a3.md), [reopen_investigation.md](.skills/close-loop/procedures/reopen_investigation.md)) — matches the 3 the SKILL routes to
 - Maintain procedures: 0 of 9 planned (SKILL documented as scaffold-only)
-- Smoke test: [verify.sh](verify.sh) — 41 checks, all passing (Section 5f added: live cph~headcount_new correlation is negative across the dal-02 onboarding window)
+- Smoke test: [verify.sh](verify.sh) — 43 checks, all passing (Section 7e: avg.sh == avg_cph.sh on live data; Section 8b2: live chr-03 damage spike avg = 28.36)
 
 **Schema version currently deployed:** v1 (matches [calc/lib/_schema_v1.sh](calc/lib/_schema_v1.sh) and [data/metrics/MANIFEST.md](data/metrics/MANIFEST.md))
 
@@ -182,6 +182,7 @@ Each entry: date, what was decided, what was deviated from, why.
 | 2026-05-20 | Restored the executable bit (git mode 100755) on every `.sh` in the repo | The initial commit stored all scripts as 100644 (non-executable) | `calc/tests/run.sh` invokes calc scripts directly (`"$@"`, not `bash "$@"`), so on a *fresh clone* every golden test failed with "Permission denied" — the build's own verification was broken out of the box. The exec bits had been set in prior sessions' working trees but never committed (the mode change was invisible to those sessions because their local files were already +x). Verified: with the bit restored, run.sh goes 0→15 passing. |
 | 2026-05-20 | Let reconcile normalize the manifest's skill paths from backslash to forward slash (`close-loop\SKILL.md` → `close-loop/SKILL.md`) | Manifest as committed (generated on Windows) | The committed `MANIFEST.yaml` had Windows path separators in every `path:` field — wrong on Linux/macOS and at odds with the project's stated model/platform-agnostic goal (`.gitattributes` already forces LF). reconcile.py running on Linux rewrites them to POSIX separators. Came along for free with the `investigate` SKILL hash update; kept deliberately. |
 | 2026-05-20 | `correlate.sh` resolves each metric's family automatically (bare `cph`) rather than requiring an explicit family arg | `segment_by.sh`/`change_drivers.sh` take family explicitly | Metric names are unique across the v1 schema, so a bare name resolves to exactly one family; this keeps the documented `correlate.sh dal-02 cph headcount_new` (one operational + one inputs metric) ergonomic. Explicit `family:metric` is still accepted for forward-safety if a future schema introduces a name collision — the resolver counts hits and errors on ambiguity rather than guessing. |
+| 2026-05-20 | Added `avg.sh` (generic family-aware average) and kept `avg_cph.sh` as an operational shorthand rather than deleting/aliasing it | `avg_cph.sh` was the only average and was cph-only | `avg_cph.sh` is referenced by name in `throughput_drop.md`, its own golden tests, and verify Section 7; deleting it would churn all of those for no gain. `avg.sh F cph` and `avg_cph.sh F` produce identical output (locked by golden `avg_cph` + verify 7e), so the shorthand stays valid while `avg.sh` covers every other family/metric. This closes the Session-8 gap where the damage_spike playbook had no clean three-number magnitude check. |
 
 ---
 
@@ -190,6 +191,20 @@ Each entry: date, what was decided, what was deviated from, why.
 Append-only. Each entry is one work session, dated, with what was done, what was noticed, what's coming next. Keep entries short — three to six lines is plenty. Detail belongs in the artifacts themselves.
 
 When the log gets long (say, 30+ entries), archive the oldest entries to `tracking_archive/YYYY-Qn.md` so this file stays scannable.
+
+### 2026-05-20 — Session 10 (generic avg.sh closes the magnitude-check gap)
+
+- **Worked on:** the next tracker item after the Session-9 PR merged — built the generic family-aware `avg.sh` so non-cph signals get the same clean three-number magnitude check cph investigations already have.
+- **Completed:**
+  - [avg.sh](calc/descriptive/avg.sh) — average any metric in any family over a window (`--family`, `col_for()` resolver, same numeric-regex zero-safe filter as avg_cph). `avg.sh F cph` is byte-identical to `avg_cph.sh F`.
+  - 2 golden tests: `avg_cph` (134.86, proving avg.sh reproduces avg_cph.sh on the operational fixture) and `avg_damage` (20.29 on the exceptions fixture; 284/14 hand-checked). Suite **17/17**.
+  - [verify.sh](verify.sh) 7e (avg.sh == avg_cph.sh on live data, both 141.82) and 8b2 (live chr-03 damage spike avg = 28.36). Suite **43/43**.
+  - [damage_spike.md](.skills/investigate/playbooks/damage_spike.md) Steps 1-2 rewritten to lead with the three `avg.sh` numbers (baseline→spike→recovery), the exceptions mirror of `throughput_drop`'s three `avg_cph` numbers — closing the gap Session 8 explicitly logged.
+  - [calc/README.md](calc/README.md) descriptive table + `--family` note updated.
+- **Encountered:**
+  - Kept `avg_cph.sh` rather than aliasing/deleting it — it's referenced by name in the throughput_drop playbook, its own goldens, and verify Section 7. The two are locked equal by a golden + verify 7e, so the shorthand stays honest. Logged as a decision.
+  - Editing a *playbook* (not a SKILL.md) does not drift the manifest — reconcile stayed clean with no rebuild. Worth remembering: only the 4 SKILL.md files are content-hashed; playbooks/templates/procedures are free to edit without a reconcile cycle.
+- **Next session:** first maintain procedures (`add_pattern.md`, `update_pattern.md`, `add_calc.md` per Phase 6 priority); 1 A3 demonstration to meet Phase 5's original 1-A3-plus-2-Kaizens mix.
 
 ### 2026-05-20 — Session 9 (correlate.sh completes Phase 3; fresh-clone exec-bit fix)
 

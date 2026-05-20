@@ -22,24 +22,27 @@ Run these calcs in order. Stop and reassess if any step contradicts the working 
 **Step 1 — Confirm the spike shape.**
 
 ```
+bash calc/descriptive/avg.sh <facility> damage --family exceptions --start <baseline_start> --end <baseline_end>
+bash calc/descriptive/avg.sh <facility> damage --family exceptions --start <spike_start>    --end <spike_end>
+bash calc/descriptive/avg.sh <facility> damage --family exceptions --start <post_start>     --end <post_end>
 bash calc/descriptive/worst_day.sh <facility> damage --family exceptions \
     --start <spike_start> --end <spike_end>
 bash calc/descriptive/days_below_target.sh <facility> damage --max <ceiling> \
     --family exceptions --start <spike_start> --end <spike_end>
 ```
 
-`worst_day` gives the peak day and value; `days_below_target --max` counts how many days in the window breached the ceiling (use the facility's normal high-water mark as `<ceiling>`). A spike that breaches on only 1–2 days may be a one-off incident rather than a sustained problem — note that distinction in the brief.
+The three `avg.sh` calls are the magnitude check — the exceptions mirror of `throughput_drop`'s three `avg_cph` numbers. You should see baseline → spike → recovery (or baseline → spike → still-elevated). A spike <~40% above baseline does not justify a full investigation; close the loop with the user first. `worst_day` then gives the peak day and value; `days_below_target --max` counts how many days in the window breached the ceiling (use the facility's normal high-water mark as `<ceiling>`). A spike that breaches on only 1–2 days may be a one-off incident rather than a sustained problem — note that distinction in the brief.
 
 **Step 2 — Rule out network-wide.**
 
 ```
+bash calc/descriptive/avg.sh <peer_facility> damage --family exceptions --start <baseline_start> --end <baseline_end>
+bash calc/descriptive/avg.sh <peer_facility> damage --family exceptions --start <spike_start>    --end <spike_end>
 bash calc/descriptive/worst_day.sh <peer_facility> damage --family exceptions \
     --start <spike_start> --end <spike_end>
-bash calc/descriptive/days_below_target.sh <peer_facility> damage --max <ceiling> \
-    --family exceptions --start <spike_start> --end <spike_end>
 ```
 
-If the peer also spiked by a comparable amount, this is not a facility-specific damage issue — likely a network-wide cause (a shared carrier change, a network SOP rollout, a seasonal volume surge). Reframe with the user.
+Compare the peer's baseline→spike movement against the facility's. If the peer also spiked by a comparable amount, this is not a facility-specific damage issue — likely a network-wide cause (a shared carrier change, a network SOP rollout, a seasonal volume surge). Reframe with the user.
 
 **Step 3 — Find cooccurring events.**
 

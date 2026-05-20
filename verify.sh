@@ -269,6 +269,11 @@ assert_contains "month_summary dal-02 Feb avg_cph = 141.82" \
 assert_contains "month_summary dal-02 Feb total_units = 625780" \
     "$summary" "total_units | 625780"
 
+# 7e. avg.sh (generic) reproduces avg_cph.sh exactly on the live operational data.
+avg_generic=$(bash calc/descriptive/avg.sh dal-02 cph --start 2026-02-01 --end 2026-02-28)
+avg_cph=$(bash calc/descriptive/avg_cph.sh dal-02 --start 2026-02-01 --end 2026-02-28)
+assert_eq "avg.sh cph == avg_cph.sh (Feb baseline = 141.82)" "$avg_generic" "$avg_cph"
+
 # 8. Exceptions family is first-class (chr-03 damage spike) ----------------------
 section "8. Exceptions-family calcs + chr-03 damage close-loop"
 
@@ -283,6 +288,12 @@ assert_eq "worst_day chr-03 damage (spike window) = 2026-04-22 | 43.00" \
 ex_days=$(bash calc/descriptive/days_below_target.sh chr-03 damage --max 18 \
     --family exceptions --start 2026-04-12 --end 2026-04-24)
 assert_eq "days_below_target chr-03 damage>18 (spike) = 10/11" "$ex_days" "10/11"
+
+# 8b2. avg.sh gives the spike-window magnitude the damage_spike playbook now cites
+#      (the exceptions mirror of throughput_drop's three avg_cph numbers).
+ex_avg=$(bash calc/descriptive/avg.sh chr-03 damage --family exceptions \
+    --start 2026-04-12 --end 2026-04-24)
+assert_eq "avg.sh chr-03 damage (spike window) = 28.36" "$ex_avg" "28.36"
 
 # 8c. follow_up_check tracks the metric that actually moved (damage), not a proxy,
 #     and shows recovery to baseline after the floor's informal reversal.
