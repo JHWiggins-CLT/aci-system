@@ -1,14 +1,14 @@
 # ACI System — Operations Investigation Architecture
 
-A portfolio implementation of a continuous-improvement (CI) system for warehouse operations: signal detection, investigation, floor-feedback intake, A3/Kaizen generation, and outcome tracking — all routed through four description-gated skills any reasonably capable model can operate by reading [.skills/README.md](.skills/README.md) first.
+A portfolio implementation of a continuous-improvement (CI) system for warehouse operations: signal detection, investigation, floor-feedback intake, A3/Kaizen generation, and outcome tracking — all routed through description-gated skills any reasonably capable model can operate by reading [.skills/README.md](.skills/README.md) first. It ships in a safe **demo** mode and can be **onboarded onto real production data** when you're ready (see [Demo or production](#demo-or-production)).
 
-> **Portfolio piece, not production.** All data is simulated by [conversion/scripts/simulate_facility_data.py](conversion/scripts/simulate_facility_data.py) with a fixed seed. No real facilities, no PII, no production pipeline. The architectural discipline of the conversion boundary (validators, MANIFEST, audit logs) is preserved exactly as it would be against real Excel/CSV sources — only the source itself is synthetic.
+> **Portfolio piece by default — but productionizable.** Out of the box all data is simulated by [conversion/scripts/simulate_facility_data.py](conversion/scripts/simulate_facility_data.py) with a fixed seed: no real facilities, no PII, no production pipeline. The architectural discipline of the conversion boundary (validators, MANIFEST, audit logs) is preserved exactly as it would be against real Excel/CSV sources — only the source itself is synthetic. A guided setup flow swaps that synthetic source for your own data without touching the rest of the architecture.
 
 ## What this is
 
 An eight-layer system that takes a CI manager from "I see a signal" through "here is the floor brief" to "here is the A3 or Kaizen, here is whether it worked, here is what we learned." The architecture is specified in [handoff.md](handoff.md), built phase by phase per [implementation_plan.md](implementation_plan.md), and the live build state is recorded in [tracking.md](tracking.md).
 
-Four skills route the work:
+Five skills route the work — four drive the CI loop, plus `onboard` for setup:
 
 | Skill | When | Trigger phrases |
 |-------|------|----------------|
@@ -16,8 +16,18 @@ Four skills route the work:
 | [investigate](.skills/investigate/SKILL.md) | Dig into a specific signal | "investigate dal-02's throughput drop" |
 | [close-loop](.skills/close-loop/SKILL.md) | Back from the floor | "closing out the dal-02 investigation" |
 | [maintain](.skills/maintain/SKILL.md) | Edit the architecture | "add a calc", "update the pattern" |
+| [onboard](.skills/onboard/SKILL.md) | First-time / production setup | "set up production", "onboard my data" |
 
 The skills layer is described in [.skills/README.md](.skills/README.md). Only one skill loads per request; descriptions are mutually exclusive on purpose.
+
+## Demo or production
+
+On first run the system **greets you with a choice** (via Step 0 of the skills protocol): run in **demo** mode — explore the architecture against the built-in simulated data, the safe and reversible default — or **setup** mode — configure it against your own production data. The choice is recorded in `config/deployment.yaml` (helper: `python config/deployment.py get`) and is **sticky**; you can flip to setup at any time by saying *"set up production"*.
+
+- **Demo** runs everything in this README against the simulated dataset.
+- **Setup** is the [onboard](.skills/onboard/SKILL.md) skill — a guided flow (human mirror in [SETUP.md](SETUP.md)) that registers your facilities, maps your source through the conversion boundary (scaffold: [conversion/scripts/adapter_template.py](conversion/scripts/adapter_template.py)), backfills events, clears the demo history, and verifies. `verify.sh` is **mode-aware**: in production it runs the structural checks and automatically skips the demo-scenario ones, so a green run in production is a real acceptance gate.
+
+The full design and build status live in [onboarding_design.md](onboarding_design.md).
 
 ## Model-agnostic by design
 
@@ -50,16 +60,27 @@ bash calc/diagnostic/cooccurrence.sh dal-02 2026-03-15 --window 14
 # 5. Skills protocol in sync:
 python .skills/.meta/reconcile.py
 #   → No changes detected. Manifest is in sync.
+
+# 6. Deployment mode (a fresh checkout greets demo-vs-setup; this repo ships unset):
+python config/deployment.py get
+#   → unset    (pick demo to explore, or say "set up production" to onboard your data)
+
+# 7. Full smoke test (mode-aware: all checks in demo/unset, structural-only in production):
+bash verify.sh
+#   → Results: 82 passed, 0 failed
 ```
 
 ## Project layout
 
 ```
-.skills/         # Protocol README, MANIFEST, four skills, .meta tooling
+.skills/         # Protocol README, MANIFEST, five skills (incl. onboard), .meta tooling
 calc/            # Bash calc library (descriptive, diagnostic, comparative, outcome)
-conversion/      # The data boundary — validators, simulator, manifest, audit logs
-data/            # Canonical CSVs (metrics, events, facilities, investigations, ...)
+conversion/      # The data boundary — validators, simulator, adapter template, manifest, logs
+config/          # Deployment mode (demo vs production): deployment.yaml(.example) + helper
+data/            # Canonical CSVs (metrics, events, facilities, investigations, patterns, ...)
 simulate/        # Helper scripts used to scaffold the portfolio dataset
+SETUP.md         # Production onboarding guide (human mirror of the onboard skill)
+onboarding_design.md    # Design + build status for the demo→production onboarding
 handoff.md       # Architecture specification (what the system is when complete)
 implementation_plan.md  # Build sequence (how to get from nothing to complete)
 tracking.md      # Live build state (where the build is right now)
@@ -87,4 +108,4 @@ Plus background events (audits, weather, volume shocks, leadership changes, netw
 
 ## Current build state
 
-See [tracking.md](tracking.md) for the live status header, phase progress table, and working log. Phase 0 (conversion boundary, adapted for simulated data) and Phase 1 (architecture skeleton) are complete; Phases 2-7 are the remaining build sequence per the implementation plan.
+See [tracking.md](tracking.md) for the live status header, phase progress table, and working log. The core CI loop is complete and demonstrated end-to-end (signal → investigate → close-loop → outcome tracking, with the first abstracted pattern feeding the playbook), and a production-onboarding path (demo → setup, slices 1–6) is built on top of it. Only optional capability modules (reports, graphing, presentations) remain — see [onboarding_design.md](onboarding_design.md) §5.
