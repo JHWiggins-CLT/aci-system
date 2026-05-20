@@ -95,6 +95,17 @@ DATA_ROOT="$TMPDIR/metrics" \
     dal-02 --baseline 2026-03-01:2026-03-07 --comparison 2026-03-08:2026-03-14 \
     --family operational
 
+# correlate (diagnostic) — expects DATA_ROOT to be the metrics/ root. units is
+# exactly 60*cph in the fixture (perfect positive); error_rate moves inversely
+# to cph (strong negative). Both pairs are intra-operational so the single
+# operational fixture covers them.
+DATA_ROOT="$TMPDIR/metrics" \
+    run_test correlate_cph_units "$CALC_ROOT/diagnostic/correlate.sh" \
+    dal-02 cph units
+DATA_ROOT="$TMPDIR/metrics" \
+    run_test correlate_cph_error_rate "$CALC_ROOT/diagnostic/correlate.sh" \
+    dal-02 cph error_rate
+
 rm -rf "$TMPDIR"
 
 echo

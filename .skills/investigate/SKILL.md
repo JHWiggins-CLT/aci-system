@@ -44,7 +44,7 @@ Do NOT use when the user is asking for a proactive scan — that is `signal-dete
 
 - **Reads:** `investigate/playbooks/{signal_type}.md`, `brief_template.md`, `data/investigations/INDEX.md`, `data/patterns/INDEX.md` (if it exists; otherwise note as deferred), `data/metrics/operational/{facility}.csv`, `data/events/{facility}.csv`, any historical investigation file referenced.
 - **Writes:** `data/investigations/open/{date}_{facility}_{signal}.md`, `data/investigations/INDEX.md` (appends one row).
-- **Calls:** every calc the playbook specifies. Currently implemented: `cooccurrence.sh`, `segment_by.sh`, `change_drivers.sh` in `calc/diagnostic/`. `correlate.sh` and `outlier_days.sh` are listed in the handoff but not yet authored — playbooks should not reference them until they exist.
+- **Calls:** every calc the playbook specifies. Currently implemented: `cooccurrence.sh`, `segment_by.sh`, `change_drivers.sh`, `correlate.sh` in `calc/diagnostic/`. `outlier_days.sh` is listed in the handoff but not yet authored — playbooks should not reference it until it exists.
 
 ## Anti-patterns
 

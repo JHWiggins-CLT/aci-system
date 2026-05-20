@@ -1,0 +1,11 @@
+script:     simulate_facility_data.py
+target:     data/events/network.csv
+row_count:  3
+status:     PASS
+checks_run:
+  - header matches schema
+  - row count >= 0
+  - date column (0) is YYYY-MM-DD
+  - date column (0) is sorted ascending
+  - event_type column (1) is in taxonomy
+  - no nulls in columns [0, 1, 2, 3]

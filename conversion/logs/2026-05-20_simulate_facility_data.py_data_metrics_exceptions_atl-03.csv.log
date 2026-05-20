@@ -1,0 +1,16 @@
+script:     simulate_facility_data.py
+target:     data/metrics/exceptions/atl-03.csv
+row_count:  103
+status:     PASS
+checks_run:
+  - header matches schema
+  - row count >= 90
+  - date column (0) is YYYY-MM-DD
+  - date column (0) is sorted ascending
+  - facility_id column (1) == 'atl-03'
+  - no nulls in columns [0, 1, 2, 3, 4, 5, 6]
+  - column 2 (damage) in [0, 5000]
+  - column 3 (missort) in [0, 5000]
+  - column 4 (mispick) in [0, 5000]
+  - column 5 (lost) in [0, 5000]
+  - column 6 (late_pick) in [0, 5000]

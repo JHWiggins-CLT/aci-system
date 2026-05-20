@@ -57,14 +57,14 @@ Practical effects on the plan:
 ## Status header
 
 ```yaml
-current_phase:          "Phase 4 — broaden investigation library (2 playbooks, 2 investigations closed; Phase 3 needs only correlate.sh)"
-last_completed_step:    "Closed the exceptions-family gap surfaced by Codex *operating* the system live (not reviewing it): made days_below_target/worst_day/follow_up_check family-aware via a --family flag + col_for() resolver in _schema_v1.sh; authored the damage_spike playbook; updated signal-detect to scan exceptions; re-pointed the chr-03 Kaizen + follow-ups to track `damage` directly instead of an error_rate proxy; added 2 exceptions golden tests + verify.sh Section 8. verify.sh 39/39; 13 golden tests; reconcile clean."
-next_concrete_action:   "correlate.sh (last Phase 3 diagnostic); a generic family-aware average calc (avg.sh) so non-cph signal confirmation is as clean as cph's; first maintain procedures (add_pattern.md, update_pattern.md, add_calc.md per Phase 6 priority); 1 A3 demonstration to meet Phase 5's original mix target."
+current_phase:          "Phase 3 complete (4/4 diagnostic calcs); Phases 4-5 broadening (2 playbooks, 2 investigations closed) + Phase 6 maintain procedures next"
+last_completed_step:    "Built correlate.sh — the last Phase 3 diagnostic — Pearson correlation between two metrics paired by date, auto-resolving each metric's family (or explicit family:metric); 2 golden tests (cph~units perfect +1.0000, cph~error_rate -0.9812, both independently re-derived in Python); verify.sh Section 5f (live cph~headcount_new is negative across the dal-02 onboarding window). Also fixed a fresh-clone portability bug: every .sh was committed mode 100644, so run.sh (which invokes scripts directly) failed with Permission denied on a clean checkout — restored the exec bit in git. Reconcile also normalized the committed manifest's Windows backslash paths (close-loop\\SKILL.md → close-loop/SKILL.md). verify.sh 41/41; 15 golden tests; reconcile clean."
+next_concrete_action:   "a generic family-aware average calc (avg.sh) so non-cph signal confirmation is as clean as cph's; first maintain procedures (add_pattern.md, update_pattern.md, add_calc.md per Phase 6 priority); 1 A3 demonstration to meet Phase 5's original mix target."
 in_progress_work:       null
 blocked_on:             null
-last_updated:           "2026-05-19"
-last_updated_by:        "session-2026-05-19-aci-codex-live-operate"
-sessions_logged:        8
+last_updated:           "2026-05-20"
+last_updated_by:        "session-2026-05-20-correlate-and-exec-fix"
+sessions_logged:        9
 ```
 
 > **Edit only the values, not the keys.** The keys are the contract; downstream tooling may read this block programmatically. If you need to write more than fits here, write it in the working log below.
@@ -80,7 +80,7 @@ Compact view of every phase. Update the Status column as phases progress. Use th
 | Phase 0 — Data conversion | complete | [conversion/](conversion/), [data/metrics/](data/metrics/), [data/events/](data/events/) | Reframed for simulated data; see project-wide deviation above |
 | Phase 1 — Architecture skeleton | complete | [.skills/](.skills/), [data/facilities/](data/facilities/), [data/metrics/MANIFEST.md](data/metrics/MANIFEST.md), [calc/lib/_schema_v1.sh](calc/lib/_schema_v1.sh) | Bootstrap delivered the skills layer and one example calc per family; this session added the data skeleton, facility INDEX + 8 profiles, metrics + events MANIFESTs |
 | Phase 2 — First metric family + descriptive calcs | complete | [calc/descriptive/](calc/descriptive/) (5 calcs), [calc/tests/](calc/tests/) (11 golden tests) | All 5 descriptive calcs built (avg_cph, total_units, days_below_target, worst_day, month_summary); each has golden tests; calc/README.md updated; verify.sh Section 7 locks them against live dataset |
-| Phase 3 — Diagnostic calcs + events layer | in progress | [cooccurrence.sh](calc/diagnostic/cooccurrence.sh), [segment_by.sh](calc/diagnostic/segment_by.sh), [change_drivers.sh](calc/diagnostic/change_drivers.sh), [data/events/](data/events/) | Events layer populated by simulator; 3 of 4 diagnostic calcs built (correlate.sh remaining) |
+| Phase 3 — Diagnostic calcs + events layer | complete | [cooccurrence.sh](calc/diagnostic/cooccurrence.sh), [segment_by.sh](calc/diagnostic/segment_by.sh), [change_drivers.sh](calc/diagnostic/change_drivers.sh), [correlate.sh](calc/diagnostic/correlate.sh), [data/events/](data/events/) | Events layer populated by simulator; all 4 core diagnostic calcs built (correlate.sh added 2026-05-20). `outlier_days.sh`/`compare_to_baseline.sh` remain deferred per plan 3.3 (not blocking). |
 | Phase 4 — signal-detect + investigate + first playbook | in progress | [throughput_drop.md](.skills/investigate/playbooks/throughput_drop.md) + [damage_spike.md](.skills/investigate/playbooks/damage_spike.md) playbooks; [2026-Q1/dal-02 throughput](data/investigations/2026-Q1/2026-03-15_dal-02_throughput_drop.md) + [2026-Q2/chr-03 damage](data/investigations/2026-Q2/2026-04-12_chr-03_damage_spike.md) investigations; [INDEX.md](data/investigations/INDEX.md) | 2 playbooks, 2 investigations closed end-to-end (drafted → floor → kaizen). chr-03 was run by **Codex operating the system live** (cross-LLM operability test), then damage_spike playbook authored from it. Both playbooks authored from real investigations, per plan 4.6. |
 | Phase 5 — close-loop + first A3/Kaizen + outcome calcs | in progress | [data/kaizens/open/k-2026-05-dal-02-trainer-ratio.md](data/kaizens/open/k-2026-05-dal-02-trainer-ratio.md), [data/follow_ups/INDEX.md](data/follow_ups/INDEX.md), [calc/outcome/follow_up_check.sh](calc/outcome/follow_up_check.sh) (1 of 3), [.skills/close-loop/procedures/](.skills/close-loop/procedures/) (open_kaizen, open_a3, reopen_investigation) | First Kaizen opened with 4 follow-up rows. Simulator hardened to preserve floor-intake event rows. Close-loop procedures (3 of 3 the SKILL routes to) now authored. Remaining: 1 A3 demonstration + 2 more Kaizens to meet the original Phase 5 mix target. |
 | Phase 6 — Pattern emergence + maintain skill | not started | [.skills/maintain/](.skills/maintain/) | maintain skill scaffold + a3/kaizen/facility_profile templates exist; patterns + procedures pending |
@@ -131,12 +131,12 @@ Compact view of every phase. Update the Status column as phases progress. Use th
 
 **Calcs built:**
 - descriptive: `avg_cph.sh`, `total_units.sh`, `days_below_target.sh`, `worst_day.sh`, `month_summary.sh` (5 of 5 — complete). `days_below_target` + `worst_day` are **family-aware** via `--family` (operational/exceptions/inputs/equipment); `avg_cph`/`total_units`/`month_summary` remain operational-only.
-- diagnostic: `cooccurrence.sh`, `segment_by.sh`, `change_drivers.sh` (3 of 4 — correlate.sh remaining)
+- diagnostic: `cooccurrence.sh`, `segment_by.sh`, `change_drivers.sh`, `correlate.sh` (4 of 4 core — complete). `correlate.sh` is **multi-family**: each metric arg auto-resolves its family via `col_for()` (or takes an explicit `family:metric`), so `correlate.sh dal-02 cph headcount_new` pairs an operational metric with an inputs metric on date.
 - comparative: `peer_benchmark.sh` (1 of 3)
 - outcome: `follow_up_check.sh` (1 of 3) — **family-aware** via `--family`, so a follow-up can track the metric that actually moved (e.g. exceptions/damage) instead of an operational proxy
 - shared: `col_for()` + `worse_direction()` resolvers in [calc/lib/_schema_v1.sh](calc/lib/_schema_v1.sh) — single place to map a family/metric to its column
 
-**Golden tests:** 13 — the 11 prior + `worst_day_damage`, `days_below_target_damage` (exceptions-family fixture [exceptions_chr-test.csv](calc/tests/golden/exceptions_chr-test.csv)). All passing.
+**Golden tests:** 15 — the 13 prior + `correlate_cph_units` (perfect +1.0000 since units = 60×cph in the operational fixture) and `correlate_cph_error_rate` (-0.9812, strong negative). Both expected values independently re-derived in Python. All passing.
 
 **Data files populated:**
 - Facility inventory: [data/facilities/INDEX.md](data/facilities/INDEX.md) + 8 profiles
@@ -152,7 +152,7 @@ Compact view of every phase. Update the Status column as phases progress. Use th
 - A3s / patterns: (none yet)
 - Close-loop procedures: 3 ([open_kaizen.md](.skills/close-loop/procedures/open_kaizen.md), [open_a3.md](.skills/close-loop/procedures/open_a3.md), [reopen_investigation.md](.skills/close-loop/procedures/reopen_investigation.md)) — matches the 3 the SKILL routes to
 - Maintain procedures: 0 of 9 planned (SKILL documented as scaffold-only)
-- Smoke test: [verify.sh](verify.sh) — 39 checks, all passing (Section 8 added for exceptions-family + chr-03 close-loop)
+- Smoke test: [verify.sh](verify.sh) — 41 checks, all passing (Section 5f added: live cph~headcount_new correlation is negative across the dal-02 onboarding window)
 
 **Schema version currently deployed:** v1 (matches [calc/lib/_schema_v1.sh](calc/lib/_schema_v1.sh) and [data/metrics/MANIFEST.md](data/metrics/MANIFEST.md))
 
@@ -179,6 +179,9 @@ Each entry: date, what was decided, what was deviated from, why.
 | 2026-05-19 | Exceptions metrics made first-class: `days_below_target.sh`, `worst_day.sh`, `follow_up_check.sh` gained a `--family` flag (default operational) backed by a `col_for()` resolver in `_schema_v1.sh`. `worst_day` direction is family-aware (exceptions/equipment = higher-is-worse). | The three calcs were operational-only; metric→column was a hardcoded `case` block in each | Codex hit this by *operating* the system: signal-detect surfaced the chr-03 damage signal (an exceptions metric), but no descriptive calc could scan it and no outcome calc could track it — Codex had to drop to raw awk and then close the loop against an `error_rate` proxy. The flag (vs a positional family arg like segment_by uses) keeps every existing invocation, golden test, and follow_ups row working unchanged. |
 | 2026-05-19 | chr-03 Kaizen + follow-ups re-pointed from `error_rate <= 2.8` (operational proxy) to `damage <= 18 --family exceptions` (the metric that actually spiked). Ceiling 18 = just above the 72-day baseline max of 17. | Codex's live run tracked the proxy because follow_up_check was operational-only at the time | Closing a loop against a correlated-but-different metric is a silent CI failure — the follow-up could pass while damage regressed. Now that follow_up_check is family-aware, the loop verifies the real metric. |
 | 2026-05-19 | `damage_spike.md` playbook authored from the chr-03 investigation; chr-03 investigation frontmatter updated from `OFF-PLAYBOOK` to reference it | chr-03 ran off-playbook (no damage playbook existed at draft time) | Same pattern as dal-02/throughput_drop: author the playbook *from* the first real investigation, then link the investigation to it. The investigation's PLAYBOOK PROVENANCE note records that it predates the playbook so history isn't rewritten. |
+| 2026-05-20 | Restored the executable bit (git mode 100755) on every `.sh` in the repo | The initial commit stored all scripts as 100644 (non-executable) | `calc/tests/run.sh` invokes calc scripts directly (`"$@"`, not `bash "$@"`), so on a *fresh clone* every golden test failed with "Permission denied" — the build's own verification was broken out of the box. The exec bits had been set in prior sessions' working trees but never committed (the mode change was invisible to those sessions because their local files were already +x). Verified: with the bit restored, run.sh goes 0→15 passing. |
+| 2026-05-20 | Let reconcile normalize the manifest's skill paths from backslash to forward slash (`close-loop\SKILL.md` → `close-loop/SKILL.md`) | Manifest as committed (generated on Windows) | The committed `MANIFEST.yaml` had Windows path separators in every `path:` field — wrong on Linux/macOS and at odds with the project's stated model/platform-agnostic goal (`.gitattributes` already forces LF). reconcile.py running on Linux rewrites them to POSIX separators. Came along for free with the `investigate` SKILL hash update; kept deliberately. |
+| 2026-05-20 | `correlate.sh` resolves each metric's family automatically (bare `cph`) rather than requiring an explicit family arg | `segment_by.sh`/`change_drivers.sh` take family explicitly | Metric names are unique across the v1 schema, so a bare name resolves to exactly one family; this keeps the documented `correlate.sh dal-02 cph headcount_new` (one operational + one inputs metric) ergonomic. Explicit `family:metric` is still accepted for forward-safety if a future schema introduces a name collision — the resolver counts hits and errors on ambiguity rather than guessing. |
 
 ---
 
@@ -187,6 +190,20 @@ Each entry: date, what was decided, what was deviated from, why.
 Append-only. Each entry is one work session, dated, with what was done, what was noticed, what's coming next. Keep entries short — three to six lines is plenty. Detail belongs in the artifacts themselves.
 
 When the log gets long (say, 30+ entries), archive the oldest entries to `tracking_archive/YYYY-Qn.md` so this file stays scannable.
+
+### 2026-05-20 — Session 9 (correlate.sh completes Phase 3; fresh-clone exec-bit fix)
+
+- **Worked on:** picking up the tracker's `next_concrete_action` — built `correlate.sh`, the last Phase 3 diagnostic — and fixed a portability bug that surfaced the moment I tried to run the existing golden suite on this fresh container.
+- **Completed:**
+  - [correlate.sh](calc/diagnostic/correlate.sh) — Pearson correlation between two metrics, paired by date (inner join), strength bucketed on |r| (strong/moderate/weak/negligible + sign). Each metric arg auto-resolves its family via `col_for()` or takes an explicit `family:metric`. Sources `_schema_v1.sh`; same arg-parse/awk shape as the other diagnostics. Prints `NA` for n<2 or zero variance.
+  - 2 golden tests + expected files (`correlate_cph_units` = +1.0000, `correlate_cph_error_rate` = -0.9812). Both values independently re-derived in Python so the golden isn't just the calc validating itself. Suite now **15/15**.
+  - [verify.sh](verify.sh) Section 5f — on the live dataset, `correlate dal-02 cph headcount_new` over the Feb–Mar onboarding window is **negative** (-0.4337, moderate), the cohort story showing up a third independent way (after change_drivers and the floor intake). Suite now **41/41**.
+  - Docs synced: [calc/README.md](calc/README.md) (correlate no longer "to be built"), [investigate SKILL](.skills/investigate/SKILL.md) Calls list (correlate now implemented; only `outlier_days.sh` remains deferred). Manifest reconciled (investigate hash + path normalization).
+  - **Phase 3 marked complete** in the phase table — all 4 core diagnostic calcs built, each golden-tested; `outlier_days.sh`/`compare_to_baseline.sh` stay deferred per plan 3.3.
+- **Encountered:**
+  - The fresh container exposed two latent cross-platform bugs the originating (Windows) sessions couldn't see: (1) every `.sh` was committed mode 100644, so `run.sh` — which executes scripts directly — failed with "Permission denied" on a clean checkout; restored the exec bit in git. (2) `MANIFEST.yaml` had Windows backslash paths; reconcile normalized them to `/`. Both are logged as decisions. Lesson worth keeping: a build that "passes verify" in its authoring environment can still be broken on first clone — the exec bit and path separators are exactly the kind of thing that only a different OS surfaces.
+  - Re-running the simulator (verify.sh Section 3 determinism check) regenerates dated audit logs under `conversion/logs/`. The 2026-05-20 logs are pure verification noise (identical data, new date) and were deliberately **not** committed.
+- **Next session:** generic family-aware `avg.sh` (so non-cph signal confirmation is as clean as cph's three-number magnitude check); first maintain procedures (`add_pattern.md`, `update_pattern.md`, `add_calc.md` per Phase 6 priority); 1 A3 demonstration to meet Phase 5's original 1-A3-plus-2-Kaizens mix.
 
 ### 2026-05-19 — Session 8 (Codex operates the system live; exceptions-family gap closed)
 
