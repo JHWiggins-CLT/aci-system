@@ -1,0 +1,4 @@
+date,event_type,description,source
+2026-01-19,deployment,WMS 2026.1 minor release across all facilities,simulator-seed
+2026-02-16,holiday,Presidents' Day observed; reduced inbound flow,simulator-seed
+2026-05-25,holiday,"Memorial Day observed (upcoming, scheduling impact this week)",simulator-seed

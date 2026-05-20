@@ -1,0 +1,7 @@
+date,facility_id,event_type,description,source
+2026-02-09,dal-02,audit,Quarterly internal pick-accuracy audit (passed),simulator-seed
+2026-03-02,dal-02,training,Cohort of 6 new hires onboarded; 4 to night shift,simulator-seed
+2026-03-02,dal-02,leadership_change,Night-shift lead role vacant — lead trainer pulled to dual-cover during week-1 certification,floor-intake-2026-05-18
+2026-03-06,dal-02,training,Pick certification week 1 begins for Mar-02 cohort,simulator-seed
+2026-03-18,dal-02,training,Cohort member resigned in week 3 of pick certification; effective cohort size dropped to 5,floor-intake-2026-05-18
+2026-04-27,dal-02,leadership_change,Night shift supervisor change (Reyes → Patel),simulator-seed

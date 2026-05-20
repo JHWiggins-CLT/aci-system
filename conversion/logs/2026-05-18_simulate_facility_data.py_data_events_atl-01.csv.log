@@ -1,0 +1,10 @@
+script:     simulate_facility_data.py
+target:     data/events/atl-01.csv
+row_count:  2
+status:     PASS
+checks_run:
+  - header matches schema
+  - row count >= 0
+  - date column (0) is YYYY-MM-DD
+  - facility_id column (1) == 'atl-01'
+  - event_type column (2) is in taxonomy

@@ -1,0 +1,3 @@
+date,facility_id,event_type,description,source
+2026-01-28,atl-01,system_change,Scanner firmware update on handheld fleet,simulator-seed
+2026-03-11,atl-01,training,Cross-training cohort: 8 associates begin zone rotation,simulator-seed

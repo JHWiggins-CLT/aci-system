@@ -1,0 +1,6 @@
+date,facility_id,event_type,description,source
+2026-02-01,chr-03,leadership_change,New facility manager (Diaz) starts,simulator-seed
+2026-04-08,chr-03,sop_change,Bin relocation in zones 3-4 to consolidate high-velocity SKUs,simulator-seed
+2026-04-11,chr-03,training,Brief team huddles introducing new bin map,simulator-seed
+2026-04-12,chr-03,sop_change,Bin relocation in zones 3-4 effective date -- damage spike begins as high-velocity SKUs now in tighter aisle with higher stacks,floor-intake-2026-05-19
+2026-05-15,chr-03,sop_change,Informal partial reversal of bin relocation for top 6 high-velocity SKUs; damage returned to normal levels,floor-intake-2026-05-19

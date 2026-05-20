@@ -1,0 +1,3 @@
+date,facility_id,event_type,description,source
+2026-02-26,atl-03,equipment_install,Dock door 7 motor replaced,simulator-seed
+2026-04-14,atl-03,audit,External transportation audit (advance notice),simulator-seed

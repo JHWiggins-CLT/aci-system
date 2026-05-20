@@ -1,0 +1,88 @@
+version: 1
+generated_at: 2026-05-20T01:54:01Z
+skills:
+  - name: close-loop
+    path: close-loop\SKILL.md
+    description: >
+      Use when the user returns from a floor visit and wants to close out an
+      investigation — capture floor findings, decide what comes next
+      (Kaizen, A3, close, re-open, escalate), and produce the corresponding
+      artifacts with follow-up schedules. Triggers on phrases like "closing
+      out the investigation," "back from the floor," "floor findings on X,"
+      "we confirmed it was Y," "draft the A3 for Z," "open a Kaizen for W,"
+      or any phrasing that indicates the user has been to the floor and is
+      bringing findings back. Do NOT use for proactive scans (use
+      `signal-detect`), for new investigations (use `investigate`), or for
+      editing the architecture (use `maintain`).
+    triggers:
+      - 'closing out'
+      - 'back from the floor'
+      - 'floor findings'
+      - 'we confirmed'
+      - 'draft the A3'
+      - 'open a Kaizen'
+      - 'we ruled out'
+    content_hash: 79509169d5cd43a57ab5404f17f0a5434d7dcdc8fee41d0f48d467bf7de4ad61
+  - name: investigate
+    path: investigate\SKILL.md
+    description: >
+      Use when the user wants to investigate a specific signal at a specific
+      facility — typically picked from the output of `signal-detect` or
+      arrived at independently. Runs a playbook end-to-end, executes
+      diagnostic calcs, checks pattern history, drafts hypotheses, and
+      produces a floor brief saved to `data/investigations/open/` with
+      state=drafted. Do NOT use for proactive scans (use `signal-detect`),
+      for closing out floor findings (use `close-loop`), or for editing the
+      architecture (use `maintain`).
+    triggers:
+      - 'investigate'
+      - 'look into'
+      - 'dig into'
+      - 'why is X dropping'
+      - 'what is going on with'
+      - 'draft a brief for'
+    content_hash: e834b5a67648d7e87846a17a364e9d10cc4f9800675c5288ec330f0ad4fa612c
+  - name: maintain
+    path: maintain\SKILL.md
+    description: >
+      Use when the user wants to edit the architecture itself — add a
+      facility, add or update a calc, add or update a playbook, add an event
+      type, add or update a pattern, update facility aliases, bump the
+      schema version, or deprecate a facility. **Currently scaffold-only:**
+      the procedure files that would normally enforce each edit have not
+      been authored yet (only the templates in `maintain/templates/` exist).
+      Operate as a discipline reminder plus a hand-walked checklist; confirm
+      scope with the user, copy any relevant template, execute the edit, and
+      verify by hand (`bash verify.sh`, `bash calc/tests/run.sh`, `python
+      .skills/.meta/reconcile.py` as applicable). Do NOT use for running
+      investigations (use `investigate`), for proactive scans (use
+      `signal-detect`), or for closing the loop on a floor visit (use
+      `close-loop`).
+    triggers:
+      - 'add a facility'
+      - 'add a calc'
+      - 'new playbook'
+      - 'update the pattern'
+      - 'bump the schema'
+      - 'add an event type'
+      - 'deprecate'
+      - 'update aliases'
+    content_hash: 2b4407b3e99753bc079703883a22bb8ae92679d1ae425c3540f1ec4b1534e97c
+  - name: signal-detect
+    path: signal-detect\SKILL.md
+    description: >
+      Use when the user asks what to look at today, wants a proactive scan,
+      or asks about open investigations and due follow-ups. Returns three
+      sections: NEW signals worth investigating, OPEN investigations needing
+      the user's next step, and DUE A3/Kaizen follow-ups with their check
+      results. Do NOT use for running a specific investigation (use
+      `investigate`), for closing out floor findings (use `close-loop`), or
+      for editing the architecture (use `maintain`).
+    triggers:
+      - 'what should I look at today'
+      - 'anything to follow up'
+      - 'daily scan'
+      - 'morning briefing'
+      - 'open investigations'
+      - 'due follow-ups'
+    content_hash: 681d71676a78ba9ef5917c5cef70d7c43b35ec0f5352a1dcf68906b0f9b77177

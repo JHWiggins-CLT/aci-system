@@ -1,0 +1,18 @@
+script:     simulate_facility_data.py
+target:     data/metrics/inputs/chr-05.csv
+row_count:  103
+status:     PASS
+checks_run:
+  - header matches schema
+  - row count >= 90
+  - date column (0) is YYYY-MM-DD
+  - date column (0) is sorted ascending
+  - facility_id column (1) == 'chr-05'
+  - no nulls in columns [0, 1, 2, 3, 4, 5, 6, 7, 8]
+  - column 2 (headcount_total) in [0, 2000]
+  - column 3 (headcount_new) in [0, 500]
+  - column 4 (headcount_shift1) in [0, 1000]
+  - column 5 (headcount_shift2) in [0, 1000]
+  - column 6 (headcount_shift3) in [0, 1000]
+  - column 7 (inbound_units) in [0, 250000]
+  - column 8 (order_mix_complex) in [0.0, 1.0]

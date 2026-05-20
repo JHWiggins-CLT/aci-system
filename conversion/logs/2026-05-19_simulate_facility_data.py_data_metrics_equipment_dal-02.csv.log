@@ -1,0 +1,15 @@
+script:     simulate_facility_data.py
+target:     data/metrics/equipment/dal-02.csv
+row_count:  103
+status:     PASS
+checks_run:
+  - header matches schema
+  - row count >= 90
+  - date column (0) is YYYY-MM-DD
+  - date column (0) is sorted ascending
+  - facility_id column (1) == 'dal-02'
+  - no nulls in columns [0, 1, 2, 3, 4, 5]
+  - column 2 (conveyor_down_m) in [0, 1440]
+  - column 3 (mhe_down_m) in [0, 1440]
+  - column 4 (wms_incidents) in [0, 100]
+  - column 5 (scanner_faults) in [0, 500]

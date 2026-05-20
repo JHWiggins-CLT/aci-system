@@ -1,0 +1,12 @@
+script:     simulate_facility_data.py
+target:     data/events/ral-02.csv
+row_count:  2
+status:     PASS
+checks_run:
+  - header matches schema
+  - row count >= 0
+  - date column (0) is YYYY-MM-DD
+  - date column (0) is sorted ascending
+  - facility_id column (1) == 'ral-02'
+  - event_type column (2) is in taxonomy
+  - no nulls in columns [0, 1, 2, 3, 4]

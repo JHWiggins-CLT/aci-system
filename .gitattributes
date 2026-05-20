@@ -1,0 +1,10 @@
+# Normalize all text to LF in the repo so bash/python scripts stay runnable
+# on every platform (CRLF in a .sh shebang line breaks execution on *nix).
+* text=auto eol=lf
+
+# Be explicit for the executable/code files
+*.sh   text eol=lf
+*.py   text eol=lf
+*.csv  text eol=lf
+*.md   text eol=lf
+*.yaml text eol=lf

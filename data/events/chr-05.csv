@@ -1,0 +1,3 @@
+date,facility_id,event_type,description,source
+2026-03-14,chr-05,incident,Refrigeration zone 2 temperature excursion +6°C for 90 min,simulator-seed
+2026-03-15,chr-05,audit,Cold-chain audit triggered by Mar-14 excursion,simulator-seed

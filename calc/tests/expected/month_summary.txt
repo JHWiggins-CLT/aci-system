@@ -1,0 +1,5 @@
+days | 14
+total_units | 113280
+avg_cph | 134.86
+avg_error_rate | 2.33
+avg_hours_run | 60.00

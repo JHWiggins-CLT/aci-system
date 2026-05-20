@@ -1,0 +1,15 @@
+# Local Claude Code config — contains machine/account-specific paths
+.claude/
+
+# Codex review scaffolding — transient artifacts, not part of the deliverable
+.codex_audit_report.md
+.codex_audit_prompt.txt
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini

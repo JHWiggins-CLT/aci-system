@@ -1,0 +1,3 @@
+date,facility_id,event_type,description,source
+2026-03-25,sav-01,volume_shock,Container surge from port (3 vessels in 48h),simulator-seed
+2026-04-18,sav-01,system_change,WMS lane-assignment rule update,simulator-seed

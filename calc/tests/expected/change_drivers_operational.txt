@@ -1,0 +1,5 @@
+family | metric | baseline_mean | comparison_mean | delta | rel_change_pct
+operational|error_rate|2.26|2.39|+0.14|+6.02%
+operational|units|8177.14|8005.71|-171.43|-2.10%
+operational|cph|136.29|133.43|-2.86|-2.10%
+operational|hours_run|60.00|60.00|+0.00|+0.00%
