@@ -13,12 +13,36 @@ Skills are not loaded all at once. They are registered in `MANIFEST.yaml` at the
 Execute these steps in order at the start of any session that may use skills:
 
 1. **Read this file.** You're doing that now.
-2. **Read `MANIFEST.yaml`.** It lists every available skill with its name, description, trigger keywords, and path to its `SKILL.md`.
-3. **Wait for the user's request.** Do not preemptively load any `SKILL.md` files.
-4. **When the user makes a request, scan the manifest descriptions** and decide whether any skill matches. Match conservatively — see the triggering rules below.
-5. **If exactly one skill matches**, read its `SKILL.md` in full and follow its instructions.
-6. **If the `SKILL.md` references other files** (playbooks, templates, procedures, reference data), load those when the workflow calls for them, not upfront.
-7. **If no skill matches**, respond normally without loading any skill content.
+2. **Check the deployment mode (first action after reading this file).** Run `python config/deployment.py get` (or read `config/deployment.yaml`). If it returns `unset` — or the file is missing — this is a first run: do NOT process any request yet. Present the first-run greeting (see **Deployment mode** below) and persist the operator's choice with `python config/deployment.py set demo` (or `set production`). If it returns `demo` or `production`, note it and continue.
+3. **Read `MANIFEST.yaml`.** It lists every available skill with its name, description, trigger keywords, and path to its `SKILL.md`.
+4. **Wait for the user's request.** Do not preemptively load any `SKILL.md` files.
+5. **When the user makes a request, scan the manifest descriptions** and decide whether any skill matches. Match conservatively — see the triggering rules below.
+6. **If exactly one skill matches**, read its `SKILL.md` in full and follow its instructions.
+7. **If the `SKILL.md` references other files** (playbooks, templates, procedures, reference data), load those when the workflow calls for them, not upfront.
+8. **If no skill matches**, respond normally without loading any skill content.
+
+## Deployment mode
+
+Before the skill protocol proper, the system checks how this deployment is configured. This is the first-run gate; the full design is in `onboarding_design.md`.
+
+- **`demo`** — operate against the built-in simulated dataset. A safe, reversible sandbox; the natural default for exploring the system.
+- **`production`** — operate against the operator's real data (configured via setup/onboarding).
+- **`unset`** (or no `config/deployment.yaml`) — first run. Present this greeting and wait for the choice:
+
+  ```
+  This is the ACI System. How do you want to run it?
+    • demo  — explore the architecture with built-in simulated data (safe, reversible)
+    • setup — configure the system against your own production data
+  You can switch to setup at any time by saying "set up production".
+  ```
+
+  Persist the answer with `python config/deployment.py set demo` (or `set production`). The choice is **sticky** — once set, later sessions skip the greeting and run in that mode until the operator explicitly changes it.
+
+- **Flip to setup anytime:** if the operator later asks to "set up production" / "onboard my data", proceed to setup regardless of the current mode. Because setup replaces demo data with real data, confirm explicitly before any destructive step.
+- **Re-prompt:** `python config/deployment.py set unset` makes the greeting fire again.
+- **No filesystem access:** if you can't run the helper, ask the operator to state the mode at session start; the protocol is otherwise identical.
+
+> **Build status (slice 1):** only the mode gate itself is built. The `onboard`/setup skill and its sub-procedures are designed but not yet implemented (`onboarding_design.md` Section 4 + build sequence). If the operator picks **setup** today, tell them setup tooling is in progress and walk them through `onboarding_design.md` Section 4 by hand. Picking **demo** is fully supported.
 
 ## Triggering rules
 
@@ -112,4 +136,4 @@ If the assistant cannot read files directly (chat-only interface, no MCP filesys
 
 ## Summary
 
-Read this file once. Read the manifest once. Then wait. When the user asks for something, match it conservatively against the descriptions, load only the matching skill's body, and execute. Skills are not loaded automatically, are not chained, and are not invented. The protocol is small enough to keep in working memory for an entire session.
+Read this file once, then check the deployment mode (greet and persist the choice on first run; see **Deployment mode**). Read the manifest once. Then wait. When the user asks for something, match it conservatively against the descriptions, load only the matching skill's body, and execute. Skills are not loaded automatically, are not chained, and are not invented. The protocol is small enough to keep in working memory for an entire session.

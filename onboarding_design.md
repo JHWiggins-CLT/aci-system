@@ -1,11 +1,14 @@
 # ACI System — Onboarding & Deployment-Mode Design (sketch)
 
-> **Status: design sketch — not yet built.** This proposes how a forked or
-> downloaded copy of the system moves from portfolio-demo to a real production
-> deployment, and how the system greets a first-time operator and remembers
-> their choice. It is a companion to `handoff.md` (architecture), not a
-> replacement. Nothing here is implemented yet; the "Build sequence" section at
-> the end is the proposed order.
+> **Status: slice 1 (the deployment-mode gate) is BUILT; the rest is design sketch.**
+> This proposes how a forked or downloaded copy of the system moves from
+> portfolio-demo to a real production deployment, and how the system greets a
+> first-time operator and remembers their choice. It is a companion to
+> `handoff.md` (architecture), not a replacement. The first-run mode gate
+> (`config/deployment.yaml(.example)`, `config/deployment.py`, and the
+> `.skills/README.md` Step 0 greeting) is implemented and covered by `verify.sh`
+> Section 11. The remaining slices in the "Build sequence" section are not yet
+> built.
 
 ---
 
@@ -205,7 +208,7 @@ The simulator stays in the repo as the demo source and as a **reference implemen
 
 ## 11. Proposed build sequence
 
-1. `config/deployment.yaml(.example)` + `.skills/README.md` Step 0 + the greeting. *(Smallest slice that delivers the first-run experience.)* Reserve the `capabilities:` block in the config schema now, even though it's empty, so later capabilities are purely additive (Section 5).
+1. ✅ **Built (2026-05-20).** `config/deployment.yaml.example` + `config/deployment.py` (stdlib get/set/show helper) + `.skills/README.md` Step 0 + the greeting; the `capabilities:` block is reserved in the schema; live `config/deployment.yaml` is gitignored; covered by `verify.sh` Section 11. *(Smallest slice that delivers the first-run experience.)*
 2. `reset_demo_state.py` (mode-aware).
 3. `onboard` skill + `SETUP.md` (the guided flow, even before every sub-procedure exists — it can hand-walk like the early maintain skill did).
 4. `add_facility.md` and `bump_schema.md` maintain procedures.

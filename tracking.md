@@ -57,14 +57,14 @@ Practical effects on the plan:
 ## Status header
 
 ```yaml
-current_phase:          "Portfolio-scoped (decision log 2026-05-20): each capability demonstrated once, end-to-end. The compounding capability is now demonstrated — first PATTERN (equipment_downtime_throughput_drag) authored from 3 same-mechanism investigations and wired into the throughput_drop playbook. The system now shows the full loop: signal → investigate → repeat → pattern → playbook consults pattern."
-last_completed_step:    "Built the equipment-downtime throughput-drag pattern end-to-end: seeded 2 equipment-outage dips (sav-01 MHE Mar 9-16, atl-03 conveyor Apr 6-13) in the simulator — peers, not cohort facilities, so the dal-02 A3's single-facility story stays intact (verified: cohort sweep unchanged); wrote 3 calc-grounded investigations (ral-02 full→Kaizen, sav-01 + atl-03 concise→resolved); opened the ral-02 conveyor-PM Kaizen (preventive countermeasure, baseline-health follow-up fires PASS); authored data/patterns/equipment_downtime_throughput_drag.md + patterns/INDEX.md via add_pattern.md (its first real run); wired throughput_drop.md Step 0 to consult the pattern library; lifted the investigate SKILL's 'patterns deferred' note. verify.sh 62/62; 17 golden tests; reconcile clean."
-next_concrete_action:   "Optional from here (portfolio is functionally complete for the throughput-drop signal — full loop demonstrated). Candidates if continuing: a 2nd outcome calc only if genuinely different; Phase 7 threshold-checkpoint write-up; or stop and treat the build as portfolio-complete."
-in_progress_work:       null
+current_phase:          "Portfolio core complete (full CI loop demonstrated). NEW workstream started: production onboarding (onboarding_design.md). Slice 1 — the first-run deployment-mode gate (demo vs setup, sticky, flippable) — is BUILT. Remaining onboarding slices (onboard skill, add_facility/bump_schema procedures, conversion adapter scaffold, capability registry) are designed, not built."
+last_completed_step:    "Built onboarding slice 1: config/deployment.yaml.example + config/deployment.py (stdlib get/set/show mode helper) + .skills/README.md Step 0 greeting (demo vs setup; sticky default; flip-to-setup anytime; capabilities block reserved). Live config gitignored; helper rebuilds from template so the capabilities block survives writes. verify.sh Section 11 (9 checks). verify.sh 71/71; 17 golden tests; reconcile clean."
+next_concrete_action:   "Onboarding slice 2+: reset_demo_state.py (mode-aware), then the onboard skill + SETUP.md, then add_facility.md/bump_schema.md, conversion adapter scaffold, and the capability-registry pattern (onboarding_design.md Section 11 build sequence)."
+in_progress_work:       "Production onboarding workstream — slice 1 built; slices 2-6 are the proposed next steps."
 blocked_on:             null
 last_updated:           "2026-05-20"
-last_updated_by:        "session-2026-05-20-first-pattern"
-sessions_logged:        13
+last_updated_by:        "session-2026-05-20-onboarding-slice-1"
+sessions_logged:        14
 ```
 
 > **Edit only the values, not the keys.** The keys are the contract; downstream tooling may read this block programmatically. If you need to write more than fits here, write it in the working log below.
@@ -154,7 +154,8 @@ Compact view of every phase. Update the Status column as phases progress. Use th
 - Close-loop procedures: 3 ([open_kaizen.md](.skills/close-loop/procedures/open_kaizen.md), [open_a3.md](.skills/close-loop/procedures/open_a3.md), [reopen_investigation.md](.skills/close-loop/procedures/reopen_investigation.md)) — matches the 3 the SKILL routes to
 - Maintain procedures: 3 of 9 planned — [add_calc.md](.skills/maintain/procedures/add_calc.md), [add_pattern.md](.skills/maintain/procedures/add_pattern.md), [update_pattern.md](.skills/maintain/procedures/update_pattern.md) (the Phase 6.5 priority set). SKILL now routes to these and hand-walks the rest.
 - Maintain templates: 4 — a3, kaizen, facility_profile, [pattern.md](.skills/maintain/templates/pattern.md) (added 2026-05-20 for add_pattern)
-- Smoke test: [verify.sh](verify.sh) — 62 checks, all passing (Section 10 added: pattern + 3 equipment investigations + playbook wiring + mechanism independence from the cohort A3)
+- Smoke test: [verify.sh](verify.sh) — 71 checks, all passing (Section 10: pattern + equipment investigations; Section 11: deployment-mode gate / onboarding slice 1)
+- Onboarding (new workstream): [onboarding_design.md](onboarding_design.md) (design); slice 1 built — [config/deployment.yaml.example](config/deployment.yaml.example), [config/deployment.py](config/deployment.py), [.skills/README.md](.skills/README.md) Step 0
 
 **Schema version currently deployed:** v1 (matches [calc/lib/_schema_v1.sh](calc/lib/_schema_v1.sh) and [data/metrics/MANIFEST.md](data/metrics/MANIFEST.md))
 
@@ -191,6 +192,7 @@ Each entry: date, what was decided, what was deviated from, why.
 | 2026-05-20 | A3 opened with `network_applicability: network (target); evidence single-facility` and a peer-evidence gate, NOT an asserted network claim | A simpler "this is a network problem" framing | open_a3.md's explicit common-mistake: "network-scope claims without network-scope evidence." A live `correlate.sh` sweep across all 8 facilities (the calc built in Session 9) showed the cohort-overload signature only at dal-02 (-0.32; peers negligible). So the honest A3 stages the systemic countermeasure but gates network rollout on the 2026-06-15 peer poll + a re-run sweep. This turns the A3 into a self-demonstration of the system using its own diagnostics to scope an intervention honestly. |
 | 2026-05-20 | **Portfolio-scoping of plan exit criteria.** The plan's per-phase counts (e.g. Phase 5's "3 outcome calcs", "3+ closed investigations"; Phase 4's "5-10 investigations") are treated as production-rollout guidance, not portfolio acceptance criteria. The portfolio bar is: *each capability is demonstrated once, end-to-end, with a polished, calc-grounded example.* | The implementation plan's literal exit-criteria counts | This is a portfolio piece (see project-wide deviation at top), not a production rollout. Padding to hit counts produces thin artifacts, which is the opposite of what a portfolio should show — the existing open question reached the same intuition. Concretely: Phase 5 keeps `follow_up_check.sh` as the single outcome calc (a second is added only if it does something genuinely different, not for the count); investigation count is driven by *what a capability needs to be demonstrable*, not a target number. The one capability this exposed as genuinely undemonstrated — pattern compounding (handoff §10.3, the system's headline claim) — is being built now (first real pattern from 3 same-mechanism investigations), because that is a capability gap, not a count gap. |
 | 2026-05-20 | First pattern built on the **equipment-downtime throughput-drag** mechanism (ral-02 + 2 seeded peers), not the cohort-overload mechanism | The cohort mechanism is the portfolio's hero example, so it would be the "obvious" first pattern | Building a cohort pattern would require seeding 2 more cohort dips, which would make the 2026-05-20 `correlate.sh` sweep show the signature at 3 facilities — directly invalidating the just-opened A3's honest "single-facility evidence" framing. The two demonstrations (honest single-facility scoping vs. multi-facility pattern compounding) conflict on the *same* mechanism. Resolving them onto *different* mechanisms preserves both: the cohort A3 keeps its single-facility-gated story, and the equipment-downtime pattern demonstrates compounding independently. ral-02 was already an established scenario (README) but had never been investigated, so this also fills a real gap. |
+| 2026-05-20 | Onboarding slice 1: live `config/deployment.yaml` is **gitignored**; only `config/deployment.yaml.example` (mode: unset) is committed; the mode helper rebuilds from the template when the live file is missing/empty | Could have committed a `config/deployment.yaml` with a fixed mode | A committed live config would either pin the repo to one mode or get clobbered per-operator. Shipping only the `.example` means a fresh fork has *no* live config → reads `unset` → greets, exactly the desired first-run behavior; each operator's choice is written locally and never committed. The helper's template-rebuild guarantees the reserved `capabilities:` block (and other keys) survive a write even from an empty file. |
 
 ---
 
@@ -214,6 +216,21 @@ When the log gets long (say, 30+ entries), archive the oldest entries to `tracki
   - **Paired disposition.** The dal-02 investigation was already closed as a Kaizen, so open_a3.md's "set state a3_open + move the file" steps didn't apply. Kept state `kaizen_open`, recorded both artifact ids, documented the deviation in the file and the decision log.
   - Phase 5 is NOT fully complete despite the mix target: still needs 2 more outcome calcs (3 total) and a 3rd *closed investigation* (the A3 is a companion, not a new case).
 - **Next session:** the 2 remaining outcome calcs (Phase 5.1) with golden tests; a 3rd closed investigation (ral-02 conveyor or chr-05 refrigeration) to satisfy Phase 5's "3 investigations closed" and edge toward the pattern threshold.
+
+### 2026-05-20 — Session 14 (onboarding workstream: design + slice 1 built)
+
+- **Worked on:** after a live demo of the core system, started a new workstream — production onboarding — so a forker can move from the portfolio demo to their own data. Wrote the design, then built the first slice.
+- **Design:** [onboarding_design.md](onboarding_design.md) — first-run **demo-vs-setup** mode gate (sticky demo default, flip-to-setup anytime), the production setup flow reusing the conversion boundary, and (per a follow-up request) **extensibility as a load-bearing requirement** so future capabilities (reports, graphing, presentations) each bring their own onboarding via a capability registry rather than forcing a wizard rewrite.
+- **Built (slice 1 — the mode gate):**
+  - [config/deployment.yaml.example](config/deployment.yaml.example) — committed template, `mode: unset`, with the `capabilities:` block reserved from day one.
+  - [config/deployment.py](config/deployment.py) — stdlib get/set/show helper; rebuilds from the template so the capabilities block survives writes; tolerant of missing/empty files (→ unset).
+  - [.skills/README.md](.skills/README.md) — protocol Step 2 "check deployment mode" + a **Deployment mode** section with the greeting, sticky/flip rules, no-FS fallback, and an honest "slice 1 only — onboard skill not built yet" note.
+  - Live `config/deployment.yaml` gitignored; verify.sh **Section 11** (9 checks). Suite **71/71**; golden 17/17; reconcile clean.
+- **Encountered:**
+  - The mode helper must distinguish *missing* from *empty* config — an empty file (e.g. from `mktemp`) was dropping the reserved capabilities block on write. Fixed by treating empty/whitespace as missing → rebuild from template. Caught by the round-trip verify check.
+  - Editing `.skills/README.md` does NOT drift the manifest (only `SKILL.md` files are hashed) — reconcile stayed clean, no rebuild needed.
+  - Left the live `config/deployment.yaml` absent in this repo so it demonstrates the first-run greeting; it's gitignored so this never affects a fork.
+- **Next session:** onboarding slice 2+ (reset_demo_state.py, then the onboard skill + SETUP.md, then add_facility/bump_schema procedures, conversion adapter scaffold, capability registry).
 
 ### 2026-05-20 — Session 13 (reframe + first pattern: compounding demonstrated)
 

@@ -5,6 +5,10 @@
 .codex_audit_report.md
 .codex_audit_prompt.txt
 
+# Live deployment config — created on first run, deployment-local.
+# The committed template is config/deployment.yaml.example.
+config/deployment.yaml
+
 # Python bytecode
 __pycache__/
 *.py[cod]

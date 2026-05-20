@@ -1,0 +1,27 @@
+# ACI System — deployment configuration (TEMPLATE)
+#
+# This `.example` file is committed. The live file `config/deployment.yaml` is
+# gitignored and created on first run (the mode gate writes it after the operator
+# chooses demo or setup). See onboarding_design.md for the full design.
+#
+# Read/write this via the helper rather than hand-editing:
+#   python config/deployment.py get            -> prints current mode (or "unset")
+#   python config/deployment.py set demo       -> records demo mode
+#   python config/deployment.py set production  -> records production mode
+#   python config/deployment.py show           -> prints the whole config
+
+mode: unset            # unset | demo | production
+chosen_at:             # ISO date the mode was last set (helper fills this)
+chosen_by:             # who/what set it (e.g. "operator", "onboard skill")
+schema_version: v1     # the schema the deployment runs on
+
+# Optional feature modules and their settings. Reserved from day one so future
+# capabilities (reports, graphing, presentations, exports, ...) are purely
+# additive — see onboarding_design.md Section 5. Uncomment + configure as each
+# capability is enabled during (re-)onboarding.
+capabilities:
+  # reporting:     { enabled: false }
+  # graphing:      { enabled: false }
+  # presentations: { enabled: false }
+
+notes:                 # free text

@@ -398,6 +398,38 @@ sav_coh=$(bash calc/diagnostic/correlate.sh sav-01 cph headcount_new | tail -1)
 assert_contains "equipment cases stay clear of the cohort signature (sav-01)" \
     "$sav_coh" "negligible"
 
+# 11. Deployment-mode gate (onboarding slice 1) ---------------------------------
+section "11. Deployment-mode gate"
+
+# 11a. Committed template exists and reads as unset (first-run trigger).
+assert_eq "config/deployment.yaml.example exists" \
+    "$([[ -f config/deployment.yaml.example ]] && echo yes)" "yes"
+assert_eq "example reads as unset" \
+    "$(python config/deployment.py get --file config/deployment.yaml.example)" "unset"
+
+# 11b. A missing live config reads as unset (so a fresh fork greets).
+assert_eq "missing config reads as unset" \
+    "$(python config/deployment.py get --file /nonexistent/deployment.yaml)" "unset"
+
+# 11c. set/get round-trips, and the capabilities block survives a write.
+MODE_TMP=$(mktemp)
+python config/deployment.py set demo --file "$MODE_TMP" --by "verify" >/dev/null
+assert_eq "set demo → get demo" "$(python config/deployment.py get --file "$MODE_TMP")" "demo"
+python config/deployment.py set production --file "$MODE_TMP" --by "verify" >/dev/null
+assert_eq "set production → get production" "$(python config/deployment.py get --file "$MODE_TMP")" "production"
+assert_eq "capabilities block preserved through a write" \
+    "$(grep -c '^capabilities:' "$MODE_TMP")" "1"
+rm -f "$MODE_TMP"
+
+# 11d. The live config is gitignored (deployment-local, not committed).
+assert_contains "config/deployment.yaml is gitignored" \
+    "$(git check-ignore config/deployment.yaml 2>/dev/null || echo MISS)" "config/deployment.yaml"
+
+# 11e. The protocol entry point documents the mode gate.
+readme=$(cat .skills/README.md)
+assert_contains "skills README documents the deployment-mode gate" "$readme" "## Deployment mode"
+assert_contains "skills protocol checks mode before the manifest" "$readme" "Check the deployment mode"
+
 # Summary ----------------------------------------------------------------------
 echo
 echo "================================================================"
