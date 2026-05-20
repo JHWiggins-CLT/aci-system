@@ -193,6 +193,13 @@ seg=$(bash calc/diagnostic/segment_by.sh dal-02 operational cph --by dow \
 assert_contains "segment_by dow output starts with Mon" "$seg" "Mon |"
 assert_contains "segment_by dow output ends with Sat"   "$seg" "Sat |"
 
+# 5f. correlate links the cohort story across families: cph falls as new-hire
+# headcount rises (negative correlation) over the onboarding window.
+corr=$(bash calc/diagnostic/correlate.sh dal-02 cph headcount_new \
+    --start 2026-02-01 --end 2026-03-31)
+assert_contains "correlate pairs cph with inputs:headcount_new" "$corr" "operational:cph | inputs:headcount_new"
+assert_contains "correlate cph~headcount_new is negative"       "$corr" "negative"
+
 # 6. Close-loop artifacts present and linked --------------------------------------
 section "6. Close-loop artifacts (dal-02 cohort case)"
 

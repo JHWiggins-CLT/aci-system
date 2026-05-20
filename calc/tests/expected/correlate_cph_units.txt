@@ -1,0 +1,2 @@
+metric_a | metric_b | n | pearson_r | strength
+operational:cph | operational:units | 14 | 1.0000 | strong positive

@@ -1,0 +1,2 @@
+metric_a | metric_b | n | pearson_r | strength
+operational:cph | operational:error_rate | 14 | -0.9812 | strong negative

@@ -33,7 +33,7 @@ Multi-variable analysis. Answer "why might metric M have the value it has."
 | `cooccurrence.sh` | What events occurred near this date? | `cooccurrence.sh dal-02 2026-03-08 --window 14` |
 | `segment_by.sh` | Break metric M (any family) down by dimension D | `segment_by.sh dal-02 exceptions damage --by dow --start 2026-04-12 --end 2026-04-24` |
 | `change_drivers.sh` | Which metrics (all families) changed most between comparison and baseline periods? | `change_drivers.sh dal-02 --baseline 2026-02-01:2026-02-28 --comparison 2026-03-08:2026-03-22 --top 10` |
-| `correlate.sh` *(to be built)* | Correlation between two columns | `correlate.sh dal-02 cph headcount_new --start 2026-01-01 --end 2026-03-31` |
+| `correlate.sh` | Pearson correlation between two metrics (any families, paired by date) | `correlate.sh dal-02 cph headcount_new --start 2026-01-01 --end 2026-03-31` |
 | `outlier_days.sh` *(to be built)* | Days deviating most from facility norm | `outlier_days.sh dal-02 cph --top 5 --window 90d` |
 | `compare_to_baseline.sh` *(to be built)* | Period-over-period delta on every variable | `compare_to_baseline.sh dal-02 --bad 2026-03 --baseline 2026-02` |
 
