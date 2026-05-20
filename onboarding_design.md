@@ -16,7 +16,8 @@
 - The choice is **remembered**. Pick demo once and every later session stays in demo until the operator explicitly says otherwise — no re-prompting.
 - The operator can **flip to setup at any time**, from any mode.
 - Production setup reuses the machinery that already exists (the conversion boundary, validators, MANIFEST/audit discipline, maintain templates, `verify.sh`) rather than inventing a parallel path.
-- Stay **model-agnostic and stdlib-only**, consistent with the rest of the system. The "wizard" is a guided procedure an LLM walks the operator through, not a GUI.
+- Stay **model-agnostic and stdlib-only** at the core, consistent with the rest of the system. The "wizard" is a guided procedure an LLM walks the operator through, not a GUI.
+- **Extensible by construction.** Onboarding is *expected to grow* as the system gains capabilities beyond the core CI loop — reports, presentations, graphing/visualization, exports, integrations. Adding a capability must **add its own setup**, not require rewriting the wizard (Section 5).
 
 **Non-goals**
 - Not a magic data importer. The system cannot auto-map an arbitrary spreadsheet to the schema; setup *scaffolds and contract-enforces* the conversion adapter, with the operator (LLM-assisted) doing the column mapping.
@@ -51,6 +52,10 @@ mode: unset          # unset | demo | production
 chosen_at:           # ISO date the mode was last set
 chosen_by:           # who/what set it
 schema_version: v1   # tracked once production setup runs
+capabilities:        # optional feature modules + their settings (Section 5)
+  # reporting:    { enabled: false }
+  # graphing:     { enabled: false }
+  # presentations:{ enabled: false }
 notes:               # free text
 ```
 
@@ -80,7 +85,7 @@ You can switch to setup at any time later by saying "set up production".
 
 ### 3.3 Flipping rules
 
-- **demo → setup:** always available. Triggered by intent ("set up production", "switch to setup", "onboard my data") → loads the `onboard` skill regardless of current mode. Because this **replaces demo data with real data**, it is gated behind an explicit confirmation (Section 8).
+- **demo → setup:** always available. Triggered by intent ("set up production", "switch to setup", "onboard my data") → loads the `onboard` skill regardless of current mode. Because this **replaces demo data with real data**, it is gated behind an explicit confirmation (Section 9).
 - **production → demo:** not a normal operation (real data would have to be set aside), but supported as a deliberate escape hatch: regenerate the simulated dataset and set `mode: demo`. Documented, confirmation-gated, and noted as "your production data in `data/` will be overwritten by simulated data — back it up first."
 - **Re-prompt:** "what mode am I in?" / "reset onboarding" sets `mode: unset` so the greeting fires again.
 
@@ -104,7 +109,46 @@ Delivered as an **`onboard` skill** whose body is a step-by-step procedure (and 
 
 ---
 
-## 5. Components to build
+## 5. Extensibility — onboarding grows with new capabilities
+
+> **This is a load-bearing requirement, not an afterthought.** The system will
+> gain capabilities beyond the core CI loop — reporting, presentations,
+> graphing/visualization, data exports, external integrations. Each may need its
+> own setup (config, dependencies, prompts) and its own demo behavior. The design
+> below ensures that adding a capability **adds its own onboarding**, so the
+> wizard never has to be rewritten as the system expands.
+
+### 5.1 Capabilities are modules that self-declare their setup
+
+Each optional capability is a module that declares, in one place:
+
+- **Name + what it adds** (e.g. `graphing` — renders metric/series charts from the canonical CSVs).
+- **A setup contribution** — a small `setup` procedure (prompts + steps), mirroring how `maintain` procedures and skills already self-describe. This is what the wizard runs for that capability.
+- **A config fragment it owns** — written under `capabilities:` in `config/deployment.yaml` (enabled flag + per-capability settings).
+- **Optional dependencies** — any libraries beyond stdlib it needs, and how to **degrade gracefully** if they're absent.
+- **Demo behavior** — how it works against the simulated dataset so it's demonstrable in demo mode, not just production.
+
+### 5.2 The wizard composes core + enabled capabilities (registry, not hardcode)
+
+The onboard flow = the **core steps (Section 4)** + each enabled capability's **setup contribution**, discovered from a **capability registry** rather than a hardcoded list. Adding "graphing" later means dropping in its module + setup contribution; the wizard and the first-run/`enable` flow pick it up automatically. The mode greeting (and a later "enable a capability" intent) can offer the available capabilities.
+
+### 5.3 Config carries capability state
+
+`config/deployment.yaml` gains a `capabilities:` block (enabled/disabled + per-capability settings). Any session can see which output/feature layers are live; the wizard knows what to configure or reconfigure. This block is reserved in the schema from **slice 1**, even before any capability exists, so adding one is additive.
+
+### 5.4 Dependency posture (where stdlib-only bends)
+
+The **core stays stdlib-only**. Output capabilities (graphing, presentations) may legitimately need third-party libraries (a plotting lib, a slide/deck generator). The rule: such deps are **(a) optional, (b) isolated to their capability, (c) checked at enable-time** with a clear "capability unavailable — install X to enable" message, and **never break the core loop** if missing. Rendered artifacts (charts, decks, report files) land in a dedicated output location (e.g. `reports/`, `exports/`) outside the canonical `data/` tree.
+
+### 5.5 Adding a capability is a *partial* re-onboard
+
+Enabling a capability on an existing deployment runs **only that capability's setup contribution** (plus any schema/data needs it has), not the whole flow. The mode gate is unaffected. Demo deployments can enable capabilities against the simulated data too — so a capability can be demoed before it's ever pointed at production data.
+
+This is the invariant the design guarantees: **onboarding adapts as the system grows, because each new element ships its own onboarding** rather than forcing a wizard rewrite.
+
+---
+
+## 6. Components to build
 
 | Component | New / exists | Notes |
 |---|---|---|
@@ -115,11 +159,12 @@ Delivered as an **`onboard` skill** whose body is a step-by-step procedure (and 
 | `add_facility.md`, `bump_schema.md` | new (planned) | already on the maintain roadmap; setup needs them |
 | Conversion adapter scaffold | new | template + `conversion/README` guidance (Section 7) |
 | `reset_demo_state.py` (or a maintain procedure) | new | stdlib; clears demo artifacts, optional `--keep-as-examples` |
+| Capability registry + per-capability `setup` contributions | new | each optional capability (reports, graphing, presentations, …) self-declares its onboarding; the wizard composes them (Section 5). Establish the pattern when the first capability lands. |
 | Validators, MANIFEST discipline, templates, `verify.sh` | exists | reused unchanged |
 
 ---
 
-## 6. The conversion adapter (the one genuinely bespoke piece)
+## 7. The conversion adapter (the one genuinely bespoke piece)
 
 This is where setup cannot be fully automated, and the design should be honest about it. Every operation's raw data differs, so the wizard:
 
@@ -131,7 +176,7 @@ The simulator stays in the repo as the demo source and as a **reference implemen
 
 ---
 
-## 7. Data lifecycle and reset
+## 8. Data lifecycle and reset
 
 - **`reset_demo_state.py`** removes the demo investigations (`data/investigations/{open,2026-Q*}`), Kaizens, A3s, follow-up rows, and the pattern, resetting their INDEX files to empty headers. Idempotent; refuses to run in `production` mode without `--force` (so it can't nuke real history by accident).
 - **Demo data is never destroyed irreversibly** — it regenerates from the simulator and lives in git.
@@ -139,7 +184,7 @@ The simulator stays in the repo as the demo source and as a **reference implemen
 
 ---
 
-## 8. Guards and safety
+## 9. Guards and safety
 
 - Switching **into production** (which overwrites `data/`) is confirmation-gated and lists exactly what will change.
 - `reset_demo_state.py` is mode-aware (refuses in production without `--force`).
@@ -148,22 +193,23 @@ The simulator stays in the repo as the demo source and as a **reference implemen
 
 ---
 
-## 9. Open questions
+## 10. Open questions
 
 - **Schema-bump ergonomics.** Most real operations won't match v1. Is the right default "adopt v1 and map your data onto it" (simpler) or "bump the schema to your reality" (truer)? Leaning: offer both, default to mapping-onto-v1 for first run, with `bump_schema.md` as the power path.
 - **How much mapping the LLM should auto-draft** vs. force the operator to specify. Leaning: LLM drafts, operator confirms each field — never silent.
 - **Where demo and production data coexist (if at all).** Current sketch: they don't; mode selects one world. An alternative is parallel `data/` and `data_demo/` trees. Leaning: keep it single-world for simplicity; demo is regenerable.
 - **Should `config/deployment.yaml` be gitignored in production?** Probably yes once real (it's deployment-local), shipped only as `config/deployment.yaml.example` with `mode: unset`.
+- **Output capabilities and the stdlib line (Section 5).** Where do rendered artifacts live (`reports/`, `exports/`?), and how strict is "optional dependency, graceful degrade"? Leaning: a dedicated output dir outside `data/`, capabilities checked at enable-time, core never depends on them. Worth deciding the registry shape before the *first* output capability is built so it doesn't get retrofitted.
 
 ---
 
-## 10. Proposed build sequence
+## 11. Proposed build sequence
 
-1. `config/deployment.yaml(.example)` + `.skills/README.md` Step 0 + the greeting. *(Smallest slice that delivers the first-run experience.)*
+1. `config/deployment.yaml(.example)` + `.skills/README.md` Step 0 + the greeting. *(Smallest slice that delivers the first-run experience.)* Reserve the `capabilities:` block in the config schema now, even though it's empty, so later capabilities are purely additive (Section 5).
 2. `reset_demo_state.py` (mode-aware).
 3. `onboard` skill + `SETUP.md` (the guided flow, even before every sub-procedure exists — it can hand-walk like the early maintain skill did).
 4. `add_facility.md` and `bump_schema.md` maintain procedures.
 5. Conversion adapter scaffold + `conversion/README` guidance.
 6. A production-aware split of `verify.sh` (structural checks vs demo-scenario assertions).
 
-Slice 1 alone makes the system "greet on first run"; the rest deepens setup behind that gate.
+Slice 1 alone makes the system "greet on first run"; the rest deepens setup behind that gate. The capability-registry pattern (Section 5) is established when the first optional capability (reports/graphing/presentations) is built — at which point onboarding extends itself rather than being rewritten.
