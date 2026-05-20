@@ -1,8 +1,8 @@
 version: 1
-generated_at: 2026-05-20T14:43:27Z
+generated_at: 2026-05-20T21:21:04Z
 skills:
   - name: close-loop
-    path: close-loop/SKILL.md
+    path: close-loop\SKILL.md
     description: >
       Use when the user returns from a floor visit and wants to close out an
       investigation — capture floor findings, decide what comes next
@@ -22,9 +22,9 @@ skills:
       - 'draft the A3'
       - 'open a Kaizen'
       - 'we ruled out'
-    content_hash: 79509169d5cd43a57ab5404f17f0a5434d7dcdc8fee41d0f48d467bf7de4ad61
+    content_hash: 19a75f8edb655aa3c3087ece9646f50163aab912f476b2b75e4e685ac768363a
   - name: investigate
-    path: investigate/SKILL.md
+    path: investigate\SKILL.md
     description: >
       Use when the user wants to investigate a specific signal at a specific
       facility — typically picked from the output of `signal-detect` or
@@ -43,22 +43,24 @@ skills:
       - 'draft a brief for'
     content_hash: dcc359de07735e26e3a7fb194955e0dcf8b0d363f93e7200bfa79b0f5d38c8cc
   - name: maintain
-    path: maintain/SKILL.md
+    path: maintain\SKILL.md
     description: >
       Use when the user wants to edit the architecture itself — add a
       facility, add or update a calc, add or update a playbook, add an event
       type, add or update a pattern, update facility aliases, bump the
       schema version, or deprecate a facility. **Partially proceduralized:**
-      three procedures are authored and authoritative — `add_calc.md`,
-      `add_pattern.md`, `update_pattern.md` in `maintain/procedures/` (plus
-      templates in `maintain/templates/`); follow them step by step when
-      they match. Every other operation is still hand-walked — confirm scope
-      with the user, copy any relevant template, execute, and verify by hand
-      (`bash verify.sh`, `bash calc/tests/run.sh`, `python
-      .skills/.meta/reconcile.py` as applicable). Do NOT use for running
-      investigations (use `investigate`), for proactive scans (use
-      `signal-detect`), or for closing the loop on a floor visit (use
-      `close-loop`).
+      most operations now have authored, authoritative procedures in
+      `maintain/procedures/` — `add_calc.md`, `add_pattern.md`,
+      `update_pattern.md`, `add_facility.md`, `bump_schema.md`,
+      `add_playbook.md` (plus templates in `maintain/templates/`); follow
+      them step by step when they match. The remaining operations
+      (`add_event_type`, `update_aliases`, `deprecate_facility`) are still
+      hand-walked — confirm scope with the user, copy any relevant template,
+      execute, and verify by hand (`bash verify.sh`, `bash
+      calc/tests/run.sh`, `python .skills/.meta/reconcile.py` as
+      applicable). Do NOT use for running investigations (use
+      `investigate`), for proactive scans (use `signal-detect`), or for
+      closing the loop on a floor visit (use `close-loop`).
     triggers:
       - 'add a facility'
       - 'add a calc'
@@ -68,9 +70,9 @@ skills:
       - 'add an event type'
       - 'deprecate'
       - 'update aliases'
-    content_hash: 038f04981d78bf9ef17bae3694df62ea29ea233ce279ca65930950a4db601e48
+    content_hash: ed191e102fd7068c00615919465124fa0b465ea57e90bc41724ba72629e7cb02
   - name: onboard
-    path: onboard/SKILL.md
+    path: onboard\SKILL.md
     description: >
       Use when the operator wants to set up or onboard the system against
       their own production data — first-time setup, or flipping a demo
@@ -92,7 +94,7 @@ skills:
       - 'go to production'
     content_hash: 5e356b81bc02fa5795e3cb9f8b6b13ef133ae3977f480651d52244ff0b5b8e6c
   - name: signal-detect
-    path: signal-detect/SKILL.md
+    path: signal-detect\SKILL.md
     description: >
       Use when the user asks what to look at today, wants a proactive scan,
       or asks about open investigations and due follow-ups. Returns three

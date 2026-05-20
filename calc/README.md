@@ -55,8 +55,8 @@ Multi-period analysis specifically for verifying whether an intervention worked.
 | Calc | Question | Example |
 |------|----------|---------|
 | `follow_up_check.sh` | Did metric M hit target T at facility F by date D? (`--family` to track the metric that actually moved, e.g. exceptions/damage, not a proxy) | `follow_up_check.sh chr-03 damage --max 20 --by 2026-06-19 --family exceptions` |
-| `countermeasure_effectiveness.sh` *(to be built)* | Did metric M change between pre and post intervention? | `countermeasure_effectiveness.sh dal-02 cph --pre 2026-03-08:2026-03-21 --post 2026-03-22:2026-04-04` |
-| `intervention_attribution.sh` *(to be built)* | Is the change attributable to the intervention or to other variables that also changed? | `intervention_attribution.sh dal-02 cph --intervention-date 2026-03-22 --check-variables headcount_new,inbound_units` |
+| `countermeasure_effectiveness.sh` | Did metric M change between pre and post intervention? (direction-aware IMPROVED/WORSENED via `worse_direction`; `--family` for the metric that moved) | `countermeasure_effectiveness.sh dal-02 cph --pre 2026-03-08:2026-03-22 --post 2026-04-01:2026-04-15` |
+| `intervention_attribution.sh` | Is the change attributable to the intervention or to other variables that also changed? (flags MOVED confounders past `--threshold`) | `intervention_attribution.sh dal-02 cph --intervention-date 2026-03-08 --check-variables headcount_new,inbound_units` |
 
 ## Tests
 

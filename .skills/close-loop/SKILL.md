@@ -47,7 +47,7 @@ Do NOT use for new investigations, proactive scans, or architecture edits.
 
    Every disposition moves the file out of `open/`. This is what keeps `open/` as the canonical "needs your attention" queue.
 7. **Update the events log** with floor-attributed observations. Source field is `floor-intake-{date}`. Floor visits are the largest single source of new events; don't skip this.
-8. **Update the matched pattern** if the intake suggested a revision. The canonical path is `maintain/procedures/update_pattern.md`, but that procedure has not been authored yet (Phase 6 deferred). Until it lands: edit the pattern file directly, but log the edit's rationale in `tracking.md` decision log so the next session can audit it. Once `update_pattern.md` exists, this step uses it instead.
+8. **Update the matched pattern** if the intake suggested a revision, following `maintain/procedures/update_pattern.md` — it requires you to name the triggering investigation and the claim that changed, so the edit stays auditable. Do not edit pattern files ad hoc.
 9. **Schedule follow-ups** for any A3 or Kaizen opened. Every artifact must have at least one row in `data/follow_ups/INDEX.md` with the target metric, target value, follow-up date, and the calc invocation that will verify outcome. The procedures enforce this gate — do not bypass it.
 
 ## Inputs and outputs
@@ -61,7 +61,7 @@ Do NOT use for new investigations, proactive scans, or architecture edits.
 - **Do not accept free-text dispositions.** "Yeah, it was the cohort thing" is not a structured disposition. Walk the per-hypothesis fields with floor evidence; that's the data that makes the calibration loop work.
 - **Do not skip the events log update.** Floor visits produce events that no other layer captures. Without this step, the cooccurrence calc stays sparse forever.
 - **Do not open A3s or Kaizens without scheduling follow-ups.** The procedures should refuse to save the artifact until at least one follow-up row exists.
-- **Do not update patterns silently.** The canonical path will be `maintain/procedures/update_pattern.md` once it's authored. Until then, direct edits are allowed but must be logged in the tracker — undocumented pattern edits accumulate inconsistencies.
+- **Do not update patterns silently.** Use `maintain/procedures/update_pattern.md` — it requires you to name the triggering investigation and the claim that changed. Ad-hoc pattern edits accumulate the inconsistencies the procedure exists to prevent.
 - **Do not close an investigation without an intake.** Even one-off non-event closes require `quick_close_template.md` — there is no "skip intake" path. The discipline is the architecture's value.
 
 ## Variants and edge cases
