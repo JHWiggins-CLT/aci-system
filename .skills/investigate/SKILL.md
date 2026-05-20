@@ -33,7 +33,7 @@ Do NOT use when the user is asking for a proactive scan — that is `signal-dete
 3. **Read the playbook in full.** Don't summarize it to yourself — actually load and follow it.
 4. **Check history first:**
    - Read `data/investigations/INDEX.md` for prior investigations at the same facility or of the same signal type.
-   - Read `data/patterns/INDEX.md` for any pattern whose signal shape matches. **Until Phase 6 lands, this file does not exist** — note "no pattern library yet (Phase 6 deferred)" in the brief's methodology section and continue. Do not stall.
+   - Read `data/patterns/INDEX.md` for any pattern whose signal shape matches. The library is live (the first pattern, `equipment_downtime_throughput_drag`, landed 2026-05-20); it may still be small, so if no pattern matches, note that in the brief's methodology section and continue. Do not stall on a thin library.
    - If a pattern matches, that pattern's investigation steps and countermeasures become the starting point for this investigation.
 5. **Run the diagnostic calcs in playbook order.** Cite the exact invocation for every calc; never compose inline awk. The order matters — playbooks are sequenced so cheap calcs run first and expensive ones run only if cheaper ones don't resolve the question.
 6. **Draft hypotheses ranked by evidence weight.** Each hypothesis carries: a one-sentence mechanism, the calc invocation and number that supports it, the counter-evidence that weakens it, and (if applicable) the pattern it matches.
@@ -42,7 +42,7 @@ Do NOT use when the user is asking for a proactive scan — that is `signal-dete
 
 ## Inputs and outputs
 
-- **Reads:** `investigate/playbooks/{signal_type}.md`, `brief_template.md`, `data/investigations/INDEX.md`, `data/patterns/INDEX.md` (if it exists; otherwise note as deferred), `data/metrics/operational/{facility}.csv`, `data/events/{facility}.csv`, any historical investigation file referenced.
+- **Reads:** `investigate/playbooks/{signal_type}.md`, `brief_template.md`, `data/investigations/INDEX.md`, `data/patterns/INDEX.md` (live since 2026-05-20), `data/metrics/operational/{facility}.csv`, `data/events/{facility}.csv`, any historical investigation file referenced.
 - **Writes:** `data/investigations/open/{date}_{facility}_{signal}.md`, `data/investigations/INDEX.md` (appends one row).
 - **Calls:** every calc the playbook specifies. Currently implemented: `cooccurrence.sh`, `segment_by.sh`, `change_drivers.sh`, `correlate.sh` in `calc/diagnostic/`. `outlier_days.sh` is listed in the handoff but not yet authored — playbooks should not reference it until it exists.
 

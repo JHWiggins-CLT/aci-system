@@ -353,6 +353,51 @@ ral_corr=$(bash calc/diagnostic/correlate.sh ral-02 cph headcount_new | tail -1)
 assert_contains "A3 peer gate: ral-02 is negligible (not the signature)" \
     "$ral_corr" "negligible"
 
+# 10. Pattern compounding (equipment-downtime throughput drag) -------------------
+section "10. Pattern: equipment-downtime throughput drag"
+
+# 10a. The pattern file and index exist and cross-reference.
+assert_eq "patterns/INDEX.md exists" \
+    "$([[ -f data/patterns/INDEX.md ]] && echo yes)" "yes"
+pidx=$(cat data/patterns/INDEX.md 2>/dev/null)
+assert_contains "patterns INDEX lists the equipment-downtime pattern" "$pidx" \
+    "equipment_downtime_throughput_drag.md"
+
+# 10b. The pattern's 3 historical instances all exist on disk (the threshold).
+for inv in \
+    data/investigations/2026-Q2/2026-04-22_ral-02_throughput_drop.md \
+    data/investigations/2026-Q1/2026-03-11_sav-01_throughput_drop.md \
+    data/investigations/2026-Q2/2026-04-07_atl-03_throughput_drop.md; do
+    assert_eq "pattern instance exists: $(basename "$inv")" \
+        "$([[ -f $inv ]] && echo yes)" "yes"
+done
+
+# 10c. Each of the three cases shows the equipment signature: an equipment-family
+#      metric is the top change_drivers mover (not quality, not headcount_new).
+ral_drv=$(bash calc/diagnostic/change_drivers.sh ral-02 --baseline 2026-03-01:2026-03-31 --comparison 2026-04-20:2026-04-27 --top 1 2>/dev/null | tail -1)
+assert_contains "ral-02 top driver is equipment downtime" "$ral_drv" "equipment|"
+sav_drv=$(bash calc/diagnostic/change_drivers.sh sav-01 --baseline 2026-02-01:2026-02-28 --comparison 2026-03-09:2026-03-16 --top 1 2>/dev/null | tail -1)
+assert_contains "sav-01 top driver is equipment downtime" "$sav_drv" "equipment|mhe_down_m"
+atl_drv=$(bash calc/diagnostic/change_drivers.sh atl-03 --baseline 2026-03-01:2026-03-31 --comparison 2026-04-06:2026-04-13 --top 1 2>/dev/null | tail -1)
+assert_contains "atl-03 top driver is equipment downtime" "$atl_drv" "equipment|conveyor_down_m"
+
+# 10d. The throughput_drop playbook now consults the pattern library.
+pb=$(cat .skills/investigate/playbooks/throughput_drop.md 2>/dev/null)
+assert_contains "throughput_drop playbook checks the pattern library" "$pb" \
+    "Check the pattern library first"
+assert_contains "throughput_drop playbook names the equipment pattern" "$pb" \
+    "equipment_downtime_throughput_drag"
+
+# 10e. The ral-02 preventive Kaizen's follow-up fires PASS (line healthy post-repair).
+ral_fu=$(bash calc/outcome/follow_up_check.sh ral-02 conveyor_down_m --max 60 --by 2026-05-18 --family equipment --window-days 18 2>&1)
+assert_contains "ral-02 conveyor PM follow-up fires PASS" "$ral_fu" "RESULT: PASS"
+
+# 10f. Mechanism independence: seeding the equipment cases did NOT create a cohort
+#      signature at those facilities, so the dal-02 A3's single-facility story holds.
+sav_coh=$(bash calc/diagnostic/correlate.sh sav-01 cph headcount_new | tail -1)
+assert_contains "equipment cases stay clear of the cohort signature (sav-01)" \
+    "$sav_coh" "negligible"
+
 # Summary ----------------------------------------------------------------------
 echo
 echo "================================================================"

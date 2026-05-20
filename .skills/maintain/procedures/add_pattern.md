@@ -6,7 +6,7 @@ Three or more **closed** investigations have turned out to share the same underl
 
 Do NOT use to record a single interesting investigation — that's what the investigation file is for. A pattern with one instance is an over-generalization.
 
-> **Build-state note (2026-05-20):** the threshold is **not yet met** in this build. Two investigations are closed (dal-02 throughput / cohort, chr-03 damage / SOP change) and they have *different* mechanisms — no mechanism has 3 instances. So `data/patterns/` is intentionally empty and this procedure has had no first real run. It encodes the discipline for when the third matching investigation lands. Until then, when a closed investigation looks pattern-worthy, record it as a **pattern seed** in the investigation's "Bring back from the floor" section and in the tracker, and wait.
+> **Build-state note (2026-05-20):** this procedure has had its **first real run** — `data/patterns/equipment_downtime_throughput_drag.md` was authored from three same-mechanism investigations (ral-02, sav-01, atl-03), and `throughput_drop.md` was wired to consult the library (step below). The cohort mechanism still has only one closed instance (dal-02), so a `cohort_overload_throughput_dip` pattern is **not** yet ripe — when a closed investigation looks pattern-worthy but is under the threshold, record it as a **pattern seed** in the investigation and the tracker, and wait.
 
 ## Prerequisites
 

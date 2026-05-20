@@ -76,8 +76,12 @@ The simulator threads several plausible operational stories through the dataset 
 | dal-02 | 2026-03-08 to 2026-03-22 | Cohort-of-6 throughput dip, mispick spike, trainer ratio violation |
 | chr-03 | 2026-04-12 to 2026-04-24 | Damage spike following bin relocation SOP change |
 | ral-02 | 2026-04-20 to 2026-04-27 | Conveyor failure → throughput drag during repair |
+| sav-01 | 2026-03-09 to 2026-03-16 | MHE drive failure → throughput drag (equipment-downtime pattern) |
+| atl-03 | 2026-04-06 to 2026-04-13 | Conveyor gearbox failure → throughput drag (equipment-downtime pattern) |
 | chr-05 | 2026-03-14 to 2026-03-17 | Refrigeration excursion → damage spike |
 | atl-01 | 2026-03-01 to 2026-05-18 | Slow drift up following Q4 WMS release |
+
+The sav-01, atl-03, and ral-02 equipment failures share one mechanism — together they form the first abstracted **pattern** (`data/patterns/equipment_downtime_throughput_drag.md`), which the `throughput_drop` playbook now consults before drafting hypotheses.
 
 Plus background events (audits, weather, volume shocks, leadership changes, network deployments) for cooccurrence richness.
 

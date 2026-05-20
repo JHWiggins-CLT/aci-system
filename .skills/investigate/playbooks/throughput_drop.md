@@ -17,6 +17,14 @@ This playbook is for **investigative work that produces a floor brief**, not for
 
 Run these calcs in order. Stop and reassess if any step contradicts the working hypothesis — the order is "cheap, broad-context calcs first; targeted calcs after."
 
+**Step 0 — Check the pattern library first.**
+
+Read `data/patterns/INDEX.md` before drafting hypotheses. If a pattern's signal shape plausibly matches this throughput drop, open the pattern file and let it seed your hypotheses and floor questions — that is the compounding payoff (you start from "which known cause is this?" rather than a blank page). For throughput drops, the live pattern to check is:
+
+- **`equipment_downtime_throughput_drag`** — CPH 8-15% below baseline for ~1 week, V-shaped recovery, with an equipment-family metric (`conveyor_down_m`/`mhe_down_m`) as the dominant driver and quality/headcount_new flat. If Steps 3-4 below confirm that shape, you have a pattern match: surface its "countermeasures that have worked" in the brief and use its investigation steps to confirm fast.
+
+A pattern match is a *starting hypothesis*, not a verdict — still run the confirming steps. If no pattern matches, proceed normally; a novel shape may itself become a future pattern once it recurs (3+ cases → `maintain/procedures/add_pattern.md`).
+
 **Step 1 — Confirm the signal shape.**
 
 ```

@@ -1,5 +1,5 @@
 version: 1
-generated_at: 2026-05-20T12:20:32Z
+generated_at: 2026-05-20T13:05:44Z
 skills:
   - name: close-loop
     path: close-loop/SKILL.md
@@ -41,7 +41,7 @@ skills:
       - 'why is X dropping'
       - 'what is going on with'
       - 'draft a brief for'
-    content_hash: 7bf65d63dd56f60dda6172e8f29ee915ad14d926f8a69e30c524f8c4bbda45cc
+    content_hash: dcc359de07735e26e3a7fb194955e0dcf8b0d363f93e7200bfa79b0f5d38c8cc
   - name: maintain
     path: maintain/SKILL.md
     description: >

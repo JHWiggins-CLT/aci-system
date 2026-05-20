@@ -10,7 +10,7 @@ An existing pattern needs revision because a new investigation taught the system
 
 Do NOT use to create a new pattern (`add_pattern.md`) or to fix a typo with no semantic change (just edit and note it in the commit). This procedure is for changes that alter what the pattern *claims*.
 
-> **Build-state note (2026-05-20):** no pattern files exist yet (the `add_pattern.md` threshold isn't met), so this procedure has had no first run. It's authored now so the contract is on disk when the first pattern lands and starts accumulating instances.
+> **Build-state note (2026-05-20):** one pattern now exists — `data/patterns/equipment_downtime_throughput_drag.md`. This procedure has not yet had its first run (no new instance or countermeasure outcome has arrived since the pattern was authored). The first natural trigger will be the ral-02 conveyor PM Kaizen closing: its outcome updates the pattern's "countermeasures that worked / didn't work" section.
 
 ## Prerequisites
 

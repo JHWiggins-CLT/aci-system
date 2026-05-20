@@ -147,6 +147,21 @@ SCENARIOS: list[Scenario] = [
              dt.date(2026, 4, 21), dt.date(2026, 4, 25),
              wms_incidents_add=2),
 
+    # --- Equipment-downtime throughput-drag pattern (peers of ral-02) ---
+    # Two more instances of the SAME mechanism as ral-02's conveyor outage:
+    # CPH drops while equipment downtime spikes, with quality (mispick/error)
+    # left roughly flat — the distinguishing signature vs the cohort dip.
+    # Together with ral-02 these three cases establish the
+    # equipment_downtime_throughput_drag pattern (3+ same-mechanism cases).
+    # sav-01 primary-sort MHE drive failure, Mar 9-16.
+    Scenario("sav-01", "mhe_failure_throughput_drag",
+             dt.date(2026, 3, 9), dt.date(2026, 3, 16),
+             cph_mult=0.88, mhe_down_add_m=120, wms_incidents_add=1),
+    # atl-03 conveyor gearbox failure, Apr 6-13.
+    Scenario("atl-03", "conveyor_failure_throughput_drag",
+             dt.date(2026, 4, 6), dt.date(2026, 4, 13),
+             cph_mult=0.90, conveyor_down_add_m=150, mhe_down_add_m=30),
+
     # chr-05 cold-storage temperature excursion mid-March → damage spike
     Scenario("chr-05", "refrigeration_excursion",
              dt.date(2026, 3, 14), dt.date(2026, 3, 17),
@@ -231,6 +246,18 @@ EVENT_SEEDS: list[EventSeed] = [
               "Dock door 7 motor replaced", "simulator-seed"),
     EventSeed("atl-03", dt.date(2026, 4, 14), "audit",
               "External transportation audit (advance notice)", "simulator-seed"),
+
+    # Equipment-downtime throughput-drag pattern instances (peers of ral-02)
+    EventSeed("sav-01", dt.date(2026, 3, 9), "incident",
+              "Primary sort MHE drive failure; degraded throughput ~5h",
+              "simulator-seed"),
+    EventSeed("sav-01", dt.date(2026, 3, 11), "equipment_install",
+              "MHE drive unit replaced on primary sorter", "simulator-seed"),
+    EventSeed("atl-03", dt.date(2026, 4, 6), "incident",
+              "Conveyor line 2 gearbox failure; partial shutdown",
+              "simulator-seed"),
+    EventSeed("atl-03", dt.date(2026, 4, 8), "equipment_install",
+              "Line 2 gearbox replaced; recommissioned Apr 8", "simulator-seed"),
 ]
 
 
