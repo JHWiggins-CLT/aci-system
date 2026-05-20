@@ -51,11 +51,15 @@ PRE=""
 POST=""
 FAMILY="operational"
 
+# need <args...> — guard that a flag actually has a value, so a trailing flag
+# returns a clean exit 2 instead of tripping set -u on an unset $2.
+need() { [[ $# -ge 2 ]] || { echo "Missing value for argument $1" >&2; exit 2; }; }
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --pre)    PRE="$2"; shift 2 ;;
-        --post)   POST="$2"; shift 2 ;;
-        --family) FAMILY="$2"; shift 2 ;;
+        --pre)    need "$@"; PRE="$2"; shift 2 ;;
+        --post)   need "$@"; POST="$2"; shift 2 ;;
+        --family) need "$@"; FAMILY="$2"; shift 2 ;;
         *) echo "Unknown argument: $1" >&2; exit 2 ;;
     esac
 done

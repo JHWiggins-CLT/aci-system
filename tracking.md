@@ -244,6 +244,18 @@ When the log gets long (say, 30+ entries), archive the oldest entries to `tracki
 - **Outcome:** Phases 5 and 6 are **complete**. Only optional capability modules remain.
 - **Next:** nothing required. Optional: capability modules (reports/graphing/presentations).
 
+### 2026-05-20 — Session 18 (Codex review fixes)
+
+- **Worked on:** acting on an independent Codex review of the Session-17 commit (9709991). Codex confirmed all three golden expected values are arithmetically correct and the docs self-consistent; it flagged 3 bash bugs and 1 cross-file contradiction, all fixed here.
+- **Fixed:**
+  - **Arg guards** (both outcome calcs): a trailing value-less flag (e.g. `--pre`) tripped `set -u` instead of returning the documented exit 2. Added a `need()` guard.
+  - **intervention_attribution verdict**: it could print `LIKELY` even when every check variable was uncheckable (UNKNOWN/NO FILE/NO DATA), overstating attribution. Now tracks uncheckable vars, adds an **INCONCLUSIVE** verdict (exit 4) when none can be evaluated, and surfaces uncheckable vars as a caveat on CONFOUNDED/LIKELY.
+  - **Zero-baseline**: a check var moving 0→positive was silently `STABLE` (rel forced to 0). Now pre==0 & post!=0 → **MOVED** with rel `n/a`; pre==0 & post==0 → STABLE.
+  - **Manifest paths**: the Session-17 Windows `reconcile.py` runs reverted the committed POSIX skill paths to backslashes (`close-loop\SKILL.md`), contradicting the 2026-05-20 path-normalization decision. Root-caused in `reconcile.py` (now uses `as_posix()`); normalized MANIFEST.yaml back to forward slashes.
+- **Verified:** golden 20/20, verify 84/84, reconcile in sync (forward-slash paths). Edge cases spot-checked: trailing flag → exit 2; all-uncheckable → INCONCLUSIVE exit 4; zero-baseline → MOVED/n/a.
+- **Deliberately left** (Codex "warning", consistent with existing conventions): DATA_ROOT family-dir vs metrics-root differs by calc reach (matches follow_up_check vs change_drivers); numeric regex rejects `.5`/scientific notation (matches the existing zero-safe filter); bare-metric first-match resolver (no v1 name collisions). One genuine pre-existing gap noted, not changed: `damage_spike.md` lacks the Step 0 pattern check the new playbook template now standardizes.
+- **Next:** optional — add Step 0 to `damage_spike.md`; otherwise nothing required.
+
 ### 2026-05-20 — Session 15 (onboarding slices 2-5: setup branch is now real)
 
 - **Worked on:** "continue working so we can close edge" — turned the **setup** branch of the first-run gate from a stub into a working guided flow.
