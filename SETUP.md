@@ -48,12 +48,14 @@ interrupted setup never leaves you with a deployment that *claims* to be ready b
    metrics/events/facilities.
 7. **Verify, then go live.**
    ```bash
-   bash verify.sh                              # structural checks must pass
+   bash verify.sh                              # all checks (while still in demo/unset)
    python config/deployment.py set production  # flip the mode last
+   bash verify.sh                              # now runs the STRUCTURAL tier only — must be green
    ```
-   (After cutover, `verify.sh` Sections 5–11 assert demo-specific scenarios and will fail
-   — that's expected until the planned production-aware verify split lands. Treat the
-   structural checks — golden tests, reconcile, validators, calc smoke — as the gate.)
+   `verify.sh` is mode-aware: in `production` it runs the structural tier (golden tests,
+   manifest, validators, onboarding plumbing) and automatically skips the demo-scenario
+   sections, so a green run in production is the real acceptance gate. (Force a tier with
+   `--structural` or `--all` if needed.)
 
 ## Adding capabilities later
 
@@ -64,7 +66,8 @@ enabling one is a *partial* re-onboard — you don't redo the whole flow. See
 
 ## Build status
 
-The mode gate and this guided flow are built. Some sub-pieces are scaffolds/early:
-`add_facility.md` and `bump_schema.md` are authored procedures; the conversion adapter is
-a template you complete; the production-aware `verify.sh` split is still planned. See
-`onboarding_design.md` (build sequence) for what's done vs pending.
+The mode gate, this guided flow, `reset_demo_state.py`, the `add_facility`/`bump_schema`
+procedures, and the mode-aware `verify.sh` split are all built. The one piece you complete
+yourself is the conversion adapter (a validator-wired template). Optional capability modules
+(reports, graphing, presentations) are designed but not yet built. See `onboarding_design.md`
+(build sequence) for the full status.

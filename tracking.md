@@ -57,14 +57,14 @@ Practical effects on the plan:
 ## Status header
 
 ```yaml
-current_phase:          "Portfolio core complete (full CI loop). Production-onboarding workstream: slices 1-5 BUILT — the setup branch is no longer a stub. Mode gate + onboard skill + SETUP.md + reset_demo_state.py + add_facility/bump_schema procedures + conversion-adapter scaffold all live and verified. Pending: slice 6 (production-aware verify split) + optional capability modules."
-last_completed_step:    "Built onboarding slices 2-5 (closed the setup-stub edge): reset_demo_state.py (mode-aware, header-only index reset, leaves metrics/events/facilities); the onboard SKILL (registered in manifest) + SETUP.md; add_facility.md + bump_schema.md maintain procedures; conversion/scripts/adapter_template.py (validator-wired scaffold, --show-schema, fails loudly unimplemented) + conversion/README pointer. Updated .skills/README.md so setup routes to onboard (no longer a stub). verify.sh Section 12 (11 checks). verify.sh 82/82; 17 golden tests; reconcile clean (5 skills now)."
-next_concrete_action:   "Onboarding slice 6: production-aware verify.sh split (structural checks vs demo-scenario assertions). Then optional capability modules (reports/graphing/presentations) via the capability-registry pattern (onboarding_design.md Section 5)."
-in_progress_work:       "Production onboarding workstream — slices 1-5 built; slice 6 + capability modules pending."
+current_phase:          "Portfolio core complete (full CI loop). Production-onboarding workstream: slices 1-6 ALL BUILT — first-run mode gate, onboard skill + SETUP.md, reset_demo_state.py, add_facility/bump_schema procedures, conversion-adapter scaffold, and a mode-aware verify.sh. Only optional capability modules (reports/graphing/presentations) remain, and those are genuinely optional."
+last_completed_step:    "Built onboarding slice 6: verify.sh is now mode-aware. It reads config/deployment.py get and runs the STRUCTURAL tier only in production (golden tests, manifest, validators, mode gate, onboard tooling — Sections 1/2/4/11/12), skipping the demo-scenario sections (3, 5-10) which assert the simulated dataset (and where Section 3 would overwrite real data). --structural/--all override. Made the Section 12 reset checks mode-agnostic (before/after counts + --force) and let reset_demo_state --dry-run preview in any mode. Verified: demo/unset → 82/82; production (and --structural) → 26/26, clean (no expected-failures). Updated onboard SKILL/SETUP.md/README notes that called the split 'pending'."
+next_concrete_action:   "Optional: capability modules (reports/graphing/presentations) via the Section 5 registry pattern — build when the first is wanted. The onboarding workstream is otherwise complete end-to-end."
+in_progress_work:       null
 blocked_on:             null
 last_updated:           "2026-05-20"
-last_updated_by:        "session-2026-05-20-onboarding-slices-2-5"
-sessions_logged:        15
+last_updated_by:        "session-2026-05-20-onboarding-slice-6"
+sessions_logged:        16
 ```
 
 > **Edit only the values, not the keys.** The keys are the contract; downstream tooling may read this block programmatically. If you need to write more than fits here, write it in the working log below.
@@ -154,7 +154,7 @@ Compact view of every phase. Update the Status column as phases progress. Use th
 - Close-loop procedures: 3 ([open_kaizen.md](.skills/close-loop/procedures/open_kaizen.md), [open_a3.md](.skills/close-loop/procedures/open_a3.md), [reopen_investigation.md](.skills/close-loop/procedures/reopen_investigation.md)) — matches the 3 the SKILL routes to
 - Maintain procedures: 5 of 9 planned — [add_calc.md](.skills/maintain/procedures/add_calc.md), [add_pattern.md](.skills/maintain/procedures/add_pattern.md), [update_pattern.md](.skills/maintain/procedures/update_pattern.md), [add_facility.md](.skills/maintain/procedures/add_facility.md), [bump_schema.md](.skills/maintain/procedures/bump_schema.md). SKILL routes to these and hand-walks the rest.
 - Maintain templates: 4 — a3, kaizen, facility_profile, [pattern.md](.skills/maintain/templates/pattern.md) (added 2026-05-20 for add_pattern)
-- Smoke test: [verify.sh](verify.sh) — 82 checks, all passing (Section 11: deployment-mode gate; Section 12: onboard skill + setup tooling)
+- Smoke test: [verify.sh](verify.sh) — **mode-aware**: demo/unset runs all 82 checks; production runs the 26 structural checks only (Sections 1/2/4/11/12), auto-skipping demo-scenario Sections 3/5-10. `--structural`/`--all` override. All green in both modes.
 - Onboarding workstream: [onboarding_design.md](onboarding_design.md) (design; slices 1-5 built). Built artifacts: [config/deployment.yaml.example](config/deployment.yaml.example) + [config/deployment.py](config/deployment.py) + [.skills/README.md](.skills/README.md) Step 0 (mode gate); [.skills/onboard/SKILL.md](.skills/onboard/SKILL.md) + [SETUP.md](SETUP.md) (guided flow); [.skills/onboard/reset_demo_state.py](.skills/onboard/reset_demo_state.py); [conversion/scripts/adapter_template.py](conversion/scripts/adapter_template.py)
 - Skills built: signal-detect, investigate, close-loop, maintain, **onboard** (5; manifest in sync)
 
@@ -217,6 +217,17 @@ When the log gets long (say, 30+ entries), archive the oldest entries to `tracki
   - **Paired disposition.** The dal-02 investigation was already closed as a Kaizen, so open_a3.md's "set state a3_open + move the file" steps didn't apply. Kept state `kaizen_open`, recorded both artifact ids, documented the deviation in the file and the decision log.
   - Phase 5 is NOT fully complete despite the mix target: still needs 2 more outcome calcs (3 total) and a 3rd *closed investigation* (the A3 is a companion, not a new case).
 - **Next session:** the 2 remaining outcome calcs (Phase 5.1) with golden tests; a 3rd closed investigation (ral-02 conveyor or chr-05 refrigeration) to satisfy Phase 5's "3 investigations closed" and edge toward the pattern threshold.
+
+### 2026-05-20 — Session 16 (onboarding slice 6: mode-aware verify; workstream complete)
+
+- **Worked on:** the last onboarding slice — making `verify.sh` clean after a production cutover, so a forker who switches to their own data gets a meaningful green run with no expected-failures.
+- **Built:**
+  - `verify.sh` is now **mode-aware**. It reads `config/deployment.py get` and runs two tiers: STRUCTURAL (golden tests, manifest sync, validators, mode gate, onboard tooling — Sections 1/2/4/11/12) in every mode; DEMO-SCENARIO (Sections 3, 5-10, which assert the simulated dataset) only in demo/unset. `--structural` / `--all` force a tier. Section 3 (simulator re-run) is now guarded out of production — important, since it writes `data/metrics` and would overwrite real data.
+  - Made the Section 12 reset checks mode-agnostic (before/after counts + `--force` on the throwaway copy) so Section 12 stays fully structural; let `reset_demo_state.py --dry-run` preview in any mode (a preview should never be blocked).
+  - Updated the verify.sh header, the onboard SKILL, SETUP.md, and the design doc — all of which previously called the split "pending."
+- **Verified:** demo/unset → **82/82**; simulated production (`set production`) and `--structural` → **26/26**, clean (Sections 3/5-10 skipped). Restored the repo to `unset` (greets on first run). golden 17/17; reconcile clean.
+- **Outcome:** the production-onboarding workstream is complete end-to-end (slices 1-6). A fork can be greeted, pick demo or setup, run setup through the onboard skill, and get a green mode-aware verify in production. Only the optional capability modules remain.
+- **Next:** nothing required. Optional: capability modules (reports/graphing/presentations) when wanted.
 
 ### 2026-05-20 — Session 15 (onboarding slices 2-5: setup branch is now real)
 

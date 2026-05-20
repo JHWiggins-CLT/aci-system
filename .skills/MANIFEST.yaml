@@ -1,5 +1,5 @@
 version: 1
-generated_at: 2026-05-20T14:35:52Z
+generated_at: 2026-05-20T14:43:27Z
 skills:
   - name: close-loop
     path: close-loop/SKILL.md
@@ -90,7 +90,7 @@ skills:
       - 'use my own data'
       - 'switch to production'
       - 'go to production'
-    content_hash: 48e78e86be54912106aac608b3e2e18f54c8c5f15776e1bc7bc2acd1ce269544
+    content_hash: 5e356b81bc02fa5795e3cb9f8b6b13ef133ae3977f480651d52244ff0b5b8e6c
   - name: signal-detect
     path: signal-detect/SKILL.md
     description: >

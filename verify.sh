@@ -4,17 +4,22 @@
 # Bundles every mechanical check this project relies on into one runnable
 # artifact. Fast (~5s), deterministic, and exits non-zero on any failure.
 #
-# What it covers:
-#   1. Calc library golden tests
-#   2. Skills MANIFEST is in sync with the .skills/ directory
-#   3. Simulator round-trips deterministically (same seed → same bytes)
-#   4. Validators reject bad rows (the discipline guarantee)
-#   5. Embedded scenarios surface in the calcs they should
-#   6. dal-02 close-loop artifacts cross-reference correctly
-#   7. Descriptive calcs against the live dal-02 dataset
-#   8. Exceptions-family calcs + chr-03 damage close-loop
+# What it covers, in two tiers:
+#   STRUCTURAL (run in every mode): golden tests (1), manifest sync (2),
+#     validator discipline (4), deployment-mode gate (11), onboard tooling (12).
+#   DEMO-SCENARIO (run only in demo/unset mode): simulator determinism (3) and
+#     the embedded-scenario / close-loop / A3 / pattern checks (5-10). These
+#     assert the built-in simulated dataset, so they are skipped in production
+#     (where Section 3 would also overwrite real data by re-running the simulator).
 #
-# Usage: bash verify.sh
+# The tier is chosen automatically from `config/deployment.py get`:
+#   - demo / unset → all checks
+#   - production   → structural only
+#
+# Usage:
+#   bash verify.sh               # auto by deployment mode
+#   bash verify.sh --structural  # force structural-only (any mode)
+#   bash verify.sh --all         # force all checks (even in production)
 # Exit:  0 all checks pass; 1 any check failed.
 
 set -uo pipefail
@@ -61,6 +66,33 @@ assert_contains() {
     fi
 }
 
+# --- Mode awareness (onboarding slice 6) --------------------------------------
+# Structural checks (golden tests, manifest, validators, onboarding plumbing) run
+# in every mode. Demo-scenario checks (Sections 3 and 5-10) assert the built-in
+# simulated dataset and only run in demo/unset mode: in production they would be
+# meaningless, and Section 3 in particular re-runs the simulator, which would
+# OVERWRITE real data. Override with --all (force demo checks too) or
+# --structural (skip them).
+FORCE=""
+for arg in "$@"; do
+    case "$arg" in
+        --all) FORCE=all ;;
+        --structural) FORCE=structural ;;
+        *) echo "unknown arg: $arg (use --all or --structural)" >&2; exit 2 ;;
+    esac
+done
+MODE=$(python config/deployment.py get 2>/dev/null || echo unset)
+if [[ "$FORCE" == "all" ]]; then RUN_DEMO=1
+elif [[ "$FORCE" == "structural" ]]; then RUN_DEMO=0
+elif [[ "$MODE" == "production" ]]; then RUN_DEMO=0
+else RUN_DEMO=1; fi
+
+if [[ "$RUN_DEMO" == 1 ]]; then
+    echo "verify.sh — mode=$MODE — running ALL checks (structural + demo-scenario)"
+else
+    echo "verify.sh — mode=$MODE — STRUCTURAL checks only (demo-scenario sections skipped)"
+fi
+
 # 1. Calc library golden tests --------------------------------------------------
 section "1. Calc library golden tests"
 if bash calc/tests/run.sh >/dev/null 2>&1; then
@@ -79,6 +111,9 @@ else
 fi
 
 # 3. Simulator determinism ------------------------------------------------------
+# DEMO-ONLY: re-runs the simulator, which writes data/metrics — must never run in
+# production (it would overwrite real data).
+if [[ "$RUN_DEMO" == 1 ]]; then
 section "3. Simulator determinism (same seed → same bytes)"
 snapshot=$(mktemp -d)
 cp data/metrics/operational/dal-02.csv "$snapshot/before.csv"
@@ -98,6 +133,7 @@ else
     ko "simulator re-run" "simulator script failed"
 fi
 rm -rf "$snapshot"
+fi  # RUN_DEMO (Section 3)
 
 # 4. Validators reject bad rows -------------------------------------------------
 section "4. Validators reject bad rows"
@@ -155,6 +191,10 @@ if [[ "$out" == "OK" ]]; then
 else
     ko "bad-row test suite" "$out"
 fi
+
+# --- DEMO-SCENARIO checks (Sections 5-10): assert the built-in simulated dataset
+# --- and its demo investigations/Kaizens/A3/pattern. Skipped in production mode.
+if [[ "$RUN_DEMO" == 1 ]]; then
 
 # 5. Scenario detection ---------------------------------------------------------
 section "5. Embedded scenarios surface in calcs"
@@ -398,6 +438,8 @@ sav_coh=$(bash calc/diagnostic/correlate.sh sav-01 cph headcount_new | tail -1)
 assert_contains "equipment cases stay clear of the cohort signature (sav-01)" \
     "$sav_coh" "negligible"
 
+fi  # RUN_DEMO (Sections 5-10)
+
 # 11. Deployment-mode gate (onboarding slice 1) ---------------------------------
 section "11. Deployment-mode gate"
 
@@ -456,22 +498,24 @@ adp_err=$(python conversion/scripts/adapter_template.py 2>&1 || true)
 assert_contains "adapter refuses to run unimplemented (no silent empty data)" "$adp_err" \
     "NotImplementedError"
 
-# 12e. reset_demo_state dry-run reports demo artifacts and changes NOTHING.
-dry=$(python .skills/onboard/reset_demo_state.py --dry-run 2>&1)
-assert_contains "reset dry-run would clear the demo pattern" "$dry" \
-    "patterns/equipment_downtime_throughput_drag.md"
+# 12e. reset_demo_state --dry-run is non-destructive in any mode (preview only).
 inv_before=$(find data/investigations -name '*.md' ! -name INDEX.md | wc -l | tr -d ' ')
-assert_eq "reset dry-run left demo investigations intact" "$inv_before" "5"
+dry=$(python .skills/onboard/reset_demo_state.py --dry-run 2>&1)
+assert_contains "reset --dry-run prints a summary" "$dry" "Would clear"
+inv_after_dry=$(find data/investigations -name '*.md' ! -name INDEX.md | wc -l | tr -d ' ')
+assert_eq "reset --dry-run changed nothing" "$inv_before" "$inv_after_dry"
 
-# 12f. reset_demo_state on a throwaway copy clears the indexes (header-only) and
-#      leaves metrics untouched — the production-start behavior.
+# 12f. reset_demo_state on a throwaway copy clears the investigation INDEX to
+#      header-only and leaves the metrics tree untouched (mode-agnostic: compares
+#      counts before/after rather than asserting demo-specific totals).
 RESET_TMP=$(mktemp -d)
 cp -r data "$RESET_TMP/data"
-python .skills/onboard/reset_demo_state.py --root "$RESET_TMP/data" >/dev/null 2>&1
+op_before=$(ls "$RESET_TMP/data/metrics/operational"/*.csv 2>/dev/null | wc -l | tr -d ' ')
+python .skills/onboard/reset_demo_state.py --root "$RESET_TMP/data" --force >/dev/null 2>&1
 rows_left=$(grep -c '^| 20' "$RESET_TMP/data/investigations/INDEX.md" || true)
 assert_eq "reset cleared investigation INDEX data rows" "$rows_left" "0"
-op_left=$(ls "$RESET_TMP/data/metrics/operational"/*.csv 2>/dev/null | wc -l | tr -d ' ')
-assert_eq "reset left metrics untouched (8 operational CSVs)" "$op_left" "8"
+op_after=$(ls "$RESET_TMP/data/metrics/operational"/*.csv 2>/dev/null | wc -l | tr -d ' ')
+assert_eq "reset left the metrics tree untouched" "$op_before" "$op_after"
 rm -rf "$RESET_TMP"
 
 # Summary ----------------------------------------------------------------------

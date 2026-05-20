@@ -1,6 +1,6 @@
 # ACI System — Onboarding & Deployment-Mode Design (sketch)
 
-> **Status: slices 1–5 BUILT; slice 6 + optional capability modules remain.**
+> **Status: slices 1–6 BUILT; only the optional capability modules remain.**
 > This proposes how a forked or downloaded copy of the system moves from
 > portfolio-demo to a real production deployment, and how the system greets a
 > first-time operator and remembers their choice. It is a companion to
@@ -9,8 +9,9 @@
 > Step 0), the `onboard` skill + `SETUP.md`, `reset_demo_state.py`, the
 > `add_facility` / `bump_schema` maintain procedures, and the conversion-adapter
 > scaffold — all covered by `verify.sh` Sections 11–12. Still pending: a
-> production-aware `verify.sh` split (slice 6) and the optional capability modules
-> (Section 5). The conversion adapter ships as a template the operator completes.
+> mode-aware `verify.sh` split (slice 6, built — structural tier auto-runs in
+> production). Only the optional capability modules (Section 5) remain. The
+> conversion adapter ships as a template the operator completes.
 
 ---
 
@@ -215,6 +216,8 @@ The simulator stays in the repo as the demo source and as a **reference implemen
 3. ✅ **Built.** `onboard` skill (`.skills/onboard/SKILL.md`, registered in the manifest) + `SETUP.md` (human mirror).
 4. ✅ **Built.** `add_facility.md` and `bump_schema.md` maintain procedures.
 5. ✅ **Built.** Conversion adapter scaffold (`conversion/scripts/adapter_template.py`, validator-wired, `--show-schema`, fails loudly when unimplemented) + `conversion/README` guidance.
-6. ⏳ **Pending.** A production-aware split of `verify.sh` (structural checks vs demo-scenario assertions). Until then, the `onboard` skill tells the operator that Sections 5–11/12 are demo-specific and expected to fail after a production cutover.
+6. ✅ **Built.** Mode-aware `verify.sh`: it reads `config/deployment.py get` and runs the structural tier only in `production` (skipping the demo-scenario sections, including the simulator re-run that would overwrite real data), all checks in demo/unset, with `--structural` / `--all` overrides. A green production run is the real acceptance gate.
+
+**Remaining (optional):** the capability modules (reports / graphing / presentations) via the Section 5 registry pattern — genuinely optional, built when the first one is wanted.
 
 Slice 1 alone makes the system "greet on first run"; the rest deepens setup behind that gate. The capability-registry pattern (Section 5) is established when the first optional capability (reports/graphing/presentations) is built — at which point onboarding extends itself rather than being rewritten.

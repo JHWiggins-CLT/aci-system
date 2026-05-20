@@ -97,9 +97,10 @@ def main(argv=None) -> int:
         return 2
 
     mode = current_mode()
-    if mode == "production" and not args.force:
+    if mode == "production" and not args.force and not args.dry_run:
         print("refusing to reset in production mode without --force "
-              "(this would delete real investigation history).", file=sys.stderr)
+              "(this would delete real investigation history). "
+              "Use --dry-run to preview, or --force to proceed.", file=sys.stderr)
         return 3
 
     tag = "[dry-run] would remove" if args.dry_run else "removed"
