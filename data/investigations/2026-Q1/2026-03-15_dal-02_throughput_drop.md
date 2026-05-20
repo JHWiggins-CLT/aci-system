@@ -9,9 +9,23 @@ floor_visit_on: 2026-05-18
 closed_on: 2026-05-18
 investigator: portfolio-demo
 playbook: investigate/playbooks/throughput_drop.md
-disposition: kaizen
+disposition: kaizen + a3
 kaizen_id: k-2026-05-dal-02-trainer-ratio
+a3_id: a3-2026-05-network-trainer-coverage
 ---
+
+<!--
+PAIRED DISPOSITION NOTE: this investigation disposed as a Kaizen on 2026-05-18
+(the dal-02 facility fix). On 2026-05-20 a companion A3
+(a3-2026-05-network-trainer-coverage) was opened from the same investigation to
+address the *systemic* assumption the case revealed — trainer capacity modeled
+as nominal but shared with shift coverage. The investigation state stays
+`kaizen_open` (its original, primary disposition); the A3 is a network-scope
+follow-on, not a re-disposition. This deviates from open_a3.md steps 11-12,
+which assume the A3 closes a still-open investigation; here the investigation
+was already closed as a Kaizen. See tracking.md decision log (2026-05-20).
+-->
+
 
 # Floor Brief: dal-02 throughput drop, 2026-03-08 to 2026-03-22
 

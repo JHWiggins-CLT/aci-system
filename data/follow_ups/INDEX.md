@@ -27,3 +27,5 @@ The signal-detect skill scans this file daily and surfaces any row where `follow
 | k-2026-05-dal-02-trainer-ratio | 2026-08-17 | cph | 138 | >= | `bash calc/outcome/follow_up_check.sh dal-02 cph --target 138 --by 2026-08-17 --window-days 14` | pending | |
 | k-2026-05-chr-03-bin-relocation | 2026-06-19 | damage | 18 | <= | `bash calc/outcome/follow_up_check.sh chr-03 damage --max 18 --by 2026-06-19 --family exceptions --window-days 14` | pending | |
 | k-2026-05-chr-03-bin-relocation | 2026-07-19 | damage | 18 | <= | `bash calc/outcome/follow_up_check.sh chr-03 damage --max 18 --by 2026-07-19 --family exceptions --window-days 14` | pending | |
+| a3-2026-05-network-trainer-coverage | 2026-06-15 | cph | 138 | >= | `bash calc/outcome/follow_up_check.sh dal-02 cph --target 138 --by 2026-06-15 --window-days 14` | pending | |
+| a3-2026-05-network-trainer-coverage | 2026-06-15 | cph~headcount_new (ral-02) | -0.35 | >= | `bash calc/diagnostic/correlate.sh ral-02 cph headcount_new` | pending | |

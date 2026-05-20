@@ -317,6 +317,42 @@ assert_contains "follow_ups index has chr-03 damage row" "$fu_idx" \
 assert_eq "damage_spike playbook exists" \
     "$([[ -f .skills/investigate/playbooks/damage_spike.md ]] && echo yes)" "yes"
 
+# 9. A3 demonstration (network trainer-coverage, paired with dal-02 Kaizen) ------
+section "9. A3 artifacts (network trainer-coverage)"
+
+A3=data/a3s/open/a3-2026-05-network-trainer-coverage.md
+
+# 9a. The A3 file and index exist.
+assert_eq "A3 file exists in a3s/open/" \
+    "$([[ -f $A3 ]] && echo yes)" "yes"
+a3_idx=$(cat data/a3s/INDEX.md 2>/dev/null)
+assert_contains "a3s INDEX lists the network trainer-coverage A3" "$a3_idx" \
+    "a3-2026-05-network-trainer-coverage"
+
+# 9b. The A3 cross-references its source investigation and companion Kaizen.
+a3=$(cat "$A3" 2>/dev/null)
+assert_contains "A3 cites source investigation" "$a3" \
+    "2026-03-15_dal-02_throughput_drop"
+assert_contains "A3 names companion Kaizen" "$a3" \
+    "k-2026-05-dal-02-trainer-ratio"
+
+# 9c. The follow-ups gate holds: the A3 has rows in the follow-ups index.
+fu_a3=$(cat data/follow_ups/INDEX.md)
+assert_contains "follow_ups index has the A3 proof-case row" "$fu_a3" \
+    "a3-2026-05-network-trainer-coverage | 2026-06-15 | cph | 138"
+
+# 9d. The dal-02 investigation links the companion A3 (paired disposition).
+inv=$(cat data/investigations/2026-Q1/2026-03-15_dal-02_throughput_drop.md 2>/dev/null)
+assert_contains "dal-02 investigation links the companion A3" "$inv" \
+    "a3_id: a3-2026-05-network-trainer-coverage"
+
+# 9e. The A3's peer-evidence gate is honest: a live correlate sweep confirms the
+#     cohort-overload signature is single-facility today (only dal-02 negative;
+#     the tracked peer ral-02 stays above the -0.35 gate floor).
+ral_corr=$(bash calc/diagnostic/correlate.sh ral-02 cph headcount_new | tail -1)
+assert_contains "A3 peer gate: ral-02 is negligible (not the signature)" \
+    "$ral_corr" "negligible"
+
 # Summary ----------------------------------------------------------------------
 echo
 echo "================================================================"

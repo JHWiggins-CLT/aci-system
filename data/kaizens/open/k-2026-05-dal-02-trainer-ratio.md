@@ -51,4 +51,4 @@ When onboarding any cohort of more than 4 new hires at dal-02, the lead trainer 
 
 ---
 
-*This Kaizen is one half of a likely two-part response. If the network-sync poll (committed 2026-06-15) reveals that other facilities have similar informal dual-cover trainer arrangements, an A3 should be opened to address the systemic issue: training capacity is modeled as nominal availability but is actually shared with shift coverage across the network. This Kaizen handles dal-02; the A3 (if opened) would handle the architecture.*
+*This Kaizen is one half of a two-part response. The companion A3 — `a3-2026-05-network-trainer-coverage` (opened 2026-05-20) — addresses the systemic issue: training capacity is modeled as nominal availability but is actually shared with shift coverage across the network. This Kaizen handles dal-02; the A3 handles the architecture. The A3 opened with single-facility evidence (a 2026-05-20 `correlate.sh` sweep found the cohort-overload signature only at dal-02) and a peer-evidence gate at 2026-06-15 — the network-sync poll committed here is that gate. See `data/a3s/open/a3-2026-05-network-trainer-coverage.md`.*
