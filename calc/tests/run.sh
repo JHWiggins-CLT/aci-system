@@ -113,6 +113,25 @@ DATA_ROOT="$TMPDIR/metrics" \
     run_test correlate_cph_error_rate "$CALC_ROOT/diagnostic/correlate.sh" \
     dal-02 cph error_rate
 
+# outcome calcs ----------------------------------------------------------------
+# follow_up_check (single-family, operational): 14-day window to 2026-03-14 means
+# 1888/14 = 134.86 cph, below the 138 target -> FAIL.
+run_test follow_up_check "$CALC_ROOT/outcome/follow_up_check.sh" \
+    dal-02 cph --target 138 --by 2026-03-14 --window-days 14
+
+# countermeasure_effectiveness (single-family): trough week (508/4=127.00) vs
+# recovery week (554/4=138.50) -> +11.50 (+9.06%), cph higher-is-better -> IMPROVED.
+run_test countermeasure_effectiveness "$CALC_ROOT/outcome/countermeasure_effectiveness.sh" \
+    dal-02 cph --pre 2026-03-06:2026-03-09 --post 2026-03-11:2026-03-14
+
+# intervention_attribution (multi-family; intra-operational here so one fixture
+# covers it). cph and units both fall -3.55% (STABLE < 5%), error_rate rises
+# +12.16% (MOVED) -> CONFOUNDED by error_rate. Needs the metrics/ root.
+DATA_ROOT="$TMPDIR/metrics" \
+    run_test intervention_attribution "$CALC_ROOT/outcome/intervention_attribution.sh" \
+    dal-02 cph --intervention-date 2026-03-08 --check-variables units,error_rate \
+    --window-days 3 --threshold 5
+
 rm -rf "$TMPDIR"
 
 echo

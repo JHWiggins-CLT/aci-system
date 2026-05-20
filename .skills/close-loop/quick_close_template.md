@@ -19,7 +19,7 @@ For investigations that turn out to be non-events. Use when the floor confirms t
 
 - **Did this match a pattern?** {pattern file or "no pattern matched"}
 - **If yes, was the pattern wrong, or was this just one that didn't fit?** {brief note}
-- **Should the pattern be revised?** {yes/no — if yes, run `maintain/procedures/update_pattern.md` separately once it exists; until then, edit the pattern directly and log the rationale in `tracking.md`}
+- **Should the pattern be revised?** {yes/no — if yes, run `maintain/procedures/update_pattern.md` separately}
 
 ---
 

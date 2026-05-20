@@ -316,7 +316,9 @@ def discover_skills_on_disk(skills_root: Path) -> tuple[list[SkillEntry], list[t
             warnings.append((skill_md, "frontmatter missing required fields (name, description)"))
             continue
 
-        rel_path = str(skill_md.relative_to(skills_root))
+        # Always emit POSIX separators so the manifest is identical on every OS
+        # (the project targets model/platform-agnostic use; .gitattributes forces LF).
+        rel_path = skill_md.relative_to(skills_root).as_posix()
         content_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
 
         entries.append(SkillEntry(

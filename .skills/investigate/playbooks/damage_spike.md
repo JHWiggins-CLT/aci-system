@@ -19,6 +19,14 @@ Note on direction: exceptions metrics are "higher is worse." Every calc below th
 
 Run these calcs in order. Stop and reassess if any step contradicts the working hypothesis — the order is "cheap, broad-context calcs first; targeted calcs after."
 
+**Step 0 — Check the pattern library first.**
+
+Read `data/patterns/INDEX.md` before drafting hypotheses. If a pattern's signal shape plausibly matches this damage spike, open the pattern file and let it seed your hypotheses and floor questions — you start from "which known cause is this?" rather than a blank page.
+
+As of now there is **no damage-specific pattern** in the library (the one live pattern, `equipment_downtime_throughput_drag`, is a CPH-drop shape). The exception worth a glance: if Step 4 shows `damage` rising *together with* an equipment-downtime metric (`conveyor_down_m`/`mhe_down_m`), open that pattern — equipment that mishandles product can spike damage and drag throughput at once, so its countermeasures may transfer.
+
+A pattern match is a *starting hypothesis*, not a verdict — still run the confirming steps below. If no pattern matches, proceed normally; a novel damage shape may itself become a pattern once it recurs (3+ similar cases → `maintain/procedures/add_pattern.md`).
+
 **Step 1 — Confirm the spike shape.**
 
 ```

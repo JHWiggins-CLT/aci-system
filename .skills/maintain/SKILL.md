@@ -5,10 +5,12 @@ description: >
   facility, add or update a calc, add or update a playbook, add an
   event type, add or update a pattern, update facility aliases, bump
   the schema version, or deprecate a facility. **Partially proceduralized:**
-  three procedures are authored and authoritative — `add_calc.md`,
-  `add_pattern.md`, `update_pattern.md` in `maintain/procedures/` (plus
-  templates in `maintain/templates/`); follow them step by step when they
-  match. Every other operation is still hand-walked — confirm scope with
+  most operations now have authored, authoritative procedures in
+  `maintain/procedures/` — `add_calc.md`, `add_pattern.md`,
+  `update_pattern.md`, `add_facility.md`, `bump_schema.md`, `add_playbook.md`
+  (plus templates in `maintain/templates/`); follow them step by step when
+  they match. The remaining operations (`add_event_type`, `update_aliases`,
+  `deprecate_facility`) are still hand-walked — confirm scope with
   the user, copy any relevant template, execute, and verify by hand
   (`bash verify.sh`, `bash calc/tests/run.sh`,
   `python .skills/.meta/reconcile.py` as applicable). Do NOT use for
@@ -36,13 +38,16 @@ Do NOT use during normal investigative or close-loop work. Architectural edits d
 
 ## Current scope
 
-This skill is **partially proceduralized.** Three operations have authored, authoritative procedure files; the rest are still hand-walked.
+This skill is **partially proceduralized.** Six operations have authored, authoritative procedure files; the rest are still hand-walked.
 
 **Authored procedures (follow them step by step):**
 
 - `procedures/add_calc.md` — new calc function (descriptive, diagnostic, comparative, or outcome)
 - `procedures/add_pattern.md` — new pattern derived from 3+ similar investigations
 - `procedures/update_pattern.md` — revising an existing pattern (typically from close-loop intake feedback)
+- `procedures/add_facility.md` — new site joining the network
+- `procedures/bump_schema.md` — coordinated schema version bump across `metrics/MANIFEST.md`, `_schema_v1.sh`, and every conversion script
+- `procedures/add_playbook.md` — new investigation procedure for a new signal type (authored from a real off-playbook investigation)
 
 When the request matches one of these, **read the procedure and follow it** — its prerequisites, ordered steps, and verification gate are the contract. Do not improvise around it.
 
@@ -58,14 +63,11 @@ When the request matches one of these, **read the procedure and follow it** — 
 
 These are listed in `handoff.md` §2 as part of the full architecture but do not exist on disk yet. Each will, when authored, encode the prerequisites, ordered steps, and verification gate for one operation:
 
-- `add_facility.md` — new site joining the network
-- `add_playbook.md` — new investigation procedure for a new signal type
 - `add_event_type.md` — extending the event taxonomy
 - `update_aliases.md` — fixing or extending facility aliases
-- `bump_schema.md` — coordinated schema version bump across `metrics/MANIFEST.md`, `_schema_v1.sh`, and every conversion script
 - `deprecate_facility.md` — taking a site out of active scope
 
-The implementation plan (Phase 6.5) prioritized `add_pattern.md`, `update_pattern.md`, and `add_calc.md` for first authoring (now done) because those are the operations the build hits most often. For the rest, prefer to defer non-urgent edits and batch them when the procedures land — the discipline a procedure encodes is the value, and ad-hoc edits accumulate the inconsistencies the procedures were designed to prevent. `add_playbook.md` is the next priority (needed at Phase 8).
+The implementation plan (Phase 6.5) prioritized `add_pattern.md`, `update_pattern.md`, and `add_calc.md` for first authoring because those are the operations the build hits most often; `add_facility.md` and `bump_schema.md` followed during the production-onboarding work, and `add_playbook.md` was authored to support new signal types (Phase 8). For the three above, prefer to defer non-urgent edits and batch them when the procedures land — the discipline a procedure encodes is the value, and ad-hoc edits accumulate the inconsistencies the procedures were designed to prevent.
 
 ## Inputs and outputs
 

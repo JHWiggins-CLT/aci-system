@@ -1,0 +1,13 @@
+FACILITY: dal-02
+TARGET: operational:cph
+INTERVENTION DATE: 2026-03-08
+PRE WINDOW:  2026-03-05 to 2026-03-07
+POST WINDOW: 2026-03-08 to 2026-03-10
+THRESHOLD: 5.00% relative change
+
+variable | pre_mean | post_mean | delta | rel_change_pct | status
+operational:cph | 131.33 | 126.67 | -4.67 | -3.55% | (target)
+operational:units | 7880.00 | 7600.00 | -280.00 | -3.55% | STABLE
+operational:error_rate | 2.47 | 2.77 | +0.30 | +12.16% | MOVED
+
+ATTRIBUTION: CONFOUNDED (also moved: operational:error_rate)

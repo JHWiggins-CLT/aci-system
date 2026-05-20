@@ -282,6 +282,23 @@ fu_out=$(bash calc/outcome/follow_up_check.sh dal-02 cph --target 138 \
     --by 2026-05-15 --window-days 14 2>&1)
 assert_contains "baseline-maintenance follow-up fires PASS" "$fu_out" "RESULT: PASS"
 
+# 6f. countermeasure_effectiveness captures the dal-02 cph recovery after the
+# trainer-ratio fix: the dip window (~128 cph) vs the post-recovery window
+# (~142 cph) reads IMPROVED for a higher-is-better metric.
+ce_out=$(bash calc/outcome/countermeasure_effectiveness.sh dal-02 cph \
+    --pre 2026-03-08:2026-03-22 --post 2026-04-01:2026-04-15 2>&1)
+assert_contains "countermeasure_effectiveness dal-02 cph recovered = IMPROVED" \
+    "$ce_out" "RESULT: IMPROVED"
+
+# 6g. intervention_attribution scopes the dal-02 cph drop to the new-hire cohort:
+# headcount_new MOVED over the onboarding window while inbound_units stayed STABLE,
+# so the drop is CONFOUNDED by headcount_new (the cohort signal) — not volume.
+ia_out=$(bash calc/outcome/intervention_attribution.sh dal-02 cph \
+    --intervention-date 2026-03-08 --check-variables headcount_new,inbound_units \
+    --window-days 10 2>&1)
+assert_contains "intervention_attribution flags the cohort as the confounder" \
+    "$ia_out" "ATTRIBUTION: CONFOUNDED (also moved: inputs:headcount_new)"
+
 # 7. Descriptive calc integration (Phase 2.4) ------------------------------------
 section "7. Descriptive calcs against the live dal-02 dataset"
 
