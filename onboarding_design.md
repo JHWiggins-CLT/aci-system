@@ -1,14 +1,16 @@
 # ACI System — Onboarding & Deployment-Mode Design (sketch)
 
-> **Status: slice 1 (the deployment-mode gate) is BUILT; the rest is design sketch.**
+> **Status: slices 1–5 BUILT; slice 6 + optional capability modules remain.**
 > This proposes how a forked or downloaded copy of the system moves from
 > portfolio-demo to a real production deployment, and how the system greets a
 > first-time operator and remembers their choice. It is a companion to
-> `handoff.md` (architecture), not a replacement. The first-run mode gate
-> (`config/deployment.yaml(.example)`, `config/deployment.py`, and the
-> `.skills/README.md` Step 0 greeting) is implemented and covered by `verify.sh`
-> Section 11. The remaining slices in the "Build sequence" section are not yet
-> built.
+> `handoff.md` (architecture), not a replacement. Built: the first-run mode gate
+> (`config/deployment.yaml(.example)`, `config/deployment.py`, `.skills/README.md`
+> Step 0), the `onboard` skill + `SETUP.md`, `reset_demo_state.py`, the
+> `add_facility` / `bump_schema` maintain procedures, and the conversion-adapter
+> scaffold — all covered by `verify.sh` Sections 11–12. Still pending: a
+> production-aware `verify.sh` split (slice 6) and the optional capability modules
+> (Section 5). The conversion adapter ships as a template the operator completes.
 
 ---
 
@@ -209,10 +211,10 @@ The simulator stays in the repo as the demo source and as a **reference implemen
 ## 11. Proposed build sequence
 
 1. ✅ **Built (2026-05-20).** `config/deployment.yaml.example` + `config/deployment.py` (stdlib get/set/show helper) + `.skills/README.md` Step 0 + the greeting; the `capabilities:` block is reserved in the schema; live `config/deployment.yaml` is gitignored; covered by `verify.sh` Section 11. *(Smallest slice that delivers the first-run experience.)*
-2. `reset_demo_state.py` (mode-aware).
-3. `onboard` skill + `SETUP.md` (the guided flow, even before every sub-procedure exists — it can hand-walk like the early maintain skill did).
-4. `add_facility.md` and `bump_schema.md` maintain procedures.
-5. Conversion adapter scaffold + `conversion/README` guidance.
-6. A production-aware split of `verify.sh` (structural checks vs demo-scenario assertions).
+2. ✅ **Built.** `reset_demo_state.py` (mode-aware; refuses in production without `--force`; resets indexes to header-only; leaves metrics/events/facilities untouched).
+3. ✅ **Built.** `onboard` skill (`.skills/onboard/SKILL.md`, registered in the manifest) + `SETUP.md` (human mirror).
+4. ✅ **Built.** `add_facility.md` and `bump_schema.md` maintain procedures.
+5. ✅ **Built.** Conversion adapter scaffold (`conversion/scripts/adapter_template.py`, validator-wired, `--show-schema`, fails loudly when unimplemented) + `conversion/README` guidance.
+6. ⏳ **Pending.** A production-aware split of `verify.sh` (structural checks vs demo-scenario assertions). Until then, the `onboard` skill tells the operator that Sections 5–11/12 are demo-specific and expected to fail after a production cutover.
 
 Slice 1 alone makes the system "greet on first run"; the rest deepens setup behind that gate. The capability-registry pattern (Section 5) is established when the first optional capability (reports/graphing/presentations) is built — at which point onboarding extends itself rather than being rewritten.

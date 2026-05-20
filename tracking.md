@@ -57,14 +57,14 @@ Practical effects on the plan:
 ## Status header
 
 ```yaml
-current_phase:          "Portfolio core complete (full CI loop demonstrated). NEW workstream started: production onboarding (onboarding_design.md). Slice 1 — the first-run deployment-mode gate (demo vs setup, sticky, flippable) — is BUILT. Remaining onboarding slices (onboard skill, add_facility/bump_schema procedures, conversion adapter scaffold, capability registry) are designed, not built."
-last_completed_step:    "Built onboarding slice 1: config/deployment.yaml.example + config/deployment.py (stdlib get/set/show mode helper) + .skills/README.md Step 0 greeting (demo vs setup; sticky default; flip-to-setup anytime; capabilities block reserved). Live config gitignored; helper rebuilds from template so the capabilities block survives writes. verify.sh Section 11 (9 checks). verify.sh 71/71; 17 golden tests; reconcile clean."
-next_concrete_action:   "Onboarding slice 2+: reset_demo_state.py (mode-aware), then the onboard skill + SETUP.md, then add_facility.md/bump_schema.md, conversion adapter scaffold, and the capability-registry pattern (onboarding_design.md Section 11 build sequence)."
-in_progress_work:       "Production onboarding workstream — slice 1 built; slices 2-6 are the proposed next steps."
+current_phase:          "Portfolio core complete (full CI loop). Production-onboarding workstream: slices 1-5 BUILT — the setup branch is no longer a stub. Mode gate + onboard skill + SETUP.md + reset_demo_state.py + add_facility/bump_schema procedures + conversion-adapter scaffold all live and verified. Pending: slice 6 (production-aware verify split) + optional capability modules."
+last_completed_step:    "Built onboarding slices 2-5 (closed the setup-stub edge): reset_demo_state.py (mode-aware, header-only index reset, leaves metrics/events/facilities); the onboard SKILL (registered in manifest) + SETUP.md; add_facility.md + bump_schema.md maintain procedures; conversion/scripts/adapter_template.py (validator-wired scaffold, --show-schema, fails loudly unimplemented) + conversion/README pointer. Updated .skills/README.md so setup routes to onboard (no longer a stub). verify.sh Section 12 (11 checks). verify.sh 82/82; 17 golden tests; reconcile clean (5 skills now)."
+next_concrete_action:   "Onboarding slice 6: production-aware verify.sh split (structural checks vs demo-scenario assertions). Then optional capability modules (reports/graphing/presentations) via the capability-registry pattern (onboarding_design.md Section 5)."
+in_progress_work:       "Production onboarding workstream — slices 1-5 built; slice 6 + capability modules pending."
 blocked_on:             null
 last_updated:           "2026-05-20"
-last_updated_by:        "session-2026-05-20-onboarding-slice-1"
-sessions_logged:        14
+last_updated_by:        "session-2026-05-20-onboarding-slices-2-5"
+sessions_logged:        15
 ```
 
 > **Edit only the values, not the keys.** The keys are the contract; downstream tooling may read this block programmatically. If you need to write more than fits here, write it in the working log below.
@@ -152,10 +152,11 @@ Compact view of every phase. Update the Status column as phases progress. Use th
 - A3s: 1 open — [a3-2026-05-network-trainer-coverage](data/a3s/open/a3-2026-05-network-trainer-coverage.md) (systemic companion to the dal-02 Kaizen) + [data/a3s/INDEX.md](data/a3s/INDEX.md). `data/a3s/{open,closed}/` created.
 - Patterns: 1 — [equipment_downtime_throughput_drag.md](data/patterns/equipment_downtime_throughput_drag.md) (from ral-02/sav-01/atl-03) + [patterns/INDEX.md](data/patterns/INDEX.md). throughput_drop playbook Step 0 consults it.
 - Close-loop procedures: 3 ([open_kaizen.md](.skills/close-loop/procedures/open_kaizen.md), [open_a3.md](.skills/close-loop/procedures/open_a3.md), [reopen_investigation.md](.skills/close-loop/procedures/reopen_investigation.md)) — matches the 3 the SKILL routes to
-- Maintain procedures: 3 of 9 planned — [add_calc.md](.skills/maintain/procedures/add_calc.md), [add_pattern.md](.skills/maintain/procedures/add_pattern.md), [update_pattern.md](.skills/maintain/procedures/update_pattern.md) (the Phase 6.5 priority set). SKILL now routes to these and hand-walks the rest.
+- Maintain procedures: 5 of 9 planned — [add_calc.md](.skills/maintain/procedures/add_calc.md), [add_pattern.md](.skills/maintain/procedures/add_pattern.md), [update_pattern.md](.skills/maintain/procedures/update_pattern.md), [add_facility.md](.skills/maintain/procedures/add_facility.md), [bump_schema.md](.skills/maintain/procedures/bump_schema.md). SKILL routes to these and hand-walks the rest.
 - Maintain templates: 4 — a3, kaizen, facility_profile, [pattern.md](.skills/maintain/templates/pattern.md) (added 2026-05-20 for add_pattern)
-- Smoke test: [verify.sh](verify.sh) — 71 checks, all passing (Section 10: pattern + equipment investigations; Section 11: deployment-mode gate / onboarding slice 1)
-- Onboarding (new workstream): [onboarding_design.md](onboarding_design.md) (design); slice 1 built — [config/deployment.yaml.example](config/deployment.yaml.example), [config/deployment.py](config/deployment.py), [.skills/README.md](.skills/README.md) Step 0
+- Smoke test: [verify.sh](verify.sh) — 82 checks, all passing (Section 11: deployment-mode gate; Section 12: onboard skill + setup tooling)
+- Onboarding workstream: [onboarding_design.md](onboarding_design.md) (design; slices 1-5 built). Built artifacts: [config/deployment.yaml.example](config/deployment.yaml.example) + [config/deployment.py](config/deployment.py) + [.skills/README.md](.skills/README.md) Step 0 (mode gate); [.skills/onboard/SKILL.md](.skills/onboard/SKILL.md) + [SETUP.md](SETUP.md) (guided flow); [.skills/onboard/reset_demo_state.py](.skills/onboard/reset_demo_state.py); [conversion/scripts/adapter_template.py](conversion/scripts/adapter_template.py)
+- Skills built: signal-detect, investigate, close-loop, maintain, **onboard** (5; manifest in sync)
 
 **Schema version currently deployed:** v1 (matches [calc/lib/_schema_v1.sh](calc/lib/_schema_v1.sh) and [data/metrics/MANIFEST.md](data/metrics/MANIFEST.md))
 
@@ -216,6 +217,21 @@ When the log gets long (say, 30+ entries), archive the oldest entries to `tracki
   - **Paired disposition.** The dal-02 investigation was already closed as a Kaizen, so open_a3.md's "set state a3_open + move the file" steps didn't apply. Kept state `kaizen_open`, recorded both artifact ids, documented the deviation in the file and the decision log.
   - Phase 5 is NOT fully complete despite the mix target: still needs 2 more outcome calcs (3 total) and a 3rd *closed investigation* (the A3 is a companion, not a new case).
 - **Next session:** the 2 remaining outcome calcs (Phase 5.1) with golden tests; a 3rd closed investigation (ral-02 conveyor or chr-05 refrigeration) to satisfy Phase 5's "3 investigations closed" and edge toward the pattern threshold.
+
+### 2026-05-20 — Session 15 (onboarding slices 2-5: setup branch is now real)
+
+- **Worked on:** "continue working so we can close edge" — turned the **setup** branch of the first-run gate from a stub into a working guided flow.
+- **Built:**
+  - [reset_demo_state.py](.skills/onboard/reset_demo_state.py) — mode-aware (refuses in production without `--force`); removes demo investigations/Kaizens/A3s/pattern; resets the investigations/a3s/patterns/follow_ups INDEXes to header-only (schema + table header kept, data rows dropped); leaves metrics/events/facilities alone. Tested via dry-run (non-destructive) + a throwaway-copy real run.
+  - [onboard SKILL](.skills/onboard/SKILL.md) (registered in the manifest → 5 skills) + [SETUP.md](SETUP.md) human mirror — the 7-step setup flow, with a confirm/guard preamble and a "don't flip to production until verify passes" rule.
+  - [add_facility.md](.skills/maintain/procedures/add_facility.md) + [bump_schema.md](.skills/maintain/procedures/bump_schema.md) maintain procedures (the onboard skill routes to them).
+  - [adapter_template.py](conversion/scripts/adapter_template.py) — validator-wired conversion scaffold; `--show-schema` prints canonical column order; raises NotImplementedError until the operator fills `facilities()` + `rows_for()` (never silently emits empty data). + a `conversion/README` pointer.
+  - Updated [.skills/README.md](.skills/README.md) deployment-mode note: setup now routes to `onboard` (no longer "walk them by hand"); demo persists immediately, setup flips to production only after verify.
+  - verify.sh **Section 12** (11 checks). Suite **82/82**; golden 17/17; reconcile clean.
+- **Encountered:**
+  - A verify check used `grep -c ... || echo 0`; `grep -c` prints `0` *and* exits non-zero, so the fallback appended a second `0` ("0\n0"). Fixed to `grep -c ... || true`. The reset logic itself was correct.
+  - Honest scoping kept: the onboard skill + SETUP.md both state that the conversion adapter is a template to complete and that the production-aware `verify.sh` split (slice 6) is pending — so after a real cutover, demo-scenario verify sections are expected to fail and the structural checks are the gate.
+- **Next session:** slice 6 (production-aware verify split); then optional capability modules via the capability registry.
 
 ### 2026-05-20 — Session 14 (onboarding workstream: design + slice 1 built)
 

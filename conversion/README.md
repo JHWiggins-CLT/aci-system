@@ -48,9 +48,18 @@ Useful for stress-testing the calc library or for producing demonstrably-differe
 
 ## Adding a new source (production analog)
 
+**Start from the scaffold:** `scripts/adapter_template.py` already wires the canonical-CSV
+writers and the validator calls — copy it to `scripts/convert_{source}.py` and fill only the
+two `FILL THIS IN` functions (`facilities()` and `rows_for()`). Run
+`python conversion/scripts/adapter_template.py --show-schema` to see the exact canonical
+column order per family. This is the production path the `onboard` skill (`SETUP.md` step 3)
+walks you through.
+
+Then:
 1. Add the source to `notes/data_inventory.md` (not present in this portfolio piece).
-2. Write `scripts/extract_{source}.{py,sh}`. Import the validators from `validation.common`.
-3. Use `write_csv_atomic()` so partial files never land.
+2. In your `convert_{source}.py`, import the validators from `validation.common` (the
+   template already does this).
+3. Use `write_csv_atomic()` so partial files never land (the template already does this).
 4. Add the source/target mapping row to `MANIFEST.md`.
 5. Test the bad-row case (deliberately break a row, confirm the script aborts).
 6. Commit script + manifest entry in the same change.

@@ -430,6 +430,50 @@ readme=$(cat .skills/README.md)
 assert_contains "skills README documents the deployment-mode gate" "$readme" "## Deployment mode"
 assert_contains "skills protocol checks mode before the manifest" "$readme" "Check the deployment mode"
 
+# 12. Onboarding skill + setup tooling (onboarding slices 2-5) ------------------
+section "12. Onboarding skill + setup tooling"
+
+# 12a. The onboard skill exists and is registered in the manifest.
+assert_eq "onboard SKILL exists" \
+    "$([[ -f .skills/onboard/SKILL.md ]] && echo yes)" "yes"
+assert_contains "onboard registered in MANIFEST" "$(cat .skills/MANIFEST.yaml)" "name: onboard"
+
+# 12b. The human-readable SETUP.md mirror exists.
+assert_eq "SETUP.md exists" "$([[ -f SETUP.md ]] && echo yes)" "yes"
+
+# 12c. The maintain procedures the onboard skill routes to exist.
+assert_eq "add_facility.md procedure exists" \
+    "$([[ -f .skills/maintain/procedures/add_facility.md ]] && echo yes)" "yes"
+assert_eq "bump_schema.md procedure exists" \
+    "$([[ -f .skills/maintain/procedures/bump_schema.md ]] && echo yes)" "yes"
+
+# 12d. The conversion-adapter scaffold exists and exposes the canonical schema,
+#      and fails loudly (never silently emits data) when its mapping is unfilled.
+adp=$(python conversion/scripts/adapter_template.py --show-schema 2>&1)
+assert_contains "adapter --show-schema lists the operational columns" "$adp" \
+    "operational: date, facility_id, units, cph, error_rate, hours_run"
+adp_err=$(python conversion/scripts/adapter_template.py 2>&1 || true)
+assert_contains "adapter refuses to run unimplemented (no silent empty data)" "$adp_err" \
+    "NotImplementedError"
+
+# 12e. reset_demo_state dry-run reports demo artifacts and changes NOTHING.
+dry=$(python .skills/onboard/reset_demo_state.py --dry-run 2>&1)
+assert_contains "reset dry-run would clear the demo pattern" "$dry" \
+    "patterns/equipment_downtime_throughput_drag.md"
+inv_before=$(find data/investigations -name '*.md' ! -name INDEX.md | wc -l | tr -d ' ')
+assert_eq "reset dry-run left demo investigations intact" "$inv_before" "5"
+
+# 12f. reset_demo_state on a throwaway copy clears the indexes (header-only) and
+#      leaves metrics untouched — the production-start behavior.
+RESET_TMP=$(mktemp -d)
+cp -r data "$RESET_TMP/data"
+python .skills/onboard/reset_demo_state.py --root "$RESET_TMP/data" >/dev/null 2>&1
+rows_left=$(grep -c '^| 20' "$RESET_TMP/data/investigations/INDEX.md" || true)
+assert_eq "reset cleared investigation INDEX data rows" "$rows_left" "0"
+op_left=$(ls "$RESET_TMP/data/metrics/operational"/*.csv 2>/dev/null | wc -l | tr -d ' ')
+assert_eq "reset left metrics untouched (8 operational CSVs)" "$op_left" "8"
+rm -rf "$RESET_TMP"
+
 # Summary ----------------------------------------------------------------------
 echo
 echo "================================================================"

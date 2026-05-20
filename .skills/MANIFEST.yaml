@@ -1,5 +1,5 @@
 version: 1
-generated_at: 2026-05-20T13:05:44Z
+generated_at: 2026-05-20T14:35:52Z
 skills:
   - name: close-loop
     path: close-loop/SKILL.md
@@ -69,6 +69,28 @@ skills:
       - 'deprecate'
       - 'update aliases'
     content_hash: 038f04981d78bf9ef17bae3694df62ea29ea233ce279ca65930950a4db601e48
+  - name: onboard
+    path: onboard/SKILL.md
+    description: >
+      Use when the operator wants to set up or onboard the system against
+      their own production data — first-time setup, or flipping a demo
+      deployment to production. Walks the full setup flow: facilities,
+      schema, the conversion adapter, thresholds, events backfill, resetting
+      demo state, and the deployment-mode switch, then verifies. Do NOT use
+      for normal CI work in an already-configured deployment (use
+      `signal-detect`, `investigate`, or `close-loop`), and do NOT use for
+      one-off incremental edits to an existing deployment's architecture
+      (use `maintain`).
+    triggers:
+      - 'set up production'
+      - 'set up the system'
+      - 'onboard'
+      - 'onboard my data'
+      - 'configure with my data'
+      - 'use my own data'
+      - 'switch to production'
+      - 'go to production'
+    content_hash: 48e78e86be54912106aac608b3e2e18f54c8c5f15776e1bc7bc2acd1ce269544
   - name: signal-detect
     path: signal-detect/SKILL.md
     description: >

@@ -13,7 +13,7 @@ Skills are not loaded all at once. They are registered in `MANIFEST.yaml` at the
 Execute these steps in order at the start of any session that may use skills:
 
 1. **Read this file.** You're doing that now.
-2. **Check the deployment mode (first action after reading this file).** Run `python config/deployment.py get` (or read `config/deployment.yaml`). If it returns `unset` — or the file is missing — this is a first run: do NOT process any request yet. Present the first-run greeting (see **Deployment mode** below) and persist the operator's choice with `python config/deployment.py set demo` (or `set production`). If it returns `demo` or `production`, note it and continue.
+2. **Check the deployment mode (first action after reading this file).** Run `python config/deployment.py get` (or read `config/deployment.yaml`). If it returns `unset` — or the file is missing — this is a first run: do NOT process any request yet. Present the first-run greeting (see **Deployment mode** below) and persist the choice: demo → `python config/deployment.py set demo`; setup → load the `onboard` skill (it sets `production` only after it verifies). If it returns `demo` or `production`, note it and continue.
 3. **Read `MANIFEST.yaml`.** It lists every available skill with its name, description, trigger keywords, and path to its `SKILL.md`.
 4. **Wait for the user's request.** Do not preemptively load any `SKILL.md` files.
 5. **When the user makes a request, scan the manifest descriptions** and decide whether any skill matches. Match conservatively — see the triggering rules below.
@@ -36,13 +36,13 @@ Before the skill protocol proper, the system checks how this deployment is confi
   You can switch to setup at any time by saying "set up production".
   ```
 
-  Persist the answer with `python config/deployment.py set demo` (or `set production`). The choice is **sticky** — once set, later sessions skip the greeting and run in that mode until the operator explicitly changes it.
+  Persist the choice: if they pick **demo**, run `python config/deployment.py set demo` now. If they pick **setup**, do NOT set `production` yet — load the `onboard` skill, which configures the deployment and flips the mode to `production` only after verification passes. The choice is **sticky** — once set, later sessions skip the greeting and run in that mode until the operator explicitly changes it.
 
-- **Flip to setup anytime:** if the operator later asks to "set up production" / "onboard my data", proceed to setup regardless of the current mode. Because setup replaces demo data with real data, confirm explicitly before any destructive step.
+- **Flip to setup anytime:** if the operator later asks to "set up production" / "onboard my data", load the `onboard` skill regardless of the current mode. Because setup replaces demo data with real data, confirm explicitly before any destructive step.
 - **Re-prompt:** `python config/deployment.py set unset` makes the greeting fire again.
 - **No filesystem access:** if you can't run the helper, ask the operator to state the mode at session start; the protocol is otherwise identical.
 
-> **Build status (slice 1):** only the mode gate itself is built. The `onboard`/setup skill and its sub-procedures are designed but not yet implemented (`onboarding_design.md` Section 4 + build sequence). If the operator picks **setup** today, tell them setup tooling is in progress and walk them through `onboarding_design.md` Section 4 by hand. Picking **demo** is fully supported.
+> **Build status:** the mode gate and the `onboard` skill (the guided setup flow) are built, along with `reset_demo_state.py`, the `add_facility` / `bump_schema` maintain procedures, and the conversion-adapter scaffold. When the operator picks **setup** (or says "set up production"), route to `onboard`. A couple of pieces are still early — the conversion adapter is a template the operator completes, and a production-aware `verify.sh` split is pending — and the `onboard` skill flags what's turnkey vs scaffold as it goes.
 
 ## Triggering rules
 
