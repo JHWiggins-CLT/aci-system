@@ -1,6 +1,6 @@
 script:     simulate_facility_data.py
 target:     data/events/sav-01.csv
-row_count:  2
+row_count:  4
 status:     PASS
 checks_run:
   - header matches schema

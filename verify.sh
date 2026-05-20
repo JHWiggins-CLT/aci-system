@@ -269,6 +269,11 @@ assert_contains "month_summary dal-02 Feb avg_cph = 141.82" \
 assert_contains "month_summary dal-02 Feb total_units = 625780" \
     "$summary" "total_units | 625780"
 
+# 7e. avg.sh (generic) reproduces avg_cph.sh exactly on the live operational data.
+avg_generic=$(bash calc/descriptive/avg.sh dal-02 cph --start 2026-02-01 --end 2026-02-28)
+avg_cph=$(bash calc/descriptive/avg_cph.sh dal-02 --start 2026-02-01 --end 2026-02-28)
+assert_eq "avg.sh cph == avg_cph.sh (Feb baseline = 141.82)" "$avg_generic" "$avg_cph"
+
 # 8. Exceptions family is first-class (chr-03 damage spike) ----------------------
 section "8. Exceptions-family calcs + chr-03 damage close-loop"
 
@@ -283,6 +288,12 @@ assert_eq "worst_day chr-03 damage (spike window) = 2026-04-22 | 43.00" \
 ex_days=$(bash calc/descriptive/days_below_target.sh chr-03 damage --max 18 \
     --family exceptions --start 2026-04-12 --end 2026-04-24)
 assert_eq "days_below_target chr-03 damage>18 (spike) = 10/11" "$ex_days" "10/11"
+
+# 8b2. avg.sh gives the spike-window magnitude the damage_spike playbook now cites
+#      (the exceptions mirror of throughput_drop's three avg_cph numbers).
+ex_avg=$(bash calc/descriptive/avg.sh chr-03 damage --family exceptions \
+    --start 2026-04-12 --end 2026-04-24)
+assert_eq "avg.sh chr-03 damage (spike window) = 28.36" "$ex_avg" "28.36"
 
 # 8c. follow_up_check tracks the metric that actually moved (damage), not a proxy,
 #     and shows recovery to baseline after the floor's informal reversal.
@@ -305,6 +316,87 @@ assert_contains "follow_ups index has chr-03 damage row" "$fu_idx" \
 # 8e. The damage_spike playbook now exists for cold-start of future damage signals.
 assert_eq "damage_spike playbook exists" \
     "$([[ -f .skills/investigate/playbooks/damage_spike.md ]] && echo yes)" "yes"
+
+# 9. A3 demonstration (network trainer-coverage, paired with dal-02 Kaizen) ------
+section "9. A3 artifacts (network trainer-coverage)"
+
+A3=data/a3s/open/a3-2026-05-network-trainer-coverage.md
+
+# 9a. The A3 file and index exist.
+assert_eq "A3 file exists in a3s/open/" \
+    "$([[ -f $A3 ]] && echo yes)" "yes"
+a3_idx=$(cat data/a3s/INDEX.md 2>/dev/null)
+assert_contains "a3s INDEX lists the network trainer-coverage A3" "$a3_idx" \
+    "a3-2026-05-network-trainer-coverage"
+
+# 9b. The A3 cross-references its source investigation and companion Kaizen.
+a3=$(cat "$A3" 2>/dev/null)
+assert_contains "A3 cites source investigation" "$a3" \
+    "2026-03-15_dal-02_throughput_drop"
+assert_contains "A3 names companion Kaizen" "$a3" \
+    "k-2026-05-dal-02-trainer-ratio"
+
+# 9c. The follow-ups gate holds: the A3 has rows in the follow-ups index.
+fu_a3=$(cat data/follow_ups/INDEX.md)
+assert_contains "follow_ups index has the A3 proof-case row" "$fu_a3" \
+    "a3-2026-05-network-trainer-coverage | 2026-06-15 | cph | 138"
+
+# 9d. The dal-02 investigation links the companion A3 (paired disposition).
+inv=$(cat data/investigations/2026-Q1/2026-03-15_dal-02_throughput_drop.md 2>/dev/null)
+assert_contains "dal-02 investigation links the companion A3" "$inv" \
+    "a3_id: a3-2026-05-network-trainer-coverage"
+
+# 9e. The A3's peer-evidence gate is honest: a live correlate sweep confirms the
+#     cohort-overload signature is single-facility today (only dal-02 negative;
+#     the tracked peer ral-02 stays above the -0.35 gate floor).
+ral_corr=$(bash calc/diagnostic/correlate.sh ral-02 cph headcount_new | tail -1)
+assert_contains "A3 peer gate: ral-02 is negligible (not the signature)" \
+    "$ral_corr" "negligible"
+
+# 10. Pattern compounding (equipment-downtime throughput drag) -------------------
+section "10. Pattern: equipment-downtime throughput drag"
+
+# 10a. The pattern file and index exist and cross-reference.
+assert_eq "patterns/INDEX.md exists" \
+    "$([[ -f data/patterns/INDEX.md ]] && echo yes)" "yes"
+pidx=$(cat data/patterns/INDEX.md 2>/dev/null)
+assert_contains "patterns INDEX lists the equipment-downtime pattern" "$pidx" \
+    "equipment_downtime_throughput_drag.md"
+
+# 10b. The pattern's 3 historical instances all exist on disk (the threshold).
+for inv in \
+    data/investigations/2026-Q2/2026-04-22_ral-02_throughput_drop.md \
+    data/investigations/2026-Q1/2026-03-11_sav-01_throughput_drop.md \
+    data/investigations/2026-Q2/2026-04-07_atl-03_throughput_drop.md; do
+    assert_eq "pattern instance exists: $(basename "$inv")" \
+        "$([[ -f $inv ]] && echo yes)" "yes"
+done
+
+# 10c. Each of the three cases shows the equipment signature: an equipment-family
+#      metric is the top change_drivers mover (not quality, not headcount_new).
+ral_drv=$(bash calc/diagnostic/change_drivers.sh ral-02 --baseline 2026-03-01:2026-03-31 --comparison 2026-04-20:2026-04-27 --top 1 2>/dev/null | tail -1)
+assert_contains "ral-02 top driver is equipment downtime" "$ral_drv" "equipment|"
+sav_drv=$(bash calc/diagnostic/change_drivers.sh sav-01 --baseline 2026-02-01:2026-02-28 --comparison 2026-03-09:2026-03-16 --top 1 2>/dev/null | tail -1)
+assert_contains "sav-01 top driver is equipment downtime" "$sav_drv" "equipment|mhe_down_m"
+atl_drv=$(bash calc/diagnostic/change_drivers.sh atl-03 --baseline 2026-03-01:2026-03-31 --comparison 2026-04-06:2026-04-13 --top 1 2>/dev/null | tail -1)
+assert_contains "atl-03 top driver is equipment downtime" "$atl_drv" "equipment|conveyor_down_m"
+
+# 10d. The throughput_drop playbook now consults the pattern library.
+pb=$(cat .skills/investigate/playbooks/throughput_drop.md 2>/dev/null)
+assert_contains "throughput_drop playbook checks the pattern library" "$pb" \
+    "Check the pattern library first"
+assert_contains "throughput_drop playbook names the equipment pattern" "$pb" \
+    "equipment_downtime_throughput_drag"
+
+# 10e. The ral-02 preventive Kaizen's follow-up fires PASS (line healthy post-repair).
+ral_fu=$(bash calc/outcome/follow_up_check.sh ral-02 conveyor_down_m --max 60 --by 2026-05-18 --family equipment --window-days 18 2>&1)
+assert_contains "ral-02 conveyor PM follow-up fires PASS" "$ral_fu" "RESULT: PASS"
+
+# 10f. Mechanism independence: seeding the equipment cases did NOT create a cohort
+#      signature at those facilities, so the dal-02 A3's single-facility story holds.
+sav_coh=$(bash calc/diagnostic/correlate.sh sav-01 cph headcount_new | tail -1)
+assert_contains "equipment cases stay clear of the cohort signature (sav-01)" \
+    "$sav_coh" "negligible"
 
 # Summary ----------------------------------------------------------------------
 echo

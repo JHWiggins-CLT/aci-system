@@ -27,3 +27,8 @@ The signal-detect skill scans this file daily and surfaces any row where `follow
 | k-2026-05-dal-02-trainer-ratio | 2026-08-17 | cph | 138 | >= | `bash calc/outcome/follow_up_check.sh dal-02 cph --target 138 --by 2026-08-17 --window-days 14` | pending | |
 | k-2026-05-chr-03-bin-relocation | 2026-06-19 | damage | 18 | <= | `bash calc/outcome/follow_up_check.sh chr-03 damage --max 18 --by 2026-06-19 --family exceptions --window-days 14` | pending | |
 | k-2026-05-chr-03-bin-relocation | 2026-07-19 | damage | 18 | <= | `bash calc/outcome/follow_up_check.sh chr-03 damage --max 18 --by 2026-07-19 --family exceptions --window-days 14` | pending | |
+| a3-2026-05-network-trainer-coverage | 2026-06-15 | cph | 138 | >= | `bash calc/outcome/follow_up_check.sh dal-02 cph --target 138 --by 2026-06-15 --window-days 14` | pending | |
+| a3-2026-05-network-trainer-coverage | 2026-06-15 | cph~headcount_new (ral-02) | -0.35 | >= | `bash calc/diagnostic/correlate.sh ral-02 cph headcount_new` | pending | |
+| k-2026-05-ral-02-conveyor-pm | 2026-05-18 | conveyor_down_m | 60 | <= | `bash calc/outcome/follow_up_check.sh ral-02 conveyor_down_m --max 60 --by 2026-05-18 --family equipment --window-days 18` | PASS (11.73) | 2026-05-20 |
+| k-2026-05-ral-02-conveyor-pm | 2026-06-20 | conveyor_down_m | 60 | <= | `bash calc/outcome/follow_up_check.sh ral-02 conveyor_down_m --max 60 --by 2026-06-20 --family equipment --window-days 30` | pending | |
+| k-2026-05-ral-02-conveyor-pm | 2026-07-20 | conveyor_down_m | 60 | <= | `bash calc/outcome/follow_up_check.sh ral-02 conveyor_down_m --max 60 --by 2026-07-20 --family equipment --window-days 30` | pending | |

@@ -19,5 +19,8 @@ Closed investigations move from `open/` to `YYYY-Qn/` (e.g. `2026-Q1/`) by close
 
 | date       | facility | signal           | state         | disposition                          | file                                                       |
 |------------|----------|------------------|---------------|--------------------------------------|------------------------------------------------------------|
-| 2026-03-15 | dal-02   | throughput_drop  | kaizen_open   | k-2026-05-dal-02-trainer-ratio       | 2026-Q1/2026-03-15_dal-02_throughput_drop.md               |
+| 2026-03-15 | dal-02   | throughput_drop  | kaizen_open   | k-2026-05-dal-02-trainer-ratio + a3-2026-05-network-trainer-coverage | 2026-Q1/2026-03-15_dal-02_throughput_drop.md |
 | 2026-04-12 | chr-03   | damage_spike     | kaizen_open   | k-2026-05-chr-03-bin-relocation      | 2026-Q2/2026-04-12_chr-03_damage_spike.md                  |
+| 2026-03-11 | sav-01   | throughput_drop  | resolved      | resolved (reactive repair)           | 2026-Q1/2026-03-11_sav-01_throughput_drop.md               |
+| 2026-04-07 | atl-03   | throughput_drop  | resolved      | resolved (reactive repair)           | 2026-Q2/2026-04-07_atl-03_throughput_drop.md               |
+| 2026-04-22 | ral-02   | throughput_drop  | kaizen_open   | k-2026-05-ral-02-conveyor-pm         | 2026-Q2/2026-04-22_ral-02_throughput_drop.md               |
