@@ -44,7 +44,7 @@ Do NOT use when the user has already identified a specific signal and wants to i
 **Render the brief exactly per the fixed template at `signal-detect/morning_brief_template.md`.** Load it and reproduce its skeleton verbatim — same banner, same three sections in the same order (each with a count, never omitted), same closing line. The format is standardized so the operator scans the same places in the same order every morning.
 
 Division of rendering (this is what keeps it consistent):
-- **NEW signals** — composed by you from the live threshold scan (step 3 above): one ranked row per crossing, `facility · metric · what crossed · ` + the exact calc, annotating any already-investigated signal.
+- **NEW signals** — composed by you from the live threshold scan (step 3 above): one clean line per crossing, ranked most-severe first, in the form `facility-id (Facility Name) · concern in plain English with magnitude · date range`. **No calc commands in the brief** — run the calcs to get the figures (never improvise numbers), but keep the invocations out of the glance; they belong in the investigation's methodology if one is opened. Annotate already-investigated signals briefly so they aren't mistaken for new work.
 - **OPEN + DUE** — rendered by the shared renderer: run `python .skills/review/status.py brief` and place its output under the NEW section, so these sections are byte-for-byte identical to the `review` catalog views. Then re-run each still-`pending` DUE check's `calc_invocation` and append its live `PASS`/`FAIL`/`NO DATA` inline.
 - **`My read:`** — one closing line naming the single highest-priority item.
 

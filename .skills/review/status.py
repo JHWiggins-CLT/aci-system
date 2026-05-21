@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import re
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -74,7 +75,7 @@ def banner(title: str) -> str:
 
 
 def section(name: str, count: int) -> str:
-    return f"\n▸ {name} ({count})"
+    return f"\n▸ {name} ({count})\n"
 
 
 def _get(row: dict, *names: str) -> str:
@@ -84,33 +85,46 @@ def _get(row: dict, *names: str) -> str:
     return ""
 
 
+def _short_date(iso: str) -> str:
+    """2026-05-15 → 'May 15'. Pass through anything non-ISO."""
+    try:
+        return dt.date.fromisoformat(iso.strip()).strftime("%b ") + str(int(iso[8:10]))
+    except (ValueError, IndexError):
+        return iso
+
+
+def _facility_of(artifact_id: str) -> str:
+    """k-2026-05-dal-02-trainer-ratio → 'dal-02'; a3-2026-05-network-… → 'network'."""
+    m = re.match(r"(?:k|a3)-\d{4}-\d{2}-([a-z]+-\d+|network)", artifact_id)
+    return m.group(1) if m else artifact_id
+
+
 def list_investigations(rows, only_open=False):
     out = []
     for r in rows:
-        f = _get(r, "file")
-        is_open = f.startswith("open/")
-        if only_open and not is_open:
+        if only_open and not _get(r, "file").startswith("open/"):
             continue
-        out.append(f"    {_get(r,'date'):<11} {_get(r,'facility'):<8} "
-                   f"{_get(r,'signal'):<16} {_get(r,'state'):<13} "
-                   f"→ {_get(r,'disposition') or '(pending)'}")
+        disp = _get(r, "disposition")
+        tail = f"  →  {disp}" if disp and disp != "(pending)" else ""
+        out.append(f"    {_get(r,'facility')} · {_get(r,'signal')} · "
+                   f"{_get(r,'state')} · {_short_date(_get(r,'date'))}{tail}")
     return out
 
 
 def list_a3s(rows):
-    return [f"    {_get(r,'a3_id'):<40} {_get(r,'state'):<7} "
-            f"open:{_get(r,'opened')}  next:{_get(r,'next_follow_up') or '—'}"
-            for r in rows]
+    return [f"    {_get(r,'a3_id')}\n        {_get(r,'state')} · "
+            f"opened {_short_date(_get(r,'opened'))} · "
+            f"next {_short_date(_get(r,'next_follow_up')) or '—'}" for r in rows]
 
 
 def list_kaizens(rows):
-    return [f"    {_get(r,'kaizen_id'):<34} {_get(r,'state'):<7} "
-            f"{_get(r,'facility'):<8} open:{_get(r,'opened')}  "
-            f"next:{_get(r,'next_follow_up') or '—'}" for r in rows]
+    return [f"    {_get(r,'kaizen_id')}\n        {_get(r,'state')} · {_get(r,'facility')} · "
+            f"opened {_short_date(_get(r,'opened'))} · "
+            f"next {_short_date(_get(r,'next_follow_up')) or '—'}" for r in rows]
 
 
 def list_patterns(rows):
-    return [f"    {_get(r,'pattern'):<40} instances:{_get(r,'instances')}"
+    return [f"    {_get(r,'pattern')} · {_get(r,'instances')} instances"
             for r in rows]
 
 
@@ -120,12 +134,11 @@ def list_followups(rows, asof=None):
         d = _get(r, "follow_up_date")
         if asof and d and d > asof:
             continue
-        flag = ""
         status = _get(r, "status")
-        if asof and d and d <= asof and status.lower().startswith("pending"):
-            flag = "  ⚠ DUE"
-        out.append(f"    {d:<12} {_get(r,'artifact_id'):<38} "
-                   f"{_get(r,'target_metric'):<14} {status}{flag}")
+        flag = "  ⚠" if (asof and d and d <= asof
+                          and status.lower().startswith("pending")) else ""
+        out.append(f"    {_facility_of(_get(r,'artifact_id'))} · "
+                   f"{_get(r,'target_metric')} (due {_short_date(d)}) · {status}{flag}")
     return out
 
 
@@ -182,13 +195,11 @@ def main(argv=None) -> int:
         # (after its live NEW-signals section). See
         # .skills/signal-detect/morning_brief_template.md.
         inv_open = list_investigations(parse_index(*INDEXES["investigations"]), only_open=True)
-        print(section("OPEN investigations", len(inv_open)))
-        print("\n".join(inv_open) if inv_open else "    (queue clear)")
+        print(section("OPEN investigations", len(inv_open)).rstrip())
+        print("\n".join(inv_open) if inv_open else "    none — queue clear")
         due = list_followups(parse_index(*INDEXES["follow-ups"]), asof=args.asof)
-        print(section("DUE follow-ups", len(due)))
-        print("\n".join(due) if due else "    (none due)")
-        print("\n  (signal-detect: re-run each pending DUE check's calc and "
-              "annotate PASS/FAIL/NO DATA inline)")
+        print(section("DUE follow-ups", len(due)).rstrip())
+        print("\n".join(due) if due else "    none due")
         return 0
     if args.view == "open":
         rows = list_investigations(parse_index(*INDEXES["investigations"]), only_open=True)
