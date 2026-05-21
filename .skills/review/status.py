@@ -168,13 +168,27 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="ACI artifact catalog/rollup (read-only).")
     ap.add_argument("view", nargs="?", default="dashboard",
                     choices=["dashboard", "investigations", "a3s", "kaizens",
-                             "patterns", "follow-ups", "open", "due"])
+                             "patterns", "follow-ups", "open", "due", "brief"])
     ap.add_argument("--asof", default=dt.date.today().isoformat(),
                     help="reference date for 'due' (default: today)")
     args = ap.parse_args(argv)
 
     if args.view == "dashboard":
         cmd_dashboard()
+        return 0
+    if args.view == "brief":
+        # The OPEN + DUE sections of the morning brief, rendered WITHOUT a banner
+        # so signal-detect can slot them under the single "Morning brief" banner
+        # (after its live NEW-signals section). See
+        # .skills/signal-detect/morning_brief_template.md.
+        inv_open = list_investigations(parse_index(*INDEXES["investigations"]), only_open=True)
+        print(section("OPEN investigations", len(inv_open)))
+        print("\n".join(inv_open) if inv_open else "    (queue clear)")
+        due = list_followups(parse_index(*INDEXES["follow-ups"]), asof=args.asof)
+        print(section("DUE follow-ups", len(due)))
+        print("\n".join(due) if due else "    (none due)")
+        print("\n  (signal-detect: re-run each pending DUE check's calc and "
+              "annotate PASS/FAIL/NO DATA inline)")
         return 0
     if args.view == "open":
         rows = list_investigations(parse_index(*INDEXES["investigations"]), only_open=True)
