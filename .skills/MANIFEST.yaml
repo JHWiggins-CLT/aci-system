@@ -1,5 +1,5 @@
 version: 1
-generated_at: 2026-05-21T13:19:38Z
+generated_at: 2026-05-21T13:46:22Z
 skills:
   - name: close-loop
     path: close-loop/SKILL.md
@@ -133,4 +133,4 @@ skills:
       - 'morning briefing'
       - 'open investigations'
       - 'due follow-ups'
-    content_hash: f9b2e12bc808ce58a129903215a5999888588d8bdb6197ebc0d2422d262df4f1
+    content_hash: dc1111b81dc6f3bf6bebe1d2326bbc1ad3d3fe447c1217f218768968abc6b055

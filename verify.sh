@@ -561,10 +561,15 @@ for v in investigations a3s kaizens patterns follow-ups open due; do
 done
 assert_eq "every status.py view runs cleanly" "$status_ok" "yes"
 
-# 13e. The morning brief has a fixed, consistent output format.
+# 13e. The morning brief is standardized: fixed template + shared renderer.
+assert_eq "morning brief template exists" \
+    "$([[ -f .skills/signal-detect/morning_brief_template.md ]] && echo yes)" "yes"
 sd=$(cat .skills/signal-detect/SKILL.md)
-assert_contains "signal-detect defines a consistent brief format" "$sd" "Output format (consistent every day)"
-assert_contains "morning brief reuses status.py for OPEN/DUE" "$sd" "status.py open"
+assert_contains "signal-detect points at the brief template" "$sd" "morning_brief_template.md"
+assert_contains "morning brief renders OPEN/DUE via status.py brief" "$sd" "status.py brief"
+brief=$(python .skills/review/status.py brief 2>&1)
+assert_contains "status.py brief renders the OPEN section" "$brief" "OPEN investigations"
+assert_contains "status.py brief renders the DUE section" "$brief" "DUE follow-ups"
 
 # Summary ----------------------------------------------------------------------
 echo

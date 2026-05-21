@@ -41,22 +41,20 @@ Do NOT use when the user has already identified a specific signal and wants to i
 
 ## Output format (consistent every day)
 
-Render the brief in this fixed shape so the operator sees the **same layout every morning** (the same visual the `review` skill uses). Reuse `status.py` for the OPEN and DUE sections so they match the catalog views exactly.
+**Render the brief exactly per the fixed template at `signal-detect/morning_brief_template.md`.** Load it and reproduce its skeleton verbatim — same banner, same three sections in the same order (each with a count, never omitted), same closing line. The format is standardized so the operator scans the same places in the same order every morning.
 
-- **Header banner:** `ACI  ·  Morning brief  ·  <today>`
-- **Three sections, always in this order, each with a count — never omit one even if empty** (an empty section is information: "queue clear"):
-  1. **NEW signals** — the live threshold scan (unique to signal-detect). Rank by severity; each row: `facility · metric · what crossed the threshold · the exact calc to reproduce it`. Annotate any signal that already has an investigation (cross-check `data/investigations/INDEX.md`) so handled items aren't mistaken for new work.
-  2. **OPEN investigations** — render with `python .skills/review/status.py open`. Each row's `state` is the action owed.
-  3. **DUE follow-ups** — list with `python .skills/review/status.py due`, then for every row still `pending`, run its `calc_invocation` and report `PASS` / `FAIL` / `NO DATA` inline.
-- **Close with one line:** "My read:" + the single highest-priority item to act on.
+Division of rendering (this is what keeps it consistent):
+- **NEW signals** — composed by you from the live threshold scan (step 3 above): one clean line per crossing, ranked most-severe first, in the form `facility-id (Facility Name) · concern in plain English with magnitude · date range`. **No calc commands in the brief** — run the calcs to get the figures (never improvise numbers), but keep the invocations out of the glance; they belong in the investigation's methodology if one is opened. Annotate already-investigated signals briefly so they aren't mistaken for new work.
+- **OPEN + DUE** — rendered by the shared renderer: run `python .skills/review/status.py brief` and place its output under the NEW section, so these sections are byte-for-byte identical to the `review` catalog views. Then re-run each still-`pending` DUE check's `calc_invocation` and append its live `PASS`/`FAIL`/`NO DATA` inline.
+- **`My read:`** — one closing line naming the single highest-priority item.
 
-Do not vary the section order or headers. Consistency is the contract — the operator should be able to scan the same three places in the same order every day.
+Do not vary the banner, section names, or order. An empty section is information ("queue clear" / "none due") — always show all three. The template is the contract.
 
 ## Inputs and outputs
 
-- **Reads:** `data/facilities/INDEX.md`, `data/metrics/MANIFEST.md`, `data/metrics/operational/*.csv`, `data/metrics/exceptions/*.csv`, `data/investigations/INDEX.md`, `data/investigations/open/*.md`, `data/follow_ups/INDEX.md`
+- **Reads:** `signal-detect/morning_brief_template.md`, `data/facilities/INDEX.md`, `data/metrics/MANIFEST.md`, `data/metrics/operational/*.csv`, `data/metrics/exceptions/*.csv`, `data/investigations/INDEX.md`, `data/investigations/open/*.md`, `data/follow_ups/INDEX.md`
 - **Writes:** nothing. This skill is read-only.
-- **Calls:** `calc/descriptive/days_below_target.sh` and `calc/descriptive/worst_day.sh` (both operational and `--family exceptions`), `calc/outcome/follow_up_check.sh`, `python .skills/review/status.py open|due` (for the OPEN/DUE sections' consistent rendering)
+- **Calls:** `calc/descriptive/days_below_target.sh` and `calc/descriptive/worst_day.sh` (both operational and `--family exceptions`), `calc/outcome/follow_up_check.sh`, `python .skills/review/status.py brief` (renders the OPEN + DUE sections in the standard format)
 
 ## Anti-patterns
 
