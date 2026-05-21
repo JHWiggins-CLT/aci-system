@@ -235,7 +235,8 @@ When the log gets long (say, 30+ entries), archive the oldest entries to `tracki
   - reset_demo_state had a latent bug exposed by adding the kaizens catalog: its kaizens remove-glob used keep-predicate `False` (from when kaizens had no INDEX), so it **deleted** kaizens/INDEX.md. Fixed to preserve INDEX.md like the other families + added kaizens to the index-reset list. Caught by a reset-on-copy check.
   - Built review/browse as **core** (read-only, stdlib, universally useful), not as an optional capability module. The genuinely-optional, dependency-bearing piece is the *shareable export* (D), kept for the registry.
 - **Decision (flagged by user):** rendered/shareable reports (D — investigation+A3/Kaizen+outcomes → one report/slide/PDF for expressing work to others) is **critical for the future**; logged as the first true capability-registry module in onboarding_design §5.6, with review's "export this" hand-off reserved.
-- **Verification:** verify.sh Section 13 (12 checks). 92/92 demo, 36/36 structural; golden 17/17; reconcile clean (6 skills).
+- **Verification (post-rebase, combined with the parallel Phase 5/6 work):** verify.sh Section 13 (10 checks). **94/94 demo, 36/36 structural; golden 20/20; reconcile clean (6 skills).** Confirmed their 3 outcome calcs and my review layer coexist.
+- **Integration note:** this landed while a parallel session pushed Phase 5/6 closeout (Sessions 17/18 — outcome calcs + add_playbook + Codex fixes). Rebased my review commit on top, resolved overlaps (MANIFEST regenerated via reconcile; tracking status header + inventory merged; verify Section 13 sits alongside their Section 6 additions). Nothing of theirs was dropped.
 - **Next:** build capability D (shareable exports) via the registry pattern.
 
 ### 2026-05-20 — Session 16 (onboarding slice 6: mode-aware verify; workstream complete)
