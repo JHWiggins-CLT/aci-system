@@ -8,17 +8,18 @@ A portfolio implementation of a continuous-improvement (CI) system for warehouse
 
 An eight-layer system that takes a CI manager from "I see a signal" through "here is the floor brief" to "here is the A3 or Kaizen, here is whether it worked, here is what we learned." The architecture is specified in [handoff.md](handoff.md), built phase by phase per [implementation_plan.md](implementation_plan.md), and the live build state is recorded in [tracking.md](tracking.md).
 
-Five skills route the work — four drive the CI loop, plus `onboard` for setup:
+Six skills route the work — four drive the CI loop, plus `review` to browse it and `onboard` for setup:
 
 | Skill | When | Trigger phrases |
 |-------|------|----------------|
-| [signal-detect](.skills/signal-detect/SKILL.md) | Proactive daily scan | "what should I look at today" |
+| [signal-detect](.skills/signal-detect/SKILL.md) | Proactive daily scan (consistent morning brief) | "what should I look at today" |
 | [investigate](.skills/investigate/SKILL.md) | Dig into a specific signal | "investigate dal-02's throughput drop" |
 | [close-loop](.skills/close-loop/SKILL.md) | Back from the floor | "closing out the dal-02 investigation" |
 | [maintain](.skills/maintain/SKILL.md) | Edit the architecture | "add a calc", "update the pattern" |
+| [review](.skills/review/SKILL.md) | See/browse existing work | "show me open Kaizens", "what closed this quarter" |
 | [onboard](.skills/onboard/SKILL.md) | First-time / production setup | "set up production", "onboard my data" |
 
-The skills layer is described in [.skills/README.md](.skills/README.md). Only one skill loads per request; descriptions are mutually exclusive on purpose.
+The skills layer is described in [.skills/README.md](.skills/README.md). Only one skill loads per request; descriptions are mutually exclusive on purpose. The `review` skill renders every artifact catalog through one consistent view (`.skills/review/status.py`), and the morning brief shares that same format.
 
 ## Demo or production
 
@@ -73,7 +74,7 @@ bash verify.sh
 ## Project layout
 
 ```
-.skills/         # Protocol README, MANIFEST, five skills (incl. onboard), .meta tooling
+.skills/         # Protocol README, MANIFEST, six skills (incl. review, onboard), .meta tooling
 calc/            # Bash calc library (descriptive, diagnostic, comparative, outcome)
 conversion/      # The data boundary — validators, simulator, adapter template, manifest, logs
 config/          # Deployment mode (demo vs production): deployment.yaml(.example) + helper

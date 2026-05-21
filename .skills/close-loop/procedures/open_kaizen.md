@@ -37,6 +37,8 @@ Often paired with an A3 in the same disposition: Kaizen for the immediate facili
 
 9. **Update `data/investigations/INDEX.md`**: change the row's `state` to `kaizen_open`, `disposition` to the kaizen_id, and `file` to the new `{YYYY-Qn}/...` path.
 
+10. **Append a row to `data/kaizens/INDEX.md`** (the Kaizen catalog the `review` skill and "show me open Kaizens" queries read): `kaizen_id`, `opened`, `state` (`open`), `facility`, `source` (investigation id), `next_follow_up` (the earliest pending follow-up date from step 7), `file` (`open/{kaizen_id}.md`). Without this, the Kaizen is invisible to `review`.
+
 ## Verification
 
 The procedure completed only if all of the following hold:
@@ -45,6 +47,7 @@ The procedure completed only if all of the following hold:
 - At least one row in `data/follow_ups/INDEX.md` has `artifact_id = {kaizen_id}`.
 - The investigation file has been moved to `{YYYY-Qn}/` and its frontmatter `state` is `kaizen_open`.
 - `data/investigations/INDEX.md` shows the same state and the new file path.
+- `data/kaizens/INDEX.md` has a row for `{kaizen_id}` (so `review` can list it).
 - `verify.sh` Section 6 ("Close-loop artifacts") still passes.
 
 If any of these is missing, report the partial state to the user — do not declare the Kaizen opened.

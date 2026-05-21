@@ -535,6 +535,37 @@ op_after=$(ls "$RESET_TMP/data/metrics/operational"/*.csv 2>/dev/null | wc -l | 
 assert_eq "reset left the metrics tree untouched" "$op_before" "$op_after"
 rm -rf "$RESET_TMP"
 
+# 13. Review / reporting capability (artifact access layer) ---------------------
+section "13. Review / reporting capability"
+
+# 13a. Every artifact type now has a consistent catalog (kaizens was the gap).
+assert_eq "kaizens/INDEX.md catalog exists" \
+    "$([[ -f data/kaizens/INDEX.md ]] && echo yes)" "yes"
+
+# 13b. The review skill exists and is registered.
+assert_eq "review SKILL exists" \
+    "$([[ -f .skills/review/SKILL.md ]] && echo yes)" "yes"
+assert_contains "review registered in MANIFEST" "$(cat .skills/MANIFEST.yaml)" "name: review"
+
+# 13c. The status renderer runs and produces the standard banner + sections.
+dash=$(python .skills/review/status.py 2>&1)
+assert_contains "status dashboard prints the ACI banner" "$dash" "ACI  ·  Status dashboard"
+assert_contains "status dashboard rolls up investigations" "$dash" "Investigations"
+assert_contains "status dashboard rolls up kaizens"        "$dash" "Kaizens"
+assert_contains "status dashboard rolls up follow-ups"     "$dash" "Follow-ups"
+
+# 13d. Every status view runs without error (read-only, mode-agnostic).
+status_ok=yes
+for v in investigations a3s kaizens patterns follow-ups open due; do
+    python .skills/review/status.py "$v" >/dev/null 2>&1 || status_ok="FAILED:$v"
+done
+assert_eq "every status.py view runs cleanly" "$status_ok" "yes"
+
+# 13e. The morning brief has a fixed, consistent output format.
+sd=$(cat .skills/signal-detect/SKILL.md)
+assert_contains "signal-detect defines a consistent brief format" "$sd" "Output format (consistent every day)"
+assert_contains "morning brief reuses status.py for OPEN/DUE" "$sd" "status.py open"
+
 # Summary ----------------------------------------------------------------------
 echo
 echo "================================================================"

@@ -30,7 +30,7 @@ DEPLOYMENT_FILE = REPO_ROOT / "config" / "deployment.yaml"
 # (glob relative to data root, keep-predicate) — files to remove.
 REMOVE_GLOBS = [
     ("investigations/**/*.md", lambda p: p.name == "INDEX.md"),
-    ("kaizens/**/*.md", lambda p: False),
+    ("kaizens/**/*.md", lambda p: p.name == "INDEX.md"),
     ("a3s/**/*.md", lambda p: p.name == "INDEX.md"),
     ("patterns/*.md", lambda p: p.name == "INDEX.md"),
 ]
@@ -39,6 +39,7 @@ REMOVE_GLOBS = [
 RESET_INDEXES = [
     ("investigations/INDEX.md", "## Investigations"),
     ("a3s/INDEX.md", "## A3s"),
+    ("kaizens/INDEX.md", "## Kaizens"),
     ("patterns/INDEX.md", "## Patterns"),
     ("follow_ups/INDEX.md", "## Rows"),
 ]
