@@ -12,10 +12,14 @@ Only the NEW-signals section and the `My read:` line are composed by signal-dete
 
 ## Skeleton (fill the braces; keep everything else verbatim)
 
+(Sections are separated by a blank line of spacing — two blank lines between the
+end of one section and the next header, one blank line under each header.)
+
 ```
 ==================================================================
  ACI  ·  Morning brief  ·  {YYYY-MM-DD}
 ==================================================================
+
 
 ▸ NEW signals ({count})
 
@@ -23,13 +27,16 @@ Only the NEW-signals section and the `My read:` line are composed by signal-dete
     {…one line per signal, most severe first…}
     {if none: "none — operations within normal variance"}
 
+
 ▸ OPEN investigations ({count})
 
     {rendered by status.py brief — each line is facility · signal · state}
 
+
 ▸ DUE follow-ups ({count})
 
     {rendered by status.py brief — append the live PASS/FAIL/NO DATA to any pending row}
+
 
 My read: {one line — the single thing most worth acting on, or "nothing pressing today"}
 ```

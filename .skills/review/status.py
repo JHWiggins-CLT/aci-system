@@ -75,7 +75,9 @@ def banner(title: str) -> str:
 
 
 def section(name: str, count: int) -> str:
-    return f"\n▸ {name} ({count})\n"
+    # Two leading blank lines separate sections; one trailing blank sits under
+    # the header. Keeps the brief and catalog views visually airy and consistent.
+    return f"\n\n▸ {name} ({count})\n"
 
 
 def _get(row: dict, *names: str) -> str:
@@ -195,10 +197,10 @@ def main(argv=None) -> int:
         # (after its live NEW-signals section). See
         # .skills/signal-detect/morning_brief_template.md.
         inv_open = list_investigations(parse_index(*INDEXES["investigations"]), only_open=True)
-        print(section("OPEN investigations", len(inv_open)).rstrip())
+        print(section("OPEN investigations", len(inv_open)))
         print("\n".join(inv_open) if inv_open else "    none — queue clear")
         due = list_followups(parse_index(*INDEXES["follow-ups"]), asof=args.asof)
-        print(section("DUE follow-ups", len(due)).rstrip())
+        print(section("DUE follow-ups", len(due)))
         print("\n".join(due) if due else "    none due")
         return 0
     if args.view == "open":
