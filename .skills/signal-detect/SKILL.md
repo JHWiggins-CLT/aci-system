@@ -39,11 +39,24 @@ Do NOT use when the user has already identified a specific signal and wants to i
 4. **Return all three sections** ranked by urgency within each. Do not collapse them — the user wants to see all three even if one is empty.
 5. **Do not start an investigation.** This skill surfaces what to look at; the user decides what to do next.
 
+## Output format (consistent every day)
+
+Render the brief in this fixed shape so the operator sees the **same layout every morning** (the same visual the `review` skill uses). Reuse `status.py` for the OPEN and DUE sections so they match the catalog views exactly.
+
+- **Header banner:** `ACI  ·  Morning brief  ·  <today>`
+- **Three sections, always in this order, each with a count — never omit one even if empty** (an empty section is information: "queue clear"):
+  1. **NEW signals** — the live threshold scan (unique to signal-detect). Rank by severity; each row: `facility · metric · what crossed the threshold · the exact calc to reproduce it`. Annotate any signal that already has an investigation (cross-check `data/investigations/INDEX.md`) so handled items aren't mistaken for new work.
+  2. **OPEN investigations** — render with `python .skills/review/status.py open`. Each row's `state` is the action owed.
+  3. **DUE follow-ups** — list with `python .skills/review/status.py due`, then for every row still `pending`, run its `calc_invocation` and report `PASS` / `FAIL` / `NO DATA` inline.
+- **Close with one line:** "My read:" + the single highest-priority item to act on.
+
+Do not vary the section order or headers. Consistency is the contract — the operator should be able to scan the same three places in the same order every day.
+
 ## Inputs and outputs
 
-- **Reads:** `data/facilities/INDEX.md`, `data/metrics/MANIFEST.md`, `data/metrics/operational/*.csv`, `data/metrics/exceptions/*.csv`, `data/investigations/open/*.md`, `data/follow_ups/INDEX.md`
+- **Reads:** `data/facilities/INDEX.md`, `data/metrics/MANIFEST.md`, `data/metrics/operational/*.csv`, `data/metrics/exceptions/*.csv`, `data/investigations/INDEX.md`, `data/investigations/open/*.md`, `data/follow_ups/INDEX.md`
 - **Writes:** nothing. This skill is read-only.
-- **Calls:** `calc/descriptive/days_below_target.sh` and `calc/descriptive/worst_day.sh` (both operational and `--family exceptions`), `calc/outcome/follow_up_check.sh`
+- **Calls:** `calc/descriptive/days_below_target.sh` and `calc/descriptive/worst_day.sh` (both operational and `--family exceptions`), `calc/outcome/follow_up_check.sh`, `python .skills/review/status.py open|due` (for the OPEN/DUE sections' consistent rendering)
 
 ## Anti-patterns
 

@@ -53,7 +53,7 @@ Do NOT use for new investigations, proactive scans, or architecture edits.
 ## Inputs and outputs
 
 - **Reads:** the relevant investigation file in `data/investigations/open/`, `intake_template.md` (or quick / reopen variants), `data/patterns/INDEX.md`, `maintain/templates/a3.md`, `maintain/templates/kaizen.md`
-- **Writes:** the investigation file (appends intake), possibly moves it to `YYYY-Qn/`. Creates `data/a3s/open/{a3_id}.md` or `data/kaizens/open/{kaizen_id}.md`. Appends to `data/follow_ups/INDEX.md`, `data/events/{facility}.csv`, `data/investigations/INDEX.md` (state column).
+- **Writes:** the investigation file (appends intake), possibly moves it to `YYYY-Qn/`. Creates `data/a3s/open/{a3_id}.md` or `data/kaizens/open/{kaizen_id}.md`. Appends to `data/follow_ups/INDEX.md`, `data/events/{facility}.csv`, `data/investigations/INDEX.md` (state column), and the artifact catalog (`data/a3s/INDEX.md` or `data/kaizens/INDEX.md`) so `review` can list it.
 - **Calls:** no calcs directly. Procedures may invoke `outcome/follow_up_check.sh` if a follow-up date has already passed at intake time.
 
 ## Anti-patterns

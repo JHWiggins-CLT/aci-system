@@ -9,6 +9,13 @@
 # The committed template is config/deployment.yaml.example.
 config/deployment.yaml
 
+# Per-run audit logs from the demo simulator. Content is deterministic; only the
+# date in the filename changes, so every verify.sh run (which re-runs the
+# simulator) spawns a fresh set of identical-content files. The already-committed
+# ones remain as the audit-trail sample; a real production conversion adapter
+# writes differently-named logs that are still tracked.
+conversion/logs/*simulate_facility_data*.log
+
 # Python bytecode
 __pycache__/
 *.py[cod]

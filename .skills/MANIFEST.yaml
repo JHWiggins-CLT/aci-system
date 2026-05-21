@@ -1,5 +1,5 @@
 version: 1
-generated_at: 2026-05-20T21:21:04Z
+generated_at: 2026-05-21T13:19:38Z
 skills:
   - name: close-loop
     path: close-loop/SKILL.md
@@ -22,7 +22,7 @@ skills:
       - 'draft the A3'
       - 'open a Kaizen'
       - 'we ruled out'
-    content_hash: 19a75f8edb655aa3c3087ece9646f50163aab912f476b2b75e4e685ac768363a
+    content_hash: efe786901d296cebf4e1000205a722531dc1d283d3baf85969fa8ecbc5568be7
   - name: investigate
     path: investigate/SKILL.md
     description: >
@@ -93,6 +93,29 @@ skills:
       - 'switch to production'
       - 'go to production'
     content_hash: 5e356b81bc02fa5795e3cb9f8b6b13ef133ae3977f480651d52244ff0b5b8e6c
+  - name: review
+    path: review/SKILL.md
+    description: >
+      Use when the user wants to SEE or BROWSE existing work — list
+      investigations, A3s, Kaizens, patterns, or follow-ups; ask what's
+      open, what closed this quarter, what's overdue; or pull up a specific
+      artifact by id. Renders a consistent catalog/dashboard view
+      (read-only). Do NOT use for the proactive daily scan of NEW signals to
+      act on (use `signal-detect`), for running a new investigation (use
+      `investigate`), for closing the loop (use `close-loop`), or for
+      editing the architecture (use `maintain`).
+    triggers:
+      - 'show me'
+      - 'list'
+      - 'pull up'
+      - 'review'
+      - 'what investigations'
+      - 'open kaizens'
+      - 'open a3s'
+      - 'what did we close'
+      - 'browse'
+      - 'status of'
+    content_hash: 301dde8e12b5ff45c6da421b9a3e2651767527d9548e274665de9e0957d71b9c
   - name: signal-detect
     path: signal-detect/SKILL.md
     description: >
@@ -110,4 +133,4 @@ skills:
       - 'morning briefing'
       - 'open investigations'
       - 'due follow-ups'
-    content_hash: 681d71676a78ba9ef5917c5cef70d7c43b35ec0f5352a1dcf68906b0f9b77177
+    content_hash: f9b2e12bc808ce58a129903215a5999888588d8bdb6197ebc0d2422d262df4f1

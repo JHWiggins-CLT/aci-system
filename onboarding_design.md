@@ -152,6 +152,13 @@ Enabling a capability on an existing deployment runs **only that capability's se
 
 This is the invariant the design guarantees: **onboarding adapts as the system grows, because each new element ships its own onboarding** rather than forcing a wizard rewrite.
 
+### 5.6 Status: reporting capability (split into core read + flagged-critical export)
+
+The first capability area — **reporting** — turned out to split cleanly:
+
+- ✅ **Read / browse (built as core, not an optional module).** A `review` skill + `.skills/review/status.py` renderer + a consistent catalog for every artifact type (the missing `kaizens/INDEX.md` was added) now answer "show me / list / what's open / what closed / pull up X." It's read-only, stdlib, dependency-free, and universally useful, so it ships as core rather than behind the registry. The morning brief (`signal-detect`) was standardized to share the same visual.
+- ⏳ **Rendered / shareable export (the flagged-critical next capability, "D").** Producing a polished, self-contained document to hand to someone *outside* the system — an investigation + its A3/Kaizen + outcome history as one report, slide deck, or PDF — is the genuinely optional, possibly dependency-bearing capability this registry exists for. **Flagged critical for the future:** the operator will need to *express these to others*. It will land as the first true registry module (own setup, `capabilities:` entry, optional deps with graceful degrade, output to `reports/`/`exports/`), and `review` already has the "export this" hand-off point reserved for it.
+
 ---
 
 ## 6. Components to build
