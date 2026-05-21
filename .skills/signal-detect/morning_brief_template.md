@@ -12,32 +12,26 @@ Only the NEW-signals section and the `My read:` line are composed by signal-dete
 
 ## Skeleton (fill the braces; keep everything else verbatim)
 
-(Sections are separated by a blank line of spacing — two blank lines between the
-end of one section and the next header, one blank line under each header.)
+Sections are separated by a full-width divider rule (`────…`), **not** blank lines —
+many renderers collapse blank lines inside a code block, so the rule is what
+guarantees visible separation. `status.py brief` already emits the rules around the
+OPEN/DUE sections; signal-detect adds the rule before `My read:`.
 
 ```
 ==================================================================
  ACI  ·  Morning brief  ·  {YYYY-MM-DD}
 ==================================================================
-
-
 ▸ NEW signals ({count})
-
     {facility-id} ({Facility Name}) · {concern in plain English, with how far off normal} · {date range}
     {…one line per signal, most severe first…}
     {if none: "none — operations within normal variance"}
-
-
+──────────────────────────────────────────────────────────────────
 ▸ OPEN investigations ({count})
-
     {rendered by status.py brief — each line is facility · signal · state}
-
-
+──────────────────────────────────────────────────────────────────
 ▸ DUE follow-ups ({count})
-
     {rendered by status.py brief — append the live PASS/FAIL/NO DATA to any pending row}
-
-
+──────────────────────────────────────────────────────────────────
 My read: {one line — the single thing most worth acting on, or "nothing pressing today"}
 ```
 
@@ -61,9 +55,10 @@ My read: {one line — the single thing most worth acting on, or "nothing pressi
    `worst_day.sh`, operational + `--family exceptions`); render one clean line per
    crossing per the rules above; resolve facility names from `data/facilities/INDEX.md`.
 3. **OPEN + DUE:** run `python .skills/review/status.py brief` and place its output
-   under the NEW section; for any DUE row still `pending`, run its check and append
-   the live `PASS`/`FAIL`/`NO DATA`.
-4. Close with the one-line `My read:`.
+   under the NEW section — it carries the divider rules around both sections; for any
+   DUE row still `pending`, run its check and append the live `PASS`/`FAIL`/`NO DATA`.
+4. Print a divider rule, then close with the one-line `My read:`.
 
-Keep one blank line under each section header; don't pad columns or vary the order.
-An empty section is information ("none — queue clear" / "none due") — always show all three.
+Separate sections with the full-width divider rule, not blank lines (renderers
+collapse blank lines in code blocks). Don't pad columns or vary the order. An empty
+section is information ("none — queue clear" / "none due") — always show all three.

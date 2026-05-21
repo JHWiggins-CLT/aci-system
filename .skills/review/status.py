@@ -27,6 +27,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 DATA = REPO / "data"
 WIDTH = 66
+RULE = "─" * WIDTH  # visible section divider (blank lines get collapsed by some renderers)
 
 INDEXES = {
     "investigations": (DATA / "investigations/INDEX.md", "## Investigations"),
@@ -163,14 +164,16 @@ def cmd_dashboard():
     for st, n in sorted(by_state.items()):
         print(f"    {st:<14} {n}")
 
-    print(section("Improvement artifacts", len(a3) + len(kz)))
+    print(f"\n{RULE}")
+    print(section("Improvement artifacts", len(a3) + len(kz)).lstrip("\n"))
     print(f"    A3s:     {sum(1 for r in a3 if _get(r,'state')=='open')} open / {len(a3)} total")
     print(f"    Kaizens: {sum(1 for r in kz if _get(r,'state')=='open')} open / {len(kz)} total")
     print(f"    Patterns: {len(pat)}")
 
     due = [r for r in fu if _get(r, "follow_up_date") and _get(r, "follow_up_date") <= today]
     overdue = [r for r in due if _get(r, "status").lower().startswith("pending")]
-    print(section("Follow-ups", len(fu)))
+    print(f"\n{RULE}")
+    print(section("Follow-ups", len(fu)).lstrip("\n"))
     print(f"    due on/before {today}: {len(due)}   (still pending: {len(overdue)})")
     print(f"    PASS: {sum(1 for r in fu if 'PASS' in _get(r,'status'))}   "
           f"FAIL: {sum(1 for r in fu if 'FAIL' in _get(r,'status'))}   "
@@ -197,10 +200,12 @@ def main(argv=None) -> int:
         # (after its live NEW-signals section). See
         # .skills/signal-detect/morning_brief_template.md.
         inv_open = list_investigations(parse_index(*INDEXES["investigations"]), only_open=True)
-        print(section("OPEN investigations", len(inv_open)))
+        print(RULE)
+        print(f"▸ OPEN investigations ({len(inv_open)})")
         print("\n".join(inv_open) if inv_open else "    none — queue clear")
         due = list_followups(parse_index(*INDEXES["follow-ups"]), asof=args.asof)
-        print(section("DUE follow-ups", len(due)))
+        print(RULE)
+        print(f"▸ DUE follow-ups ({len(due)})")
         print("\n".join(due) if due else "    none due")
         return 0
     if args.view == "open":
