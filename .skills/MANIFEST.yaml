@@ -1,5 +1,5 @@
 version: 1
-generated_at: 2026-05-23T18:45:09Z
+generated_at: 2026-05-23T18:51:34Z
 skills:
   - name: close-loop
     path: close-loop/SKILL.md
@@ -52,7 +52,7 @@ skills:
       - 'make this presentable'
       - 'the whole story as one report'
       - 'bundle the investigation'
-    content_hash: cb53e8d141f42b1165dc5ff2aef0d6ddc489f3dfb746419b7dca84b50cf5742b
+    content_hash: 3d62d780ef507b044353c7b87d4b95f6d23a8ef57d7557ce158467b1829fc7a9
   - name: investigate
     path: investigate/SKILL.md
     description: >

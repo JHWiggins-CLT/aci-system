@@ -73,7 +73,7 @@ python reports/render_html.py --all
 
 # 8. Full smoke test (mode-aware: all checks in demo/unset, structural-only in production):
 bash verify.sh
-#   → Results: 120 passed, 0 failed
+#   → Results: 123 passed, 0 failed
 ```
 
 ## Project layout

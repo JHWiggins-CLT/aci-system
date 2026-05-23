@@ -86,7 +86,10 @@ what's open or pull an artifact up on screen, that's `review`; if they want to
 - **Writes:** self-contained `.html` file(s) under `reports/` only. Generated
   HTML is gitignored (it is output, not source); the renderer and this skill are
   the committed capability.
-- **Calls:** `python reports/render_html.py <source.md | --all> [options]`.
+- **Audience cleanup:** the render hides calc/bash command invocations (keeping
+  their results) and drops command-only table columns, so the shared report shows
+  findings, not plumbing. The exact commands remain in the source `.md`.
+- **Calls:** `python reports/render_html.py <source.md | --bundle ID | --all> [options]`.
 - **Dependencies:** none beyond the Python standard library (the engine emits
   HTML directly), so this capability degrades to "always available" — there is no
   optional library to install. A capability that needed one (PDF, slides) would

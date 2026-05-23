@@ -185,6 +185,38 @@ _UL = re.compile(r"^\s*[-*]\s+")
 _OL = re.compile(r"^\s*\d+\.\s+")
 _HEAD = re.compile(r"^(#{1,6})\s+(.*)$")
 
+# Management-facing render hides calc/bash command invocations — the operator
+# needs the reproducible command, the audience needs the result. A command is a
+# code span that starts with bash/python/sh, or references a `calc/` path, or
+# invokes a `.sh` script. Metric-name code spans (`cph`, `damage`, ...) are NOT
+# matched and stay.
+_CMD_SPAN = (r"`(?:bash|python|sh)\b[^`]*`"
+             r"|`[^`]*\bcalc/[^`]*`"
+             r"|`[^`]*\.sh\b[^`]*`")
+# Table columns that exist only to hold those commands — dropped wholesale.
+COMMAND_COLUMNS = {"calc invocation", "calc", "calc command", "invocation", "command"}
+
+
+def _strip_commands(md: str) -> str:
+    """Remove calc/bash command invocations from markdown, keeping their results."""
+    # "<cmd> -> 141.82" / "<cmd> → 141.82": keep the result, drop command + arrow.
+    md = re.sub(rf"(?:{_CMD_SPAN})\s*(?:→|->)\s*", "", md)
+    # "confirmed by <cmd>", "via <cmd>", "per <cmd>", "and <cmd>": drop connector + cmd.
+    md = re.sub(rf"\s*(?:,\s*)?(?:as\s+)?"
+                rf"(?:confirmed|verified|measured|shown|ranked|ranks|per|via|by|see|from|and)\s+"
+                rf"(?:{_CMD_SPAN})", "", md, flags=re.I)
+    # any remaining bare command span.
+    md = re.sub(_CMD_SPAN, "", md)
+    # tidy the residue left where a command used to sit.
+    md = re.sub(r"\(\s*\)", "", md)                       # empty parens
+    md = re.sub(r"\s*[—–-]\s*([.;,])", r"\1", md)         # dangling dash before punctuation
+    md = re.sub(r"\s*[—–]\s*$", "", md, flags=re.M)       # trailing em/en dash
+    md = re.sub(r"[ \t]{2,}", " ", md)                    # collapse spaces
+    md = re.sub(r"\s+([,.;:)])", r"\1", md)               # space before punctuation
+    md = re.sub(r"\(\s+", "(", md)                        # space after open paren
+    md = re.sub(r"[ \t]+$", "", md, flags=re.M)           # trailing whitespace
+    return md
+
 
 def _inline(text: str) -> str:
     """Inline markdown -> HTML. Underscores are left literal (snake_case-safe)."""
@@ -210,15 +242,18 @@ def _render_table(rows: list[str]) -> str:
     if not rows:
         return ""
     header = _cells(rows[0])
+    keep = [i for i, h in enumerate(header) if h.strip().lower() not in COMMAND_COLUMNS]
+    if not keep:
+        keep = list(range(len(header)))
     body = rows[1:]
     if body and set("".join(_cells(body[0]))) <= set("-: "):
         body = body[1:]
-    th = "".join(f"<th>{_inline(c)}</th>" for c in header)
+    th = "".join(f"<th>{_inline(header[i])}</th>" for i in keep)
     trs = []
     for r in body:
         cs = _cells(r)
         cs += [""] * (len(header) - len(cs))
-        tds = "".join(f"<td>{_inline(c)}</td>" for c in cs[:len(header)])
+        tds = "".join(f"<td>{_inline(cs[i])}</td>" for i in keep)
         trs.append(f"<tr>{tds}</tr>")
     return (f"<table><thead><tr>{th}</tr></thead>"
             f"<tbody>{''.join(trs)}</tbody></table>")
@@ -436,6 +471,7 @@ def _render_sections(parsed: dict, spec: dict, level: int = 2) -> str:
 
 def render_artifact(text: str) -> tuple[str, str, str]:
     """Render one standalone artifact. Returns (html_doc, artifact_id, type)."""
+    text = _strip_commands(text)
     parsed = parse_artifact(text)
     atype = detect_type(parsed)
     spec = TYPE_SPEC[atype]
@@ -460,6 +496,7 @@ def render_artifact(text: str) -> tuple[str, str, str]:
 
 def _embed_artifact(text: str) -> str:
     """Render an A3/Kaizen as a nested block inside a bundle (sections at h3)."""
+    text = _strip_commands(text)
     parsed = parse_artifact(text)
     atype = detect_type(parsed)
     spec = TYPE_SPEC[atype]
@@ -536,7 +573,7 @@ def _outcome_table(rows: list[dict]) -> str:
 
 def render_investigation_embed(path: Path) -> str:
     fm, body = split_frontmatter(path.read_text(encoding="utf-8"))
-    body = strip_html_comments(body)
+    body = _strip_commands(strip_html_comments(body))
     meta = []
     for k in ("facility", "signal_type", "signal_date", "state", "investigator",
               "disposition", "kaizen_id", "a3_id"):
@@ -570,8 +607,8 @@ def build_bundle(inv_id: str) -> tuple[str, str] | None:
             pass
     fus = followups_for(art_ids)
 
-    inv_text = inv_path.read_text(encoding="utf-8")
-    fac = inv.get("facility", "") or grab_field(inv_text, "")
+    inv_text = _strip_commands(inv_path.read_text(encoding="utf-8"))
+    fac = inv.get("facility", "")
     signal = inv.get("signal", "")
     title = " · ".join(x for x in (fac, signal) if x) or inv_id
     signal_detail = grab_field(inv_text, "Signal")

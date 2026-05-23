@@ -599,7 +599,7 @@ cat > "$EXPORT_TMP/a3.md" <<'A3FIX'
 ---
 
 ## Current state
-Throughput dipped, confirmed by `bash calc/descriptive/avg_cph.sh x`.
+Throughput dipped to `bash calc/descriptive/avg_cph.sh x` → 128.10 from a baseline of 141.82.
 
 ## Root cause
 Mechanism was Y, not the label.
@@ -608,6 +608,11 @@ Mechanism was Y, not the label.
 | Action | Owner | Status |
 |--------|-------|--------|
 | do thing | me | open |
+
+## Follow-up schedule
+| Date | Check | Calc invocation | Target |
+|------|-------|-----------------|--------|
+| 2026-06-01 | recheck | `bash calc/outcome/follow_up_check.sh x` | PASS |
 A3FIX
 python reports/render_html.py "$EXPORT_TMP/a3.md" -o "$EXPORT_TMP/a3.html" >/dev/null 2>&1
 a3html=$(cat "$EXPORT_TMP/a3.html" 2>/dev/null)
@@ -626,6 +631,20 @@ if [[ "$a3html" == *"<link"* ]]; then
     ko "A3 export has no external asset links" "found a <link ...> tag"
 else
     ok "A3 export has no external asset links"
+fi
+
+# 14b-bis. Management render hides calc/bash command invocations but keeps their
+#          results, and drops command-only table columns.
+if [[ "$a3html" == *"bash "* || "$a3html" == *"calc/"* ]]; then
+    ko "A3 export hides bash/calc command invocations" "command text leaked into the HTML"
+else
+    ok "A3 export hides bash/calc command invocations"
+fi
+assert_contains "A3 export keeps the command's result (the number)" "$a3html" "128.10"
+if [[ "$a3html" == *"Calc invocation"* ]]; then
+    ko "A3 export drops the Calc invocation table column" "the command column was rendered"
+else
+    ok "A3 export drops the Calc invocation table column"
 fi
 
 # 14c. A Kaizen renders with its own fixed 4-section skeleton and badge — even a

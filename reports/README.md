@@ -31,6 +31,12 @@ front door; `render_html.py` is the engine.
    - Kaizen: Observation → Change → Tracking → Outcome
 2. **Self-contained output.** Each `.html` file inlines its own CSS — no external
    assets, no network, no build step, print-friendly. One file you can share as-is.
+3. **Audience-appropriate.** The calc/bash command invocations woven through the
+   source markdown (the operator's reproducibility) are **hidden** in the rendered
+   report — the result of a command is kept (`… → 128.10` becomes `128.10`), the
+   command itself is dropped, and command-only table columns (e.g. "Calc
+   invocation") are removed. Management sees the findings, not the plumbing; the
+   exact commands still live in the source `.md` for anyone who needs to reproduce.
 
 ## Usage
 
