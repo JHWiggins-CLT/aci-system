@@ -657,6 +657,81 @@ assert_eq "Kaizen export emits all 4 canonical sections in fixed structure" "$k_
 python reports/render_html.py --all --out-dir "$EXPORT_TMP/out" >/dev/null 2>&1
 assert_eq "export --all writes an index.html landing page" \
     "$([[ -f "$EXPORT_TMP/out/index.html" ]] && echo yes)" "yes"
+
+# 14e. The combined investigation BUNDLE report ties an investigation to its
+#      A3(s) + Kaizen(s) + outcome history, in a fixed part order. Rendered
+#      against a hermetic fixture data tree (ACI_DATA_DIR) so it is structural.
+FIX="$EXPORT_TMP/data"
+mkdir -p "$FIX/investigations" "$FIX/a3s/open" "$FIX/kaizens/open" "$FIX/follow_ups"
+cat > "$FIX/investigations/INDEX.md" <<'INV'
+# Investigations Index
+## Investigations
+| date | facility | signal | state | disposition | file |
+|------|----------|--------|-------|-------------|------|
+| 2026-01-01 | tst-01 | throughput_drop | kaizen_open | a3-fixture-001 + k-fixture-001 | fix_inv.md |
+INV
+cat > "$FIX/investigations/fix_inv.md" <<'INVF'
+---
+investigation_id: fix_inv
+facility: tst-01
+signal_type: throughput_drop
+signal_date: 2026-01-01
+state: kaizen_open
+disposition: a3 + kaizen
+---
+
+# Floor Brief: tst-01 fixture
+
+**Signal:** Fixture signal description for the bundle test.
+
+## What we see
+A fixture observation.
+INVF
+cat > "$FIX/a3s/INDEX.md" <<'A3I'
+# A3 Index
+## A3s
+| a3_id | opened | state | scope | owner | source | next_follow_up | file |
+|-------|--------|-------|-------|-------|--------|----------------|------|
+| a3-fixture-001 | 2026-01-02 | open | network | T | fix_inv | 2026-03-01 | open/a3-fixture-001.md |
+A3I
+cp "$EXPORT_TMP/a3.md" "$FIX/a3s/open/a3-fixture-001.md"
+cat > "$FIX/kaizens/INDEX.md" <<'KZI'
+# Kaizen Index
+## Kaizens
+| kaizen_id | opened | state | facility | source | next_follow_up | file |
+|-----------|--------|-------|----------|--------|----------------|------|
+| k-fixture-001 | 2026-01-02 | open | tst-01 | fix_inv | 2026-02-01 | open/k-fixture-001.md |
+KZI
+cp "$EXPORT_TMP/k.md" "$FIX/kaizens/open/k-fixture-001.md"
+cat > "$FIX/follow_ups/INDEX.md" <<'FUI'
+# Follow-Ups Index
+## Rows
+| artifact_id | follow_up_date | target_metric | target_value | direction | calc_invocation | status | last_run |
+|-------------|----------------|---------------|--------------|-----------|------------------|--------|----------|
+| k-fixture-001 | 2026-02-01 | cph | 138 | >= | `bash x` | PASS (140.0) | 2026-01-15 |
+| a3-fixture-001 | 2026-03-01 | cph | 138 | >= | `bash x` | pending | |
+FUI
+ACI_DATA_DIR="$FIX" python reports/render_html.py --bundle fix_inv -o "$EXPORT_TMP/bundle.html" >/dev/null 2>&1
+bhtml=$(cat "$EXPORT_TMP/bundle.html" 2>/dev/null)
+assert_contains "bundle carries the Bundle badge" "$bhtml" 'badge bundle">Bundle'
+bundle_parts_ok=yes
+for s in "At a glance" "A3" "Kaizen" "Outcome history"; do
+    [[ "$bhtml" == *"<h2>$s</h2>"* ]] || bundle_parts_ok="MISSING:$s"
+done
+assert_eq "bundle emits the fixed part order (glance/A3/Kaizen/outcome)" "$bundle_parts_ok" "yes"
+assert_contains "bundle embeds the source investigation" "$bhtml" 'badge inv">Investigation'
+assert_contains "bundle embeds the A3 with its sections" "$bhtml" "<h3>Current state</h3>"
+assert_contains "bundle embeds the Kaizen with its sections" "$bhtml" "<h3>Observation</h3>"
+assert_contains "bundle outcome history shows a PASS result" "$bhtml" "status-pass"
+assert_contains "bundle outcome history lists a tracked artifact" "$bhtml" "k-fixture-001"
+assert_contains "bundle is self-contained (inline CSS)" "$bhtml" "<style>"
+
+# 14f. --all-bundles against the fixture writes bundle + index.
+ACI_DATA_DIR="$FIX" python reports/render_html.py --all-bundles --out-dir "$EXPORT_TMP/bout" >/dev/null 2>&1
+assert_eq "export --all-bundles writes the bundle file" \
+    "$([[ -f "$EXPORT_TMP/bout/bundle-fix_inv.html" ]] && echo yes)" "yes"
+assert_eq "export --all-bundles writes an index.html" \
+    "$([[ -f "$EXPORT_TMP/bout/index.html" ]] && echo yes)" "yes"
 rm -rf "$EXPORT_TMP"
 
 # Summary ----------------------------------------------------------------------

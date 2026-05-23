@@ -1,5 +1,5 @@
 version: 1
-generated_at: 2026-05-23T18:28:10Z
+generated_at: 2026-05-23T18:45:09Z
 skills:
   - name: close-loop
     path: close-loop/SKILL.md
@@ -31,12 +31,15 @@ skills:
       system — management, a sponsor, a peer facility — typically phrased as
       "export this A3 to HTML," "render the Kaizen as a shareable report,"
       "make this presentable for management," "send the dal-02 A3 to my
-      director," or "give me an HTML version of the open A3s." Produces
-      consistently-structured HTML (every A3 the same, every Kaizen the
-      same) written to `reports/`. Do NOT use to BROWSE or list work inside
-      the system (use `review`), to draft or close artifacts (use
-      `close-loop`), for the daily scan (use `signal-detect`), or to edit
-      the architecture (use `maintain`).
+      director," "give me an HTML version of the open A3s," or "put together
+      the whole dal-02 story (investigation + what we did + outcomes) as one
+      report for management." Produces consistently- structured HTML — every
+      A3 the same, every Kaizen the same, and a combined investigation
+      BUNDLE (investigation + A3s + Kaizens + outcome history) the same —
+      written to `reports/`. Do NOT use to BROWSE or list work inside the
+      system (use `review`), to draft or close artifacts (use `close-loop`),
+      for the daily scan (use `signal-detect`), or to edit the architecture
+      (use `maintain`).
     triggers:
       - 'export'
       - 'export to html'
@@ -47,7 +50,9 @@ skills:
       - 'presentable version'
       - 'html version of'
       - 'make this presentable'
-    content_hash: 3d5353b9e8aab9caa95e469d10523685d39ba95ec0e974c8791ccf37fa4567e0
+      - 'the whole story as one report'
+      - 'bundle the investigation'
+    content_hash: cb53e8d141f42b1165dc5ff2aef0d6ddc489f3dfb746419b7dca84b50cf5742b
   - name: investigate
     path: investigate/SKILL.md
     description: >
