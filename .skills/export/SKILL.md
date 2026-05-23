@@ -39,10 +39,21 @@ This is the "rendered / shareable export" capability reserved in
 
 The boundary with `review`: `review` shows work *inside* the system (a read-only
 catalog/dashboard for the operator). `export` produces a document to *leave* the
-system — one shareable HTML file per artifact, with a fixed structure so every A3
-reads the same and every Kaizen reads the same. If the user wants to look at
-what's open or pull an artifact up on screen, that's `review`; if they want to
-*send it to someone*, that's `export`.
+system — an **executive report written for management**: what was identified, what
+we found, what we did, where it stands. Fixed structure, so every A3 reads the
+same, every Kaizen reads the same, every bundle reads the same. If the user wants
+to look at what's open or pull an artifact up on screen, that's `review`; if they
+want to *send it to someone*, that's `export`.
+
+What the render does for a management audience (all automatic):
+- **Re-frames** the artifact under management headings — **The situation → What we
+  found → What we did → Where it stands** (Kaizens omit "What we found").
+- **Strips systems jargon** — calc/bash commands, file paths, artifact IDs,
+  internal procedure/phase references; metric variable names are humanised
+  (`cph` → throughput, `headcount_new` → new-hire headcount). Numbers are kept;
+  the exact commands stay in the source `.md`.
+- **Draws a trend chart** (inline SVG) of the driving metric where the data
+  supports it — baseline, dip/spike, recovery, with target and signal date marked.
 
 ## Procedure
 
@@ -109,12 +120,14 @@ what's open or pull an artifact up on screen, that's `review`; if they want to
 ## Verification
 
 A correct export run prints the path of each HTML file it wrote under `reports/`,
-the source `data/` artifact is unchanged, and opening the file shows the fixed
-structure:
-- **Per-artifact** — A3: Current state → Target state → Root cause →
-  Countermeasures → Plan → Follow-up schedule → Lessons learned → Closing;
-  Kaizen: Observation → Change → Tracking → Outcome. Any unfilled section shows
-  as a labelled placeholder rather than being dropped.
-- **Bundle** — fixed part order: At a glance → Investigation → A3(s) → Kaizen(s)
-  → Outcome history, where the embedded A3s/Kaizens keep their per-type skeleton
-  and the outcome history is the follow-up rows for the bundle's artifacts.
+the source `data/` artifact is unchanged, and opening the file shows a management
+report with the fixed headings — **The situation → What we found → What we did →
+Where it stands** (A3 and bundle; Kaizen omits "What we found") — with:
+- no systems jargon (no file paths, artifact IDs, calc/bash commands, or raw
+  metric variable names);
+- the findings/numbers preserved;
+- a trend chart (inline SVG) where the metric data supports one;
+- for a bundle, the immediate **Facility fix** and the **Systemic fix** framed
+  separately, and a humanised outcome table.
+If you can open the file and read the story without knowing the system internals,
+the export is right.

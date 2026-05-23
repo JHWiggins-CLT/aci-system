@@ -1,42 +1,38 @@
-# reports — shareable HTML export
+# reports — management HTML reports
 
-The **rendered / shareable export** capability (`onboarding_design.md` §5.6,
-"capability D"): it turns the A3 and Kaizen markdown artifacts the CI loop
-produces into polished, self-contained HTML you can hand to someone *outside*
-the system — email it to management, print it, drop it in a deck appendix.
+The "rendered / shareable export" capability (`onboarding_design.md` §5.6): it
+turns the CI loop's A3/Kaizen/investigation markdown into polished, self-contained
+HTML **written for management** — what was identified, what we found, what we did,
+and where it stands. Email it, print it, drop it in a deck.
 
 It is the counterpart to `review`: `review` shows work *inside* the system
-(a read-only catalog for the operator); `export` produces a document to *leave*
-the system. The `export` skill (`.skills/export/SKILL.md`) is the operator-facing
-front door; `render_html.py` is the engine.
+(a read-only catalog for the operator); these reports are made to *leave* the
+system. The `export` skill (`.skills/export/SKILL.md`) is the operator front door;
+`render_html.py` is the engine.
 
 ## Two output shapes
 
-- **Per-artifact** — one HTML file per A3 or Kaizen.
-- **Bundle** — one HTML file per investigation, tying together the source
+- **Per-artifact** — one report per A3 or Kaizen.
+- **Bundle** — one report per investigation, telling the whole story: the source
   investigation + every A3/Kaizen it produced + the outcome (follow-up) history,
-  as one self-contained report. Fixed part order: **At a glance → Investigation →
-  A3s → Kaizens → Outcome history.** This is the "give management the whole
-  story" report.
+  with the immediate **facility fix** and the **systemic fix** framed separately.
 
-## Two guarantees
+## What makes it management-grade
 
-1. **Consistent structure.** Every A3 renders with the same skeleton; every
-   Kaizen does too; every bundle uses the same part order. Content varies; the
-   shape never does. Sections are emitted in a canonical order regardless of the
-   source file's ordering, and a missing section renders as a labelled
-   placeholder so the skeleton is always complete.
-   - A3: Current state → Target state → Root cause → Countermeasures → Plan →
-     Follow-up schedule → Lessons learned → Closing
-   - Kaizen: Observation → Change → Tracking → Outcome
-2. **Self-contained output.** Each `.html` file inlines its own CSS — no external
-   assets, no network, no build step, print-friendly. One file you can share as-is.
-3. **Audience-appropriate.** The calc/bash command invocations woven through the
-   source markdown (the operator's reproducibility) are **hidden** in the rendered
-   report — the result of a command is kept (`… → 128.10` becomes `128.10`), the
-   command itself is dropped, and command-only table columns (e.g. "Calc
-   invocation") are removed. Management sees the findings, not the plumbing; the
-   exact commands still live in the source `.md` for anyone who needs to reproduce.
+1. **Executive synthesis, fixed structure.** Every report is organised under the
+   same headings — **The situation → What we found → What we did → Where it
+   stands** (Kaizens omit "What we found"). Content varies; the shape does not, so
+   every A3 reads the same, every Kaizen reads the same, every bundle reads the same.
+2. **No systems jargon.** Calc/bash commands, file paths, artifact IDs, and
+   internal procedure/phase references are stripped; metric variable names are
+   humanised (`cph` → throughput, `headcount_new` → new-hire headcount). The
+   numbers and findings are kept; the exact commands stay in the source `.md`.
+3. **Graphs where relevant.** The driving metric's daily trend is drawn as an
+   inline **SVG** chart from the real metric data — baseline, dip/spike, recovery,
+   with the target line and the signal date marked. No plotting library, no
+   external image file.
+4. **Self-contained.** Each `.html` inlines its own CSS and SVG — no external
+   assets, print-friendly. One file you can share as-is.
 
 ## Usage
 
@@ -44,16 +40,13 @@ front door; `render_html.py` is the engine.
 # One artifact -> reports/<id>.html
 python reports/render_html.py data/a3s/open/a3-2026-05-network-trainer-coverage.md
 
-# A specific output path
-python reports/render_html.py data/kaizens/open/k-2026-05-dal-02-trainer-ratio.md -o /tmp/k.html
-
-# A combined investigation bundle (investigation + A3s + Kaizens + outcomes)
+# The whole story for an investigation (investigation + A3s + Kaizens + outcomes + chart)
 python reports/render_html.py --bundle 2026-03-15_dal-02_throughput_drop
 
 # Everything (per-artifact + every bundle) + an index.html landing page
 python reports/render_html.py --all
 
-# Only open (or only closed) artifacts; bundles only
+# Only open / only closed artifacts; bundles only
 python reports/render_html.py --all --state open
 python reports/render_html.py --all-bundles
 ```
@@ -61,13 +54,10 @@ python reports/render_html.py --all-bundles
 `ACI_DATA_DIR` overrides the data root (default `data/`) — used by the test suite
 to render against a hermetic fixture; rarely needed otherwise.
 
-## Design notes
+## Notes
 
-- **stdlib only.** No third-party dependencies — the engine emits HTML directly.
-  An export that needed a library (PDF, slides) would follow §5.4: optional,
-  isolated to its capability, checked at enable-time, graceful degrade.
-- **Read-only with respect to `data/`.** Rendering a view never changes the source
-  artifact, its INDEX, or its state.
-- **Output, not source.** Generated HTML lives here under `reports/` (outside the
-  canonical `data/` tree) and is gitignored. The committed capability is
-  `render_html.py` + this README + the `export` skill.
+- **stdlib only** — the SVG charts are emitted directly; no third-party library.
+- **Read-only with respect to `data/`** — rendering never changes the source.
+- **Output, not source** — generated HTML lives here under `reports/` and is
+  gitignored. The committed capability is `render_html.py` + this README + the
+  `export` skill.

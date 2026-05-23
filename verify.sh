@@ -571,10 +571,12 @@ brief=$(python .skills/review/status.py brief 2>&1)
 assert_contains "status.py brief renders the OPEN section" "$brief" "OPEN investigations"
 assert_contains "status.py brief renders the DUE section" "$brief" "DUE follow-ups"
 
-# 14. Export / shareable HTML capability (artifact -> HTML for management) ------
+# 14. Export / management report capability (artifact -> HTML for management) ---
 # STRUCTURAL: renders self-contained fixtures (not the demo artifacts), so it
 # asserts the renderer's contract independent of deployment mode or demo data.
-section "14. Export / shareable HTML capability"
+# Reports are an executive synthesis (The situation / What we found / What we did
+# / Where it stands), jargon-stripped, with an inline SVG chart where relevant.
+section "14. Export / management report capability"
 
 # 14a. The renderer and the export skill exist and are registered.
 assert_eq "reports/render_html.py exists" \
@@ -585,9 +587,6 @@ assert_contains "export registered in MANIFEST" "$(cat .skills/MANIFEST.yaml)" "
 assert_contains "export capability declared in deployment template" \
     "$(cat config/deployment.yaml.example)" "export:"
 
-# 14b. An A3 renders with the full fixed section skeleton, even when the source
-#      omits sections (omitted ones become labelled placeholders, never dropped),
-#      and the output is self-contained (inline CSS, no external asset links).
 EXPORT_TMP=$(mktemp -d)
 cat > "$EXPORT_TMP/a3.md" <<'A3FIX'
 # A3: Fixture problem
@@ -595,60 +594,55 @@ cat > "$EXPORT_TMP/a3.md" <<'A3FIX'
 **A3 ID:** a3-fixture-001
 **State:** open
 **Owner:** Test Owner
+**Source investigation:** investigations/2026-Q1/fix_inv.md
 
 ---
 
 ## Current state
-Throughput dipped to `bash calc/descriptive/avg_cph.sh x` → 128.10 from a baseline of 141.82.
+Throughput dipped to `bash calc/descriptive/avg_cph.sh x` → 128.10 from a baseline of 141.82, with `headcount_new` up sharply.
 
 ## Root cause
-Mechanism was Y, not the label.
+- **Confirmed hypothesis:** the mechanism was Y, not the label.
+- **Supporting evidence:** `bash calc/diagnostic/change_drivers.sh x` ranks it top.
+
+## Countermeasures
+1. Do the fix, network-wide.
 
 ## Plan
 | Action | Owner | Status |
 |--------|-------|--------|
 | do thing | me | open |
-
-## Follow-up schedule
-| Date | Check | Calc invocation | Target |
-|------|-------|-----------------|--------|
-| 2026-06-01 | recheck | `bash calc/outcome/follow_up_check.sh x` | PASS |
 A3FIX
 python reports/render_html.py "$EXPORT_TMP/a3.md" -o "$EXPORT_TMP/a3.html" >/dev/null 2>&1
 a3html=$(cat "$EXPORT_TMP/a3.html" 2>/dev/null)
-assert_contains "A3 export carries the A3 badge" "$a3html" 'badge a3">A3'
+
+# 14b. The A3 renders as an executive synthesis with the fixed management headings.
 a3_sections_ok=yes
-for s in "Current state" "Target state" "Root cause" "Countermeasures" "Plan" \
-         "Follow-up schedule" "Lessons learned" "Closing"; do
+for s in "The situation" "What we found" "What we did" "Where it stands"; do
     [[ "$a3html" == *"<h2>$s</h2>"* ]] || a3_sections_ok="MISSING:$s"
 done
-assert_eq "A3 export emits all 8 canonical sections in fixed structure" "$a3_sections_ok" "yes"
-assert_contains "A3 export placeholders an omitted section (structure constant)" \
-    "$a3html" "Not yet recorded."
-assert_contains "A3 export renders markdown tables" "$a3html" "<table>"
-assert_contains "A3 export is self-contained (inline CSS)" "$a3html" "<style>"
+assert_eq "A3 report uses the management headings (situation/found/did/stands)" "$a3_sections_ok" "yes"
+assert_contains "A3 report is self-contained (inline CSS)" "$a3html" "<style>"
 if [[ "$a3html" == *"<link"* ]]; then
-    ko "A3 export has no external asset links" "found a <link ...> tag"
+    ko "A3 report has no external asset links" "found a <link ...> tag"
 else
-    ok "A3 export has no external asset links"
+    ok "A3 report has no external asset links"
 fi
 
-# 14b-bis. Management render hides calc/bash command invocations but keeps their
-#          results, and drops command-only table columns.
-if [[ "$a3html" == *"bash "* || "$a3html" == *"calc/"* ]]; then
-    ko "A3 export hides bash/calc command invocations" "command text leaked into the HTML"
+# 14c. Management focus: systems jargon is stripped, the finding/number is kept.
+jargon=""
+for tok in "bash " "calc/" ".md" "data/" "headcount_new" "a3-fixture-001"; do
+    [[ "$a3html" == *"$tok"* ]] && jargon="$jargon $tok"
+done
+if [[ -n "$jargon" ]]; then
+    ko "A3 report strips systems jargon (paths/IDs/commands/variables)" "leaked:$jargon"
 else
-    ok "A3 export hides bash/calc command invocations"
+    ok "A3 report strips systems jargon (paths/IDs/commands/variables)"
 fi
-assert_contains "A3 export keeps the command's result (the number)" "$a3html" "128.10"
-if [[ "$a3html" == *"Calc invocation"* ]]; then
-    ko "A3 export drops the Calc invocation table column" "the command column was rendered"
-else
-    ok "A3 export drops the Calc invocation table column"
-fi
+assert_contains "A3 report keeps the finding (the number)" "$a3html" "128.10"
+assert_contains "A3 report humanises metric variable names" "$a3html" "new-hire headcount"
 
-# 14c. A Kaizen renders with its own fixed 4-section skeleton and badge — even a
-#      frontmatter-less source (id/heading carry the type).
+# 14d. A Kaizen renders with its own fixed management headings (no 'What we found').
 cat > "$EXPORT_TMP/k.md" <<'KFIX'
 # Kaizen: Fixture change
 
@@ -662,26 +656,31 @@ Saw a thing in the data.
 
 ## Change
 Made a concrete change.
+
+## Tracking
+- **Baseline:** throughput 128.
 KFIX
 python reports/render_html.py "$EXPORT_TMP/k.md" -o "$EXPORT_TMP/k.html" >/dev/null 2>&1
 khtml=$(cat "$EXPORT_TMP/k.html" 2>/dev/null)
-assert_contains "Kaizen export carries the Kaizen badge" "$khtml" 'badge kaizen">Kaizen'
 k_sections_ok=yes
-for s in "Observation" "Change" "Tracking" "Outcome"; do
+for s in "The situation" "What we did" "Where it stands"; do
     [[ "$khtml" == *"<h2>$s</h2>"* ]] || k_sections_ok="MISSING:$s"
 done
-assert_eq "Kaizen export emits all 4 canonical sections in fixed structure" "$k_sections_ok" "yes"
+assert_eq "Kaizen report uses the management headings (situation/did/stands)" "$k_sections_ok" "yes"
 
-# 14d. --all renders to an output dir and writes an index landing page.
-python reports/render_html.py --all --out-dir "$EXPORT_TMP/out" >/dev/null 2>&1
-assert_eq "export --all writes an index.html landing page" \
-    "$([[ -f "$EXPORT_TMP/out/index.html" ]] && echo yes)" "yes"
-
-# 14e. The combined investigation BUNDLE report ties an investigation to its
-#      A3(s) + Kaizen(s) + outcome history, in a fixed part order. Rendered
-#      against a hermetic fixture data tree (ACI_DATA_DIR) so it is structural.
+# 14e. The combined BUNDLE report: management synthesis across investigation +
+#      A3 + Kaizen + outcome, WITH an inline SVG trend chart from metric data.
+#      Rendered against a hermetic fixture tree (ACI_DATA_DIR) so it is structural.
 FIX="$EXPORT_TMP/data"
-mkdir -p "$FIX/investigations" "$FIX/a3s/open" "$FIX/kaizens/open" "$FIX/follow_ups"
+mkdir -p "$FIX/investigations" "$FIX/a3s/open" "$FIX/kaizens/open" "$FIX/follow_ups" \
+         "$FIX/metrics/operational"
+cat > "$FIX/metrics/operational/tst-01.csv" <<'CSV'
+date,facility_id,units,cph,error_rate,hours_run
+2025-12-01,tst-01,1000,141.0,2.0,60
+2026-01-01,tst-01,1000,128.0,3.0,60
+2026-02-01,tst-01,1000,140.0,2.0,60
+2026-03-01,tst-01,1000,141.0,2.0,60
+CSV
 cat > "$FIX/investigations/INDEX.md" <<'INV'
 # Investigations Index
 ## Investigations
@@ -701,7 +700,7 @@ disposition: a3 + kaizen
 
 # Floor Brief: tst-01 fixture
 
-**Signal:** Fixture signal description for the bundle test.
+**Signal:** Throughput fell ~10% then recovered.
 
 ## What we see
 A fixture observation.
@@ -711,7 +710,7 @@ cat > "$FIX/a3s/INDEX.md" <<'A3I'
 ## A3s
 | a3_id | opened | state | scope | owner | source | next_follow_up | file |
 |-------|--------|-------|-------|-------|--------|----------------|------|
-| a3-fixture-001 | 2026-01-02 | open | network | T | fix_inv | 2026-03-01 | open/a3-fixture-001.md |
+| a3-fixture-001 | 2026-01-02 | open | network | Pat Owner | fix_inv | 2026-03-01 | open/a3-fixture-001.md |
 A3I
 cp "$EXPORT_TMP/a3.md" "$FIX/a3s/open/a3-fixture-001.md"
 cat > "$FIX/kaizens/INDEX.md" <<'KZI'
@@ -732,20 +731,28 @@ cat > "$FIX/follow_ups/INDEX.md" <<'FUI'
 FUI
 ACI_DATA_DIR="$FIX" python reports/render_html.py --bundle fix_inv -o "$EXPORT_TMP/bundle.html" >/dev/null 2>&1
 bhtml=$(cat "$EXPORT_TMP/bundle.html" 2>/dev/null)
-assert_contains "bundle carries the Bundle badge" "$bhtml" 'badge bundle">Bundle'
-bundle_parts_ok=yes
-for s in "At a glance" "A3" "Kaizen" "Outcome history"; do
-    [[ "$bhtml" == *"<h2>$s</h2>"* ]] || bundle_parts_ok="MISSING:$s"
+bundle_sections_ok=yes
+for s in "The situation" "What we found" "What we did" "Where it stands"; do
+    [[ "$bhtml" == *"<h2>$s</h2>"* ]] || bundle_sections_ok="MISSING:$s"
 done
-assert_eq "bundle emits the fixed part order (glance/A3/Kaizen/outcome)" "$bundle_parts_ok" "yes"
-assert_contains "bundle embeds the source investigation" "$bhtml" 'badge inv">Investigation'
-assert_contains "bundle embeds the A3 with its sections" "$bhtml" "<h3>Current state</h3>"
-assert_contains "bundle embeds the Kaizen with its sections" "$bhtml" "<h3>Observation</h3>"
-assert_contains "bundle outcome history shows a PASS result" "$bhtml" "status-pass"
-assert_contains "bundle outcome history lists a tracked artifact" "$bhtml" "k-fixture-001"
-assert_contains "bundle is self-contained (inline CSS)" "$bhtml" "<style>"
+assert_eq "bundle report uses the management headings" "$bundle_sections_ok" "yes"
+assert_contains "bundle draws an inline SVG trend chart" "$bhtml" "<svg"
+assert_contains "bundle frames the immediate facility fix" "$bhtml" "Facility fix"
+assert_contains "bundle frames the systemic fix" "$bhtml" "Systemic fix"
+assert_contains "bundle outcome table humanises the metric (throughput)" "$bhtml" "throughput"
+assert_contains "bundle outcome table shows a PASS result" "$bhtml" "s-pass"
+bjargon=""
+for tok in "bash " "calc/" ".md" "headcount_new" "a3-fixture-001" ">cph<"; do
+    [[ "$bhtml" == *"$tok"* ]] && bjargon="$bjargon $tok"
+done
+if [[ -n "$bjargon" ]]; then
+    ko "bundle report strips systems jargon" "leaked:$bjargon"
+else
+    ok "bundle report strips systems jargon"
+fi
+assert_contains "bundle report is self-contained (inline CSS)" "$bhtml" "<style>"
 
-# 14f. --all-bundles against the fixture writes bundle + index.
+# 14f. Batch: --all-bundles writes the bundle + a management index landing page.
 ACI_DATA_DIR="$FIX" python reports/render_html.py --all-bundles --out-dir "$EXPORT_TMP/bout" >/dev/null 2>&1
 assert_eq "export --all-bundles writes the bundle file" \
     "$([[ -f "$EXPORT_TMP/bout/bundle-fix_inv.html" ]] && echo yes)" "yes"

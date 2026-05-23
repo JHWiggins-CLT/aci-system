@@ -67,13 +67,13 @@ python .skills/.meta/reconcile.py
 python config/deployment.py get
 #   → unset    (pick demo to explore, or say "set up production" to onboard your data)
 
-# 7. Shareable HTML export (A3/Kaizen .md → consistent HTML; + combined bundles for management):
+# 7. Management reports (A3/Kaizen/investigation .md → executive HTML, jargon-stripped, with charts):
 python reports/render_html.py --all
 #   → wrote reports/a3-...html, reports/k-...html, reports/bundle-...html + reports/index.html
 
 # 8. Full smoke test (mode-aware: all checks in demo/unset, structural-only in production):
 bash verify.sh
-#   → Results: 123 passed, 0 failed
+#   → Results: 118 passed, 0 failed
 ```
 
 ## Project layout
