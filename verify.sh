@@ -571,6 +571,94 @@ brief=$(python .skills/review/status.py brief 2>&1)
 assert_contains "status.py brief renders the OPEN section" "$brief" "OPEN investigations"
 assert_contains "status.py brief renders the DUE section" "$brief" "DUE follow-ups"
 
+# 14. Export / shareable HTML capability (artifact -> HTML for management) ------
+# STRUCTURAL: renders self-contained fixtures (not the demo artifacts), so it
+# asserts the renderer's contract independent of deployment mode or demo data.
+section "14. Export / shareable HTML capability"
+
+# 14a. The renderer and the export skill exist and are registered.
+assert_eq "reports/render_html.py exists" \
+    "$([[ -f reports/render_html.py ]] && echo yes)" "yes"
+assert_eq "export SKILL exists" \
+    "$([[ -f .skills/export/SKILL.md ]] && echo yes)" "yes"
+assert_contains "export registered in MANIFEST" "$(cat .skills/MANIFEST.yaml)" "name: export"
+assert_contains "export capability declared in deployment template" \
+    "$(cat config/deployment.yaml.example)" "export:"
+
+# 14b. An A3 renders with the full fixed section skeleton, even when the source
+#      omits sections (omitted ones become labelled placeholders, never dropped),
+#      and the output is self-contained (inline CSS, no external asset links).
+EXPORT_TMP=$(mktemp -d)
+cat > "$EXPORT_TMP/a3.md" <<'A3FIX'
+# A3: Fixture problem
+
+**A3 ID:** a3-fixture-001
+**State:** open
+**Owner:** Test Owner
+
+---
+
+## Current state
+Throughput dipped, confirmed by `bash calc/descriptive/avg_cph.sh x`.
+
+## Root cause
+Mechanism was Y, not the label.
+
+## Plan
+| Action | Owner | Status |
+|--------|-------|--------|
+| do thing | me | open |
+A3FIX
+python reports/render_html.py "$EXPORT_TMP/a3.md" -o "$EXPORT_TMP/a3.html" >/dev/null 2>&1
+a3html=$(cat "$EXPORT_TMP/a3.html" 2>/dev/null)
+assert_contains "A3 export carries the A3 badge" "$a3html" 'badge a3">A3'
+a3_sections_ok=yes
+for s in "Current state" "Target state" "Root cause" "Countermeasures" "Plan" \
+         "Follow-up schedule" "Lessons learned" "Closing"; do
+    [[ "$a3html" == *"<h2>$s</h2>"* ]] || a3_sections_ok="MISSING:$s"
+done
+assert_eq "A3 export emits all 8 canonical sections in fixed structure" "$a3_sections_ok" "yes"
+assert_contains "A3 export placeholders an omitted section (structure constant)" \
+    "$a3html" "Not yet recorded."
+assert_contains "A3 export renders markdown tables" "$a3html" "<table>"
+assert_contains "A3 export is self-contained (inline CSS)" "$a3html" "<style>"
+if [[ "$a3html" == *"<link"* ]]; then
+    ko "A3 export has no external asset links" "found a <link ...> tag"
+else
+    ok "A3 export has no external asset links"
+fi
+
+# 14c. A Kaizen renders with its own fixed 4-section skeleton and badge — even a
+#      frontmatter-less source (id/heading carry the type).
+cat > "$EXPORT_TMP/k.md" <<'KFIX'
+# Kaizen: Fixture change
+
+**Kaizen ID:** k-fixture-001
+**State:** open
+
+---
+
+## Observation
+Saw a thing in the data.
+
+## Change
+Made a concrete change.
+KFIX
+python reports/render_html.py "$EXPORT_TMP/k.md" -o "$EXPORT_TMP/k.html" >/dev/null 2>&1
+khtml=$(cat "$EXPORT_TMP/k.html" 2>/dev/null)
+assert_contains "Kaizen export carries the Kaizen badge" "$khtml" 'badge kaizen">Kaizen'
+k_sections_ok=yes
+for s in "Observation" "Change" "Tracking" "Outcome"; do
+    [[ "$khtml" == *"<h2>$s</h2>"* ]] || k_sections_ok="MISSING:$s"
+done
+assert_eq "Kaizen export emits all 4 canonical sections in fixed structure" "$k_sections_ok" "yes"
+
+# 14d. --all renders to an output dir and writes an index landing page.
+python reports/render_html.py --all --out-dir "$EXPORT_TMP/out" >/dev/null 2>&1
+assert_eq "export --all writes an index.html landing page" \
+    "$([[ -f "$EXPORT_TMP/out/index.html" ]] && echo yes)" "yes"
+rm -rf "$EXPORT_TMP"
+
 # Summary ----------------------------------------------------------------------
 echo
 echo "================================================================"

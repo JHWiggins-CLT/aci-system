@@ -1,5 +1,5 @@
 version: 1
-generated_at: 2026-05-21T13:46:22Z
+generated_at: 2026-05-23T18:28:10Z
 skills:
   - name: close-loop
     path: close-loop/SKILL.md
@@ -23,6 +23,31 @@ skills:
       - 'open a Kaizen'
       - 'we ruled out'
     content_hash: efe786901d296cebf4e1000205a722531dc1d283d3baf85969fa8ecbc5568be7
+  - name: export
+    path: export/SKILL.md
+    description: >
+      Use when the user wants to turn an existing A3 or Kaizen into a
+      polished, self-contained document to SHARE with someone OUTSIDE the
+      system — management, a sponsor, a peer facility — typically phrased as
+      "export this A3 to HTML," "render the Kaizen as a shareable report,"
+      "make this presentable for management," "send the dal-02 A3 to my
+      director," or "give me an HTML version of the open A3s." Produces
+      consistently-structured HTML (every A3 the same, every Kaizen the
+      same) written to `reports/`. Do NOT use to BROWSE or list work inside
+      the system (use `review`), to draft or close artifacts (use
+      `close-loop`), for the daily scan (use `signal-detect`), or to edit
+      the architecture (use `maintain`).
+    triggers:
+      - 'export'
+      - 'export to html'
+      - 'render as html'
+      - 'shareable report'
+      - 'share with management'
+      - 'send to my director'
+      - 'presentable version'
+      - 'html version of'
+      - 'make this presentable'
+    content_hash: 3d5353b9e8aab9caa95e469d10523685d39ba95ec0e974c8791ccf37fa4567e0
   - name: investigate
     path: investigate/SKILL.md
     description: >
@@ -115,7 +140,7 @@ skills:
       - 'what did we close'
       - 'browse'
       - 'status of'
-    content_hash: 301dde8e12b5ff45c6da421b9a3e2651767527d9548e274665de9e0957d71b9c
+    content_hash: b588b6a32e78c2dabada91553f349d16b2074a6572250408bc237e9a458b94d5
   - name: signal-detect
     path: signal-detect/SKILL.md
     description: >

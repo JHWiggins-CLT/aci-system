@@ -8,7 +8,7 @@ A portfolio implementation of a continuous-improvement (CI) system for warehouse
 
 An eight-layer system that takes a CI manager from "I see a signal" through "here is the floor brief" to "here is the A3 or Kaizen, here is whether it worked, here is what we learned." The architecture is specified in [handoff.md](handoff.md), built phase by phase per [implementation_plan.md](implementation_plan.md), and the live build state is recorded in [tracking.md](tracking.md).
 
-Six skills route the work — four drive the CI loop, plus `review` to browse it and `onboard` for setup:
+Seven skills route the work — four drive the CI loop, plus `review` to browse it, `export` to share it, and `onboard` for setup:
 
 | Skill | When | Trigger phrases |
 |-------|------|----------------|
@@ -17,6 +17,7 @@ Six skills route the work — four drive the CI loop, plus `review` to browse it
 | [close-loop](.skills/close-loop/SKILL.md) | Back from the floor | "closing out the dal-02 investigation" |
 | [maintain](.skills/maintain/SKILL.md) | Edit the architecture | "add a calc", "update the pattern" |
 | [review](.skills/review/SKILL.md) | See/browse existing work | "show me open Kaizens", "what closed this quarter" |
+| [export](.skills/export/SKILL.md) | Share an artifact outside the system | "export the dal-02 A3 to HTML", "make this presentable for management" |
 | [onboard](.skills/onboard/SKILL.md) | First-time / production setup | "set up production", "onboard my data" |
 
 The skills layer is described in [.skills/README.md](.skills/README.md). Only one skill loads per request; descriptions are mutually exclusive on purpose. The `review` skill renders every artifact catalog through one consistent view (`.skills/review/status.py`), and the morning brief shares that same format.
@@ -66,19 +67,24 @@ python .skills/.meta/reconcile.py
 python config/deployment.py get
 #   → unset    (pick demo to explore, or say "set up production" to onboard your data)
 
-# 7. Full smoke test (mode-aware: all checks in demo/unset, structural-only in production):
+# 7. Shareable HTML export (A3/Kaizen .md → consistently-structured HTML for management):
+python reports/render_html.py --all
+#   → wrote reports/a3-2026-05-network-trainer-coverage.html ... + reports/index.html
+
+# 8. Full smoke test (mode-aware: all checks in demo/unset, structural-only in production):
 bash verify.sh
-#   → Results: 82 passed, 0 failed
+#   → Results: 110 passed, 0 failed
 ```
 
 ## Project layout
 
 ```
-.skills/         # Protocol README, MANIFEST, six skills (incl. review, onboard), .meta tooling
+.skills/         # Protocol README, MANIFEST, seven skills (incl. review, export, onboard), .meta tooling
 calc/            # Bash calc library (descriptive, diagnostic, comparative, outcome)
 conversion/      # The data boundary — validators, simulator, adapter template, manifest, logs
 config/          # Deployment mode (demo vs production): deployment.yaml(.example) + helper
 data/            # Canonical CSVs (metrics, events, facilities, investigations, patterns, ...)
+reports/         # Shareable HTML export of A3/Kaizen artifacts (render_html.py); output gitignored
 simulate/        # Helper scripts used to scaffold the portfolio dataset
 SETUP.md         # Production onboarding guide (human mirror of the onboard skill)
 onboarding_design.md    # Design + build status for the demo→production onboarding

@@ -65,6 +65,6 @@ This is the **browse / show** counterpart to `signal-detect`. The boundary: `sig
 
 A review response either reproduces `status.py` output verbatim (for lists/rollups) or summarizes a real on-disk artifact with its file path. If the user could not re-run the same `status.py` command (or open the cited file) and see what you showed, the response is wrong.
 
-## Note on rendered/shareable reports (planned capability)
+## Note on rendered/shareable reports
 
-`review` shows work *inside* the system. Producing a polished, self-contained document to share with someone *outside* it (an investigation + its A3/Kaizen + outcome history as one report or slide) is the planned **reports/exports** capability (`onboarding_design.md` §5) — flagged as critical for the future. When it lands, `review` gains an "export this" step that hands the selected artifact(s) to that capability. Until then, point the user at the artifact files.
+`review` shows work *inside* the system. Producing a polished, self-contained document to share with someone *outside* it is the **`export`** skill (`.skills/export/SKILL.md`, engine `reports/render_html.py`) — it renders an A3 or Kaizen to consistently-structured, self-contained HTML under `reports/`. This is the "export this" hand-off the capability registry reserved: when a user wants to *send* an artifact to management (not just look at it), route to `export`. Boundary — if they want to **see/browse** work that's `review`; if they want a file to **share outside the system** that's `export`.
