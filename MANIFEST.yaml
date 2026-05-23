@@ -1,0 +1,91 @@
+# MANIFEST — ACI System (root)
+#
+# System-level catalog and the single documented invocation entry point. This is a
+# THIN index: each layer keeps its own manifest as the authoritative contract; this
+# file points to them rather than duplicating them (self-describing per layer is
+# preserved). A fresh assistant or the meta-system's `system-invoke` can read this
+# one file to learn what the system is, what it contains, and how to invoke it.
+
+system:
+  name: aci-system
+  display_name: ACI System — Operations Investigation Architecture
+  summary: >
+    A continuous-improvement system for warehouse operations — signal detection,
+    investigation, floor-feedback intake, A3/Kaizen generation, outcome tracking,
+    and management reporting. Markdown + CSV + bash; stdlib-only Python.
+  runtime: model-agnostic        # any instruction-following model with filesystem access
+  visibility: portfolio          # demo by default; productionizable
+  deployment_modes: [demo, production]   # config/deployment.yaml (sticky); demo by default
+  reference_docs:
+    orient_first: tracking.md
+    architecture: handoff.md
+    build_sequence: implementation_plan.md
+    onboarding: onboarding_design.md
+    setup_human_mirror: SETUP.md
+    overview: README.md
+
+# The single documented invocation entry point (see README.md "Invocation entry
+# point"). ACI is invoked conversationally by an assistant-in-the-loop; there is no
+# network endpoint by design. This is the one canonical sequence to start a session.
+entrypoint:
+  start_here: .skills/README.md            # the skills protocol contract — read first
+  invocation_doc: "README.md (section: Invocation entry point)"
+  sequence:
+    - Read this root MANIFEST.yaml for the system map.
+    - Read .skills/README.md (the skills protocol).
+    - Check deployment mode — `python config/deployment.py get` (unset → first-run demo/setup greeting; persist the choice).
+    - Read .skills/MANIFEST.yaml (the skill registry).
+    - Match the operator's intent to exactly one skill and load its SKILL.md. Skills are never chained automatically.
+  request_shape: "{ intent: <natural-language operator utterance>, context: <on-disk data layers> }"
+  response_shape: "{ skill: <one registered skill>, artifacts: <files under data/ and/or a rendered view>, state_change: <where applicable> }"
+
+# Top-level components. Each layer's own manifest (where present) is authoritative.
+components:
+  - id: skills
+    path: .skills/
+    manifest: .skills/MANIFEST.yaml
+    role: description-gated skills — exactly one loads per request
+  - id: calc
+    path: calc/
+    role: deterministic bash calc library (descriptive, diagnostic, comparative, outcome) + golden tests
+  - id: conversion
+    path: conversion/
+    manifest: conversion/MANIFEST.md
+    role: the data boundary — validators, simulator, adapter template, audit logs
+  - id: data
+    path: data/
+    manifests: [data/metrics/MANIFEST.md, data/events/MANIFEST.md]
+    role: canonical CSVs + artifact catalogs (metrics, events, facilities, investigations, patterns, a3s, kaizens, follow_ups)
+  - id: config
+    path: config/
+    role: deployment mode (demo vs production) + the capability registry
+  - id: reports
+    path: reports/
+    role: management HTML reports (the export capability) — output to reports/, outside data/
+  - id: simulate
+    path: simulate/
+    role: helper scripts that scaffold the portfolio dataset
+
+# Per-layer manifests = the contracts. The self-describing-per-layer discipline is
+# unchanged; this root file indexes them, it does not supersede them.
+layer_manifests:
+  - .skills/MANIFEST.yaml
+  - conversion/MANIFEST.md
+  - data/metrics/MANIFEST.md
+  - data/events/MANIFEST.md
+
+# Skills available (authoritative registry: .skills/MANIFEST.yaml). Listed for discovery.
+skills:
+  - { name: signal-detect, role: proactive daily scan / morning brief }
+  - { name: investigate,   role: dig into a specific signal → floor brief }
+  - { name: close-loop,    role: floor findings → A3/Kaizen + follow-ups }
+  - { name: maintain,      role: edit the architecture (calcs, facilities, playbooks, patterns) }
+  - { name: review,        role: read-only catalog/dashboard of existing work }
+  - { name: export,        role: A3/Kaizen/investigation → management HTML reports }
+  - { name: onboard,       role: first-time / production setup }
+
+# Optional capabilities (state in config/deployment.yaml `capabilities:`).
+capabilities:
+  - { id: export, enabled: true, engine: reports/render_html.py, role: management HTML reports }
+
+verification: verify.sh          # mode-aware acceptance gate (structural in any mode)

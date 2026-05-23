@@ -760,6 +760,39 @@ assert_eq "export --all-bundles writes an index.html" \
     "$([[ -f "$EXPORT_TMP/bout/index.html" ]] && echo yes)" "yes"
 rm -rf "$EXPORT_TMP"
 
+# 15. Root manifest + single invocation entry point -----------------------------
+# STRUCTURAL: the root MANIFEST.yaml catalogs the system and names the one
+# documented entry point; it indexes the per-layer manifests without replacing them.
+section "15. Root manifest + invocation entry point"
+
+assert_eq "root MANIFEST.yaml exists" "$([[ -f MANIFEST.yaml ]] && echo yes)" "yes"
+root=$(cat MANIFEST.yaml 2>/dev/null)
+man_ok=yes
+for key in "system:" "entrypoint:" "components:" "layer_manifests:" "skills:" "verification:"; do
+    [[ "$root" == *"$key"* ]] || man_ok="MISSING:$key"
+done
+assert_eq "root MANIFEST declares system/entrypoint/components/layers/skills/verification" "$man_ok" "yes"
+
+# Entry point points at the skills protocol, and the human mirror exists in README.
+assert_contains "root MANIFEST entry point starts at the skills protocol" "$root" ".skills/README.md"
+assert_contains "README documents the single invocation entry point" \
+    "$(cat README.md)" "## Invocation entry point"
+
+# The per-layer manifests it indexes all exist (root indexes, does not replace them).
+layers_ok=yes
+for m in .skills/MANIFEST.yaml conversion/MANIFEST.md data/metrics/MANIFEST.md data/events/MANIFEST.md; do
+    [[ "$root" == *"$m"* ]] || layers_ok="NOT-INDEXED:$m"
+    [[ -f "$m" ]] || layers_ok="MISSING-ON-DISK:$m"
+done
+assert_eq "root MANIFEST indexes the per-layer manifests, all present on disk" "$layers_ok" "yes"
+
+# Every registered skill is listed in the root catalog (discovery without reading .skills).
+skills_ok=yes
+for s in signal-detect investigate close-loop maintain review export onboard; do
+    [[ "$root" == *"$s"* ]] || skills_ok="MISSING:$s"
+done
+assert_eq "root MANIFEST lists every registered skill" "$skills_ok" "yes"
+
 # Summary ----------------------------------------------------------------------
 echo
 echo "================================================================"

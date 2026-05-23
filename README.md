@@ -4,6 +4,18 @@ A portfolio implementation of a continuous-improvement (CI) system for warehouse
 
 > **Portfolio piece by default — but productionizable.** Out of the box all data is simulated by [conversion/scripts/simulate_facility_data.py](conversion/scripts/simulate_facility_data.py) with a fixed seed: no real facilities, no PII, no production pipeline. The architectural discipline of the conversion boundary (validators, MANIFEST, audit logs) is preserved exactly as it would be against real Excel/CSV sources — only the source itself is synthetic. A guided setup flow swaps that synthetic source for your own data without touching the rest of the architecture.
 
+## Invocation entry point
+
+This is the **single documented front door** for the system — the canonical sequence to invoke ACI, for a human, a fresh assistant, or another system. The machine-readable map is the root [MANIFEST.yaml](MANIFEST.yaml) (`entrypoint:` field); this is its human mirror.
+
+1. **Read [MANIFEST.yaml](MANIFEST.yaml)** — the system map: components, per-layer manifests (the contracts), skills, deployment modes, this entry point.
+2. **Read [.skills/README.md](.skills/README.md)** — the skills protocol contract.
+3. **Check deployment mode** — `python config/deployment.py get`. If `unset`, present the first-run demo/setup greeting and persist the choice before doing any work.
+4. **Read [.skills/MANIFEST.yaml](.skills/MANIFEST.yaml)** — the skill registry.
+5. **Match the operator's intent to exactly one skill** and load its `SKILL.md`. Skills are never chained automatically; ambiguity is resolved by asking, not guessing.
+
+ACI is invoked **conversationally**, by an assistant-in-the-loop reading these files — there is no network endpoint by design. Request shape: `{ intent, context }`; response shape: `{ skill, artifacts, state_change }`. (A fresh session may also read [tracking.md](tracking.md) first to orient.)
+
 ## What this is
 
 An eight-layer system that takes a CI manager from "I see a signal" through "here is the floor brief" to "here is the A3 or Kaizen, here is whether it worked, here is what we learned." The architecture is specified in [handoff.md](handoff.md), built phase by phase per [implementation_plan.md](implementation_plan.md), and the live build state is recorded in [tracking.md](tracking.md).
@@ -73,7 +85,7 @@ python reports/render_html.py --all
 
 # 8. Full smoke test (mode-aware: all checks in demo/unset, structural-only in production):
 bash verify.sh
-#   → Results: 118 passed, 0 failed
+#   → Results: 124 passed, 0 failed
 ```
 
 ## Project layout
