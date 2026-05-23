@@ -571,6 +571,228 @@ brief=$(python .skills/review/status.py brief 2>&1)
 assert_contains "status.py brief renders the OPEN section" "$brief" "OPEN investigations"
 assert_contains "status.py brief renders the DUE section" "$brief" "DUE follow-ups"
 
+# 14. Export / management report capability (artifact -> HTML for management) ---
+# STRUCTURAL: renders self-contained fixtures (not the demo artifacts), so it
+# asserts the renderer's contract independent of deployment mode or demo data.
+# Reports are an executive synthesis (The situation / What we found / What we did
+# / Where it stands), jargon-stripped, with an inline SVG chart where relevant.
+section "14. Export / management report capability"
+
+# 14a. The renderer and the export skill exist and are registered.
+assert_eq "reports/render_html.py exists" \
+    "$([[ -f reports/render_html.py ]] && echo yes)" "yes"
+assert_eq "export SKILL exists" \
+    "$([[ -f .skills/export/SKILL.md ]] && echo yes)" "yes"
+assert_contains "export registered in MANIFEST" "$(cat .skills/MANIFEST.yaml)" "name: export"
+assert_contains "export capability declared in deployment template" \
+    "$(cat config/deployment.yaml.example)" "export:"
+
+EXPORT_TMP=$(mktemp -d)
+cat > "$EXPORT_TMP/a3.md" <<'A3FIX'
+# A3: Fixture problem
+
+**A3 ID:** a3-fixture-001
+**State:** open
+**Owner:** Test Owner
+**Source investigation:** investigations/2026-Q1/fix_inv.md
+
+---
+
+## Current state
+Throughput dipped to `bash calc/descriptive/avg_cph.sh x` → 128.10 from a baseline of 141.82, with `headcount_new` up sharply.
+
+## Root cause
+- **Confirmed hypothesis:** the mechanism was Y, not the label.
+- **Supporting evidence:** `bash calc/diagnostic/change_drivers.sh x` ranks it top.
+
+## Countermeasures
+1. Do the fix, network-wide.
+
+## Plan
+| Action | Owner | Status |
+|--------|-------|--------|
+| do thing | me | open |
+A3FIX
+python reports/render_html.py "$EXPORT_TMP/a3.md" -o "$EXPORT_TMP/a3.html" >/dev/null 2>&1
+a3html=$(cat "$EXPORT_TMP/a3.html" 2>/dev/null)
+
+# 14b. The A3 renders as an executive synthesis with the fixed management headings.
+a3_sections_ok=yes
+for s in "The situation" "What we found" "What we did" "Where it stands"; do
+    [[ "$a3html" == *"<h2>$s</h2>"* ]] || a3_sections_ok="MISSING:$s"
+done
+assert_eq "A3 report uses the management headings (situation/found/did/stands)" "$a3_sections_ok" "yes"
+assert_contains "A3 report is self-contained (inline CSS)" "$a3html" "<style>"
+if [[ "$a3html" == *"<link"* ]]; then
+    ko "A3 report has no external asset links" "found a <link ...> tag"
+else
+    ok "A3 report has no external asset links"
+fi
+
+# 14c. Management focus: systems jargon is stripped, the finding/number is kept.
+jargon=""
+for tok in "bash " "calc/" ".md" "data/" "headcount_new" "a3-fixture-001"; do
+    [[ "$a3html" == *"$tok"* ]] && jargon="$jargon $tok"
+done
+if [[ -n "$jargon" ]]; then
+    ko "A3 report strips systems jargon (paths/IDs/commands/variables)" "leaked:$jargon"
+else
+    ok "A3 report strips systems jargon (paths/IDs/commands/variables)"
+fi
+assert_contains "A3 report keeps the finding (the number)" "$a3html" "128.10"
+assert_contains "A3 report humanises metric variable names" "$a3html" "new-hire headcount"
+
+# 14d. A Kaizen renders with its own fixed management headings (no 'What we found').
+cat > "$EXPORT_TMP/k.md" <<'KFIX'
+# Kaizen: Fixture change
+
+**Kaizen ID:** k-fixture-001
+**State:** open
+
+---
+
+## Observation
+Saw a thing in the data.
+
+## Change
+Made a concrete change.
+
+## Tracking
+- **Baseline:** throughput 128.
+KFIX
+python reports/render_html.py "$EXPORT_TMP/k.md" -o "$EXPORT_TMP/k.html" >/dev/null 2>&1
+khtml=$(cat "$EXPORT_TMP/k.html" 2>/dev/null)
+k_sections_ok=yes
+for s in "The situation" "What we did" "Where it stands"; do
+    [[ "$khtml" == *"<h2>$s</h2>"* ]] || k_sections_ok="MISSING:$s"
+done
+assert_eq "Kaizen report uses the management headings (situation/did/stands)" "$k_sections_ok" "yes"
+
+# 14e. The combined BUNDLE report: management synthesis across investigation +
+#      A3 + Kaizen + outcome, WITH an inline SVG trend chart from metric data.
+#      Rendered against a hermetic fixture tree (ACI_DATA_DIR) so it is structural.
+FIX="$EXPORT_TMP/data"
+mkdir -p "$FIX/investigations" "$FIX/a3s/open" "$FIX/kaizens/open" "$FIX/follow_ups" \
+         "$FIX/metrics/operational"
+cat > "$FIX/metrics/operational/tst-01.csv" <<'CSV'
+date,facility_id,units,cph,error_rate,hours_run
+2025-12-01,tst-01,1000,141.0,2.0,60
+2026-01-01,tst-01,1000,128.0,3.0,60
+2026-02-01,tst-01,1000,140.0,2.0,60
+2026-03-01,tst-01,1000,141.0,2.0,60
+CSV
+cat > "$FIX/investigations/INDEX.md" <<'INV'
+# Investigations Index
+## Investigations
+| date | facility | signal | state | disposition | file |
+|------|----------|--------|-------|-------------|------|
+| 2026-01-01 | tst-01 | throughput_drop | kaizen_open | a3-fixture-001 + k-fixture-001 | fix_inv.md |
+INV
+cat > "$FIX/investigations/fix_inv.md" <<'INVF'
+---
+investigation_id: fix_inv
+facility: tst-01
+signal_type: throughput_drop
+signal_date: 2026-01-01
+state: kaizen_open
+disposition: a3 + kaizen
+---
+
+# Floor Brief: tst-01 fixture
+
+**Signal:** Throughput fell ~10% then recovered.
+
+## What we see
+A fixture observation.
+INVF
+cat > "$FIX/a3s/INDEX.md" <<'A3I'
+# A3 Index
+## A3s
+| a3_id | opened | state | scope | owner | source | next_follow_up | file |
+|-------|--------|-------|-------|-------|--------|----------------|------|
+| a3-fixture-001 | 2026-01-02 | open | network | Pat Owner | fix_inv | 2026-03-01 | open/a3-fixture-001.md |
+A3I
+cp "$EXPORT_TMP/a3.md" "$FIX/a3s/open/a3-fixture-001.md"
+cat > "$FIX/kaizens/INDEX.md" <<'KZI'
+# Kaizen Index
+## Kaizens
+| kaizen_id | opened | state | facility | source | next_follow_up | file |
+|-----------|--------|-------|----------|--------|----------------|------|
+| k-fixture-001 | 2026-01-02 | open | tst-01 | fix_inv | 2026-02-01 | open/k-fixture-001.md |
+KZI
+cp "$EXPORT_TMP/k.md" "$FIX/kaizens/open/k-fixture-001.md"
+cat > "$FIX/follow_ups/INDEX.md" <<'FUI'
+# Follow-Ups Index
+## Rows
+| artifact_id | follow_up_date | target_metric | target_value | direction | calc_invocation | status | last_run |
+|-------------|----------------|---------------|--------------|-----------|------------------|--------|----------|
+| k-fixture-001 | 2026-02-01 | cph | 138 | >= | `bash x` | PASS (140.0) | 2026-01-15 |
+| a3-fixture-001 | 2026-03-01 | cph | 138 | >= | `bash x` | pending | |
+FUI
+ACI_DATA_DIR="$FIX" python reports/render_html.py --bundle fix_inv -o "$EXPORT_TMP/bundle.html" >/dev/null 2>&1
+bhtml=$(cat "$EXPORT_TMP/bundle.html" 2>/dev/null)
+bundle_sections_ok=yes
+for s in "The situation" "What we found" "What we did" "Where it stands"; do
+    [[ "$bhtml" == *"<h2>$s</h2>"* ]] || bundle_sections_ok="MISSING:$s"
+done
+assert_eq "bundle report uses the management headings" "$bundle_sections_ok" "yes"
+assert_contains "bundle draws an inline SVG trend chart" "$bhtml" "<svg"
+assert_contains "bundle frames the immediate facility fix" "$bhtml" "Facility fix"
+assert_contains "bundle frames the systemic fix" "$bhtml" "Systemic fix"
+assert_contains "bundle outcome table humanises the metric (throughput)" "$bhtml" "throughput"
+assert_contains "bundle outcome table shows a PASS result" "$bhtml" "s-pass"
+bjargon=""
+for tok in "bash " "calc/" ".md" "headcount_new" "a3-fixture-001" ">cph<"; do
+    [[ "$bhtml" == *"$tok"* ]] && bjargon="$bjargon $tok"
+done
+if [[ -n "$bjargon" ]]; then
+    ko "bundle report strips systems jargon" "leaked:$bjargon"
+else
+    ok "bundle report strips systems jargon"
+fi
+assert_contains "bundle report is self-contained (inline CSS)" "$bhtml" "<style>"
+
+# 14f. Batch: --all-bundles writes the bundle + a management index landing page.
+ACI_DATA_DIR="$FIX" python reports/render_html.py --all-bundles --out-dir "$EXPORT_TMP/bout" >/dev/null 2>&1
+assert_eq "export --all-bundles writes the bundle file" \
+    "$([[ -f "$EXPORT_TMP/bout/bundle-fix_inv.html" ]] && echo yes)" "yes"
+assert_eq "export --all-bundles writes an index.html" \
+    "$([[ -f "$EXPORT_TMP/bout/index.html" ]] && echo yes)" "yes"
+rm -rf "$EXPORT_TMP"
+
+# 15. Root manifest + single invocation entry point -----------------------------
+# STRUCTURAL: the root MANIFEST.yaml catalogs the system and names the one
+# documented entry point; it indexes the per-layer manifests without replacing them.
+section "15. Root manifest + invocation entry point"
+
+assert_eq "root MANIFEST.yaml exists" "$([[ -f MANIFEST.yaml ]] && echo yes)" "yes"
+root=$(cat MANIFEST.yaml 2>/dev/null)
+man_ok=yes
+for key in "system:" "entrypoint:" "components:" "layer_manifests:" "skills:" "verification:"; do
+    [[ "$root" == *"$key"* ]] || man_ok="MISSING:$key"
+done
+assert_eq "root MANIFEST declares system/entrypoint/components/layers/skills/verification" "$man_ok" "yes"
+
+# Entry point points at the skills protocol, and the human mirror exists in README.
+assert_contains "root MANIFEST entry point starts at the skills protocol" "$root" ".skills/README.md"
+assert_contains "README documents the single invocation entry point" \
+    "$(cat README.md)" "## Invocation entry point"
+
+# The per-layer manifests it indexes all exist (root indexes, does not replace them).
+layers_ok=yes
+for m in .skills/MANIFEST.yaml conversion/MANIFEST.md data/metrics/MANIFEST.md data/events/MANIFEST.md; do
+    [[ "$root" == *"$m"* ]] || layers_ok="NOT-INDEXED:$m"
+    [[ -f "$m" ]] || layers_ok="MISSING-ON-DISK:$m"
+done
+assert_eq "root MANIFEST indexes the per-layer manifests, all present on disk" "$layers_ok" "yes"
+
+# Every registered skill is listed in the root catalog (discovery without reading .skills).
+skills_ok=yes
+for s in signal-detect investigate close-loop maintain review export onboard; do
+    [[ "$root" == *"$s"* ]] || skills_ok="MISSING:$s"
+done
+assert_eq "root MANIFEST lists every registered skill" "$skills_ok" "yes"
+
 # Summary ----------------------------------------------------------------------
 echo
 echo "================================================================"

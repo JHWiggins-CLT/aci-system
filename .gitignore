@@ -16,6 +16,11 @@ config/deployment.yaml
 # writes differently-named logs that are still tracked.
 conversion/logs/*simulate_facility_data*.log
 
+# Rendered exports — output of reports/render_html.py, not source. The committed
+# capability is the renderer + reports/README.md + the export skill; the generated
+# HTML is regenerable and lands here (outside the canonical data/ tree).
+reports/*.html
+
 # Python bytecode
 __pycache__/
 *.py[cod]

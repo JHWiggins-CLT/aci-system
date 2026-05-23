@@ -20,7 +20,7 @@ schema_version: v1     # the schema the deployment runs on
 # additive — see onboarding_design.md Section 5. Uncomment + configure as each
 # capability is enabled during (re-)onboarding.
 capabilities:
-  # reporting:     { enabled: false }
+  export:        { enabled: true }   # A3/Kaizen -> shareable HTML (reports/render_html.py); stdlib-only, always available
   # graphing:      { enabled: false }
   # presentations: { enabled: false }
 
